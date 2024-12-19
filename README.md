@@ -84,5 +84,5 @@ The SWS management decides in how far a human should be involved in the decision
 - if the queue is short and the truck is near its front, it can be automatically prioritized
 - if the queue is long and the truck is near its end, a human needs to be involved in the decision
 
-Note: To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `inputParameters` in the above mentioned [Example Request](#example-request). 
+Note: To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` in the above mentioned [Example Request](#example-request). 
 
