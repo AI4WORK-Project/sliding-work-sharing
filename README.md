@@ -42,7 +42,7 @@ curl --request POST \
   --header "Content-Type: application/json" \
   --data '{
     "decisionStatus": "Sliding Decision Request",
-    "inputParameters": {
+    "slidingDecisionInputParameters": {
       "noOfTrucksInQueue": 7,
       "positionOfTruckToBePrioritized": 5
     }

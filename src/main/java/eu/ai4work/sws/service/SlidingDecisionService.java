@@ -6,27 +6,23 @@ import eu.ai4work.sws.model.generic.SlidingDecisionResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class SlidingDecisionService {
+    private static final String NO_OF_TRUCKS_IN_QUEUE = "noOfTrucksInQueue";
+    private static final String POSITION_OF_TRUCK_TO_BE_PRIORITIZED = "positionOfTruckToBePrioritized";
     private final RuleEngineService ruleEngineService;
-    public Map<String, Object> getSlidingDecision(Map<String, Object> parameters) {
-        Map<String, Object> decisionResults = new HashMap<>();
 
-        int noOfTrucksInQueue = (int) parameters.getOrDefault("noOfTrucksInQueue", 0);
-        int positionOfTruckToBePrioritized = (int) parameters.getOrDefault("positionOfTruckToBePrioritized", 0);
+    public SlidingDecisionResult getSlidingDecision(Map<String, Object> parameters) {
+        int noOfTrucksInQueue = (int) parameters.getOrDefault(NO_OF_TRUCKS_IN_QUEUE, 0);
+        int positionOfTruckToBePrioritized = (int) parameters.getOrDefault(POSITION_OF_TRUCK_TO_BE_PRIORITIZED, 0);
 
         CongestionLevel congestionLevel = determineCongestionLevel(noOfTrucksInQueue);
         TruckPosition truckPositionZone = determineTruckPositionZone(positionOfTruckToBePrioritized, noOfTrucksInQueue);
 
-        SlidingDecisionResult decisionOutcome = ruleEngineService.applySlidingDecisionRules(congestionLevel, truckPositionZone);
-        decisionResults.put("slidingDecision", decisionOutcome);
-        decisionResults.put("description", decisionOutcome.getDisplayName());
-
-        return decisionResults;
+        return ruleEngineService.applySlidingDecisionRules(congestionLevel, truckPositionZone);
     }
 
     /**
@@ -36,9 +32,7 @@ public class SlidingDecisionService {
      * @return The congestion level as a CongestionLevel enum value.
      */
     private CongestionLevel determineCongestionLevel(int noOfTrucks) {
-        if (noOfTrucks <= 0) {
-            return CongestionLevel.LOW; // Default to LOW for non-positive values
-        } else if (noOfTrucks <= 10) {
+        if (noOfTrucks <= 10) {
             return CongestionLevel.LOW;
         } else if (noOfTrucks <= 20) {
             return CongestionLevel.MEDIUM;
