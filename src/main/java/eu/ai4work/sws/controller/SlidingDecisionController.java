@@ -17,10 +17,10 @@ public class SlidingDecisionController {
     private final SlidingDecisionService slidingDecisionService;
 
     @PostMapping("/sliding-decision")
-    public SlidingDecisionResponse processSlidingDecision(@RequestBody SlidingDecisionRequest request) {
+    public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) {
 
         SlidingDecisionResponse response = new SlidingDecisionResponse();
-        response.setDecisionStatus(SlidingDecisionStatus.RESPONSE.getDisplayName());
+        response.setDecisionStatus(SlidingDecisionStatus.RESPONSE);
 
         Map<String, Object> decisionResults = slidingDecisionService.getSlidingDecision(request.getInputParameters());
         response.setDecisionResults(decisionResults);

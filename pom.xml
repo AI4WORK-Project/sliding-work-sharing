@@ -12,7 +12,7 @@
     <artifactId>sliding-work-sharing</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Sliding Work Sharing</name>
-    <description>Sliding Work Sharing management component of the AI4Work project</description>
+    <description>Sliding Work Sharing Management Component of the AI4Work project</description>
 
     <packaging>jar</packaging>
 
@@ -33,6 +33,7 @@
         <kie.version>10.0.0</kie.version>
         <lombok.version>1.18.36</lombok.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -71,7 +72,6 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>

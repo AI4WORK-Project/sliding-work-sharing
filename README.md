@@ -1,18 +1,18 @@
 # Sliding Work Sharing 
 
-Sliding Work Sharing Management Component of the AI4Work Project.  
+Sliding Work Sharing Management (SWS) Component of the AI4Work Project.  
 
 ## Prerequisites
-To build and run the Sliding Work Sharing, the following software is Required:
+To build and run the Sliding Work Sharing, the following software is required:
 - **Java**: Version 23.
-- **Apache Maven**: Version 3.8.5.
+- **Apache Maven**: Version 3.8.5 or later.
 
 ---
 
 ## Installation and Setup
 
-### 1. Install Dependencies
-Open a terminal in the project directory and execute the following command to clean and install dependencies:
+### 1. Install Dependencies and Build the Application
+Open a terminal in the project directory and execute the following command to clean previous build artifacts, install dependencies and build the application:
 
 ```bash
 mvn clean install
@@ -31,10 +31,10 @@ The application will start and listen on port `8080` by default.
 
 ## How to Test the Application
 
-You can test the application using a `curl` command:
+You can test the application using the `curl` command (or using any other HTTP/REST client of your choice):
 
 ### Example Request
-Execute the following `curl` command in your terminal to make a POST request to the `/sliding-decision` endpoint:
+Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the `/sliding-decision` endpoint:
 
 ```bash
 curl --request POST \
@@ -65,7 +65,7 @@ The application will respond with a JSON string similar to the following:
 
 --- 
 
-# Demonstration scenario
+## Demonstration scenario
 
 This first demo version is based on a simplified demonstration example:
 
@@ -84,5 +84,5 @@ The SWS management decides in how far a human should be involved in the decision
 - if the queue is short and the truck is near its front, it can be automatically prioritized
 - if the queue is long and the truck is near its end, a human needs to be involved in the decision
 
-Note: These demonstration scenarios can be tested with [Example Request](#example-request), in the Post Request you can modify the `inputParameters` to test various Demonstration scenarios . 
+Note: To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `inputParameters` in the above mentioned [Example Request](#example-request). 
 

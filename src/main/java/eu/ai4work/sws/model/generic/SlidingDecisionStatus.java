@@ -10,6 +10,7 @@ public enum SlidingDecisionStatus {
         this.displayName = displayName;
     }
 
+    @JsonValue
     public String getDisplayName() {
         return displayName;
     }

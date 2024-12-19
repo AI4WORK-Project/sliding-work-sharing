@@ -33,7 +33,7 @@ public class SlidingDecisionService {
      * Determines the congestion level based on the number of trucks in the queue.
      *
      * @param noOfTrucks The total number of trucks in the queue.
-     * @return The congestion level as a CongestionLevel enum.
+     * @return The congestion level as a CongestionLevel enum value.
      */
     private CongestionLevel determineCongestionLevel(int noOfTrucks) {
         if (noOfTrucks <= 0) {
@@ -52,7 +52,7 @@ public class SlidingDecisionService {
      *
      * @param truckPosition The position of the truck in the queue.
      * @param noOfTrucks    The total number of trucks in the queue.
-     * @return The truck position as a TruckPosition enum.
+     * @return The truck position zone as a TruckPosition enum value.
      * @throws IllegalArgumentException if the total number of trucks is invalid.
      */
     private TruckPosition determineTruckPositionZone(int truckPosition, int noOfTrucks) {
