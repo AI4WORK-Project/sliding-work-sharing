@@ -16,6 +16,8 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 public class SlidingDecisionController {
+    private static final String SLIDING_DECISION = "slidingDecision";
+    private static final String DESCRIPTION = "description";
     private final SlidingDecisionService slidingDecisionService;
 
     @PostMapping("/sliding-decision")
@@ -25,11 +27,11 @@ public class SlidingDecisionController {
 
         SlidingDecisionResult decisionResult = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
 
-        Map<String, Object> decisionResults = new HashMap<>();
-        decisionResults.put("slidingDecision", decisionResult);
-        decisionResults.put("description", decisionResult.getDisplayName());
+        Map<String, Object> decisionResultDetails = new HashMap<>();
+        decisionResultDetails.put(SLIDING_DECISION, decisionResult);
+        decisionResultDetails.put(DESCRIPTION, decisionResult.getDisplayName());
 
-        response.setDecisionResults(decisionResults);
+        response.setDecisionResult(decisionResultDetails);
 
         return response;
     }

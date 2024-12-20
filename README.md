@@ -56,7 +56,7 @@ The application will respond with a JSON string similar to the following:
 ```json
 {
   "decisionStatus": "Sliding Decision Response",
-  "decisionResults": {
+  "decisionResult": {
     "slidingDecision": "AI_AUTONOMOUSLY",
     "description": "AI can reschedule without human involvement"
   }

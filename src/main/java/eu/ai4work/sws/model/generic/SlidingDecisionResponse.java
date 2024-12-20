@@ -6,6 +6,6 @@ import java.util.Map;
 @Data
 public class SlidingDecisionResponse {
     private SlidingDecisionStatus decisionStatus;
-    private Map<String, Object> decisionResults;
+    private Map<String, Object> decisionResult;
 
 }
