@@ -54,23 +54,19 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Drools decision tables, for to define the rules -->
-        <dependency>
-            <groupId>org.drools</groupId>
-            <artifactId>drools-decisiontables</artifactId>
-            <version>${drools.version}</version>
-        </dependency>
-        <!-- Kubernetes Integrated Environment  -->
-        <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>kie-ci</artifactId>
-            <version>${kie.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- jFuzzyLogic library to manage the fuzzy logic/rules -->
+        <dependency>
+            <groupId>net.sourceforge.jFuzzyLogic</groupId>
+            <artifactId>jFuzzyLogic</artifactId>
+            <version>1.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/jFuzzyLogic.jar</systemPath>
         </dependency>
     </dependencies>
 
