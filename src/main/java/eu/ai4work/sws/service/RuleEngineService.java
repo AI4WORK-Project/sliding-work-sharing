@@ -53,7 +53,7 @@ public class RuleEngineService {
     private FIS loadFuzzyLogicRulesFile() throws Exception {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(TRUCK_SCHEDULING_RULES_FILE)) {
             if (is == null) {
-                throw new Exception("Fuzzy inference logic (FCL) file not found: " + TRUCK_SCHEDULING_RULES_FILE); // use specific exceoption
+                throw new Exception("Fuzzy inference logic (FCL) file not found: " + TRUCK_SCHEDULING_RULES_FILE);
             }
             FIS fis = FIS.load(is, true);
             if (fis == null) {
