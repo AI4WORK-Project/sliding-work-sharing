@@ -27,8 +27,8 @@ public class RuleEngineService {
      *
      * @param noOfTrucksInQueue The number of trucks.
      * @param positionOfTruckToBePrioritized The position of the truck to be prioritized.
-     * @return SlidingDecisionResult representing the sliding decision.
-     * @throws Exception if the FIS file cannot be loaded or parsed.
+     * @return SlidingDecisionResult representing the outcome of the sliding decision.
+     * @throws Exception if the FIS cannot be initialized (e.g. because the FCL input cannot be loaded or parsed).
      */
     public SlidingDecisionResult applySlidingDecisionRules(int noOfTrucksInQueue, int positionOfTruckToBePrioritized) throws Exception {
         FIS fis = loadFuzzyLogicRulesFile();
@@ -39,16 +39,16 @@ public class RuleEngineService {
 
         fis.evaluate();
 
-        String resultInLinguisticTerm = getResultInLinguisticTerm(fis.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
+        String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fis.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
 
         return mapToSlidingDecisionResult(resultInLinguisticTerm);
     }
 
     /**
-     * Loads the FIS from the rules file (FCL).
+     * Intializes a FIS based on an FCL rules file
      *
      * @return FIS object.
-     * @throws Exception if the file cannot be found or parsed.
+     * @throws Exception if the FCL file cannot be found or parsed.
      */
     private FIS loadFuzzyLogicRulesFile() throws Exception {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(TRUCK_SCHEDULING_RULES_FILE)) {
@@ -61,7 +61,7 @@ public class RuleEngineService {
             }
             return fis;
         } catch (Exception e) {
-            logger.error("Error loading FCL file: " + e.getMessage());
+            logger.error(e);
             throw e;
         }
     }
@@ -70,9 +70,9 @@ public class RuleEngineService {
      * Determines the linguistic term with the highest membership degree for the given variable.
      *
      * @param suggestedWorkSharingResultInValue The fuzzy output variable to evaluate.
-     * @return The name of the linguistic term with the highest membership degree.
+     * @return The output as linguistic term, i.e. the name of the membership function with the highest membership degree.
      */
-    private String getResultInLinguisticTerm(Variable suggestedWorkSharingResultInValue) {
+    private String getResultInLinguisticTerm(Variable suggestedWorkSharingApproachAsFuzzyVariable) {
         String linguisticTerm = null;
         // The variable is initialized to -1.0. This value is chosen because membership degrees in fuzzy logic
         // are typically between 0 and 1. Initializing to -1.0 ensures that any valid membership degree
@@ -100,7 +100,7 @@ public class RuleEngineService {
      * @param resultInLinguisticTerm The linguistic result term.
      * @return SlidingDecisionResult enum.
      */
-    private SlidingDecisionResult mapToSlidingDecisionResult(String resultInLinguisticTerm) {
+    private SlidingDecisionResult mapToSlidingDecisionResult(String slidingDecisionResultAsLinguisticTerm) {
         return switch (resultInLinguisticTerm) {
             case "AI_AUTONOMOUSLY" -> SlidingDecisionResult.AI_AUTONOMOUSLY;
             case "HUMAN_IN_THE_LOOP" -> SlidingDecisionResult.HUMAN_IN_THE_LOOP;
