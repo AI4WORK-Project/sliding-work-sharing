@@ -29,10 +29,17 @@
         <maven.compiler.source>23</maven.compiler.source>
         <maven.compiler.target>23</maven.compiler.target>
         <java.version>23</java.version>
-        <drools.version>10.0.0</drools.version>
-        <kie.version>10.0.0</kie.version>
         <lombok.version>1.18.36</lombok.version>
+        <jFuzzyLogic.version>1.2.1</jFuzzyLogic.version>
     </properties>
+
+    <repositories>
+        <!-- OW2 repository for accessing jFuzzyLogic dependency -->
+        <repository>
+            <id>ow2-public</id>
+            <url>https://repository.ow2.org/nexus/content/repositories/public/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -64,9 +71,7 @@
         <dependency>
             <groupId>net.sourceforge.jFuzzyLogic</groupId>
             <artifactId>jFuzzyLogic</artifactId>
-            <version>1.2</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/jFuzzyLogic.jar</systemPath>
+            <version>${jFuzzyLogic.version}</version>
         </dependency>
     </dependencies>
 

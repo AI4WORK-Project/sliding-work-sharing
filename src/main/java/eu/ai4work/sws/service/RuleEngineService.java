@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
+import java.net.URL;
 import java.util.Map;
 
 @Service
@@ -25,41 +25,42 @@ public class RuleEngineService {
     /**
      * Evaluates the rules based on the provided inputs and returns the sliding decision result.
      *
-     * @param noOfTrucksInQueue The number of trucks.
+     * @param noOfTrucksInQueue              The number of trucks.
      * @param positionOfTruckToBePrioritized The position of the truck to be prioritized.
      * @return SlidingDecisionResult representing the outcome of the sliding decision.
      * @throws Exception if the FIS cannot be initialized (e.g. because the FCL input cannot be loaded or parsed).
      */
     public SlidingDecisionResult applySlidingDecisionRules(int noOfTrucksInQueue, int positionOfTruckToBePrioritized) throws Exception {
-        FIS fis = loadFuzzyLogicRulesFile();
+        FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem();
 
         // sets the input variables for the FIS
-        fis.setVariable(NO_OF_TRUCKS_IN_QUEUE, noOfTrucksInQueue);
-        fis.setVariable(POSITION_OF_TRUCK, positionOfTruckToBePrioritized);
+        fuzzyInferenceSystem.getFuzzyRuleSet().setVariable(NO_OF_TRUCKS_IN_QUEUE, noOfTrucksInQueue);
+        fuzzyInferenceSystem.getFuzzyRuleSet().setVariable(POSITION_OF_TRUCK, positionOfTruckToBePrioritized);
 
-        fis.evaluate();
+        fuzzyInferenceSystem.getFuzzyRuleSet().evaluate();
 
-        String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fis.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
+        String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(SUGGESTED_WORK_SHARING_APPROACH));
 
-        return mapToSlidingDecisionResult(resultInLinguisticTerm);
+        return SlidingDecisionResult.valueOf(resultAsLinguisticTerm);
     }
 
     /**
-     * Intializes a FIS based on an FCL rules file
+     * Initializes a FIS based on an FCL rules file
      *
      * @return FIS object.
      * @throws Exception if the FCL file cannot be found or parsed.
      */
-    private FIS loadFuzzyLogicRulesFile() throws Exception {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(TRUCK_SCHEDULING_RULES_FILE)) {
-            if (is == null) {
-                throw new Exception("Fuzzy inference logic (FCL) file not found: " + TRUCK_SCHEDULING_RULES_FILE);
+    private FIS initializeFuzzyInferenceSystem() throws Exception {
+        try {
+            URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(TRUCK_SCHEDULING_RULES_FILE);
+            if (fuzzyLogicRulesResourceUrl == null) {
+                throw new Exception("Fuzzy Control Language (FCL) file not found: " + TRUCK_SCHEDULING_RULES_FILE);
             }
-            FIS fis = FIS.load(is, true);
-            if (fis == null) {
-                throw new Exception("Failed to parse FCL file: " + TRUCK_SCHEDULING_RULES_FILE);
+            FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath(), false); // verbose set to 'false' because to avoid GUI-related processing
+            if (fuzzyInferenceSystem == null) {
+                throw new Exception("Failed to initialize Fuzzy Control Language (FCL) file: " + TRUCK_SCHEDULING_RULES_FILE);
             }
-            return fis;
+            return fuzzyInferenceSystem;
         } catch (Exception e) {
             logger.error(e);
             throw e;
@@ -69,18 +70,18 @@ public class RuleEngineService {
     /**
      * Determines the linguistic term with the highest membership degree for the given variable.
      *
-     * @param suggestedWorkSharingResultInValue The fuzzy output variable to evaluate.
+     * @param suggestedWorkSharingApproachAsFuzzyVariable The fuzzy output variable to evaluate.
      * @return The output as linguistic term, i.e. the name of the membership function with the highest membership degree.
      */
-    private String getResultInLinguisticTerm(Variable suggestedWorkSharingApproachAsFuzzyVariable) {
+    private String mapFuzzyInferenceResultToLinguisticTerm(Variable suggestedWorkSharingApproachAsFuzzyVariable) {
         String linguisticTerm = null;
         // The variable is initialized to -1.0. This value is chosen because membership degrees in fuzzy logic
         // are typically between 0 and 1. Initializing to -1.0 ensures that any valid membership degree
         // (which will be greater than -1.0) will replace this initial value.
         double highestMembershipDegree = -1.0;
 
-        for (Map.Entry<String, LinguisticTerm> termEntry : suggestedWorkSharingResultInValue.getLinguisticTerms().entrySet()) {
-            double membershipDegree = termEntry.getValue().getMembershipFunction().membership(suggestedWorkSharingResultInValue.getValue());
+        for (Map.Entry<String, LinguisticTerm> termEntry : suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet()) {
+            double membershipDegree = termEntry.getValue().getMembershipFunction().membership(suggestedWorkSharingApproachAsFuzzyVariable.getLatestDefuzzifiedValue());
             if (membershipDegree > highestMembershipDegree) {
                 highestMembershipDegree = membershipDegree;
                 linguisticTerm = termEntry.getKey();
@@ -92,21 +93,5 @@ public class RuleEngineService {
         }
 
         return linguisticTerm;
-    }
-
-    /**
-     * Maps a linguistic result to a SlidingDecisionResult enum value.
-     *
-     * @param resultInLinguisticTerm The linguistic result term.
-     * @return SlidingDecisionResult enum.
-     */
-    private SlidingDecisionResult mapToSlidingDecisionResult(String slidingDecisionResultAsLinguisticTerm) {
-        return switch (resultInLinguisticTerm) {
-            case "AI_AUTONOMOUSLY" -> SlidingDecisionResult.AI_AUTONOMOUSLY;
-            case "HUMAN_IN_THE_LOOP" -> SlidingDecisionResult.HUMAN_IN_THE_LOOP;
-            case "HUMAN_ON_THE_LOOP" -> SlidingDecisionResult.HUMAN_ON_THE_LOOP;
-            case "HUMAN_MANUALLY" -> SlidingDecisionResult.HUMAN_MANUALLY;
-            default -> throw new IllegalStateException("Unexpected result: " + resultInLinguisticTerm);
-        };
     }
 }
