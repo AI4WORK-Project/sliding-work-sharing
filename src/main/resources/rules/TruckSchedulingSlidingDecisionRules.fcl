@@ -10,14 +10,14 @@ VAR_OUTPUT				// Define output variable
 END_VAR
 
 FUZZIFY no_of_trucks_in_queue
-	TERM LOW := (0, 1) (4, 1) (8, 0);
+	TERM LOW := (0, 1) (5, 1) (9, 0);
 	TERM MEDIUM := (5, 0) (9, 1) (11, 1) (15, 0);
-	TERM HIGH := (12, 0) (16, 1) (20, 1);
+	TERM HIGH := (11, 0) (15, 1) (20, 1);
 END_FUZZIFY
 
 FUZZIFY position_of_truck
-	TERM NEAR_THE_FRONT_OF_THE_QUEUE := (0, 1) (8, 1) (11, 0);
-	TERM IN_THE_BACK_OF_THE_QUEUE := (9, 0) (12, 1) (20, 1);
+	TERM NEAR_THE_FRONT_OF_THE_QUEUE := (0, 1) (8, 1) (12, 0);
+	TERM IN_THE_BACK_OF_THE_QUEUE := (8, 0) (12, 1) (20, 1);
 END_FUZZIFY
 
 DEFUZZIFY suggested_work_sharing_approach

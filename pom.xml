@@ -68,6 +68,7 @@
             <scope>provided</scope>
         </dependency>
         <!-- jFuzzyLogic library to manage the fuzzy logic/rules -->
+        <!-- Dependency information: https://mvnrepository.com/artifact/net.sourceforge.jFuzzyLogic/jFuzzyLogic/1.2.1 -->
         <dependency>
             <groupId>net.sourceforge.jFuzzyLogic</groupId>
             <artifactId>jFuzzyLogic</artifactId>
