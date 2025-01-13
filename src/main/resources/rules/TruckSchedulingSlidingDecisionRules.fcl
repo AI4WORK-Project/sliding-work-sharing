@@ -1,0 +1,42 @@
+FUNCTION_BLOCK truckSchedulingSlidingDecisionRules	// Block definition (there may be more than one block per file)
+
+VAR_INPUT				// Define input variables
+	no_of_trucks_in_queue : REAL;
+	position_of_truck : REAL;
+END_VAR
+
+VAR_OUTPUT				// Define output variable
+	suggested_work_sharing_approach : REAL;
+END_VAR
+
+FUZZIFY no_of_trucks_in_queue
+	TERM LOW := (0, 1) (5, 1) (9, 0);
+	TERM MEDIUM := (5, 0) (9, 1) (11, 1) (15, 0);
+	TERM HIGH := (11, 0) (15, 1) (20, 1);
+END_FUZZIFY
+
+FUZZIFY position_of_truck
+	TERM NEAR_THE_FRONT_OF_THE_QUEUE := (0, 1) (8, 1) (12, 0);
+	TERM IN_THE_BACK_OF_THE_QUEUE := (8, 0) (12, 1) (20, 1);
+END_FUZZIFY
+
+DEFUZZIFY suggested_work_sharing_approach
+	TERM HUMAN_MANUALLY := (0,1) (1,1) (1,0);
+	TERM HUMAN_IN_THE_LOOP := (1,0) (1,1) (2,1) (2,0);
+	TERM HUMAN_ON_THE_LOOP := (2,0) (2,1) (3,1) (3,0);
+	TERM AI_AUTONOMOUSLY := (3,0) (3,1) (4,1) (4,0);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value IS 0 (HUMAN_MANUALLY if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	AND : MIN;			// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgan's Law)
+
+    RULE 1 : IF no_of_trucks_in_queue IS LOW THEN suggested_work_sharing_approach IS AI_AUTONOMOUSLY;
+    RULE 2 : IF no_of_trucks_in_queue IS MEDIUM AND position_of_truck IS NEAR_THE_FRONT_OF_THE_QUEUE THEN suggested_work_sharing_approach IS HUMAN_ON_THE_LOOP;
+    RULE 3 : IF no_of_trucks_in_queue IS MEDIUM AND position_of_truck IS IN_THE_BACK_OF_THE_QUEUE THEN suggested_work_sharing_approach IS HUMAN_IN_THE_LOOP;
+    RULE 4 : IF no_of_trucks_in_queue IS HIGH AND position_of_truck IS NEAR_THE_FRONT_OF_THE_QUEUE THEN suggested_work_sharing_approach IS HUMAN_IN_THE_LOOP;
+    RULE 5 : IF no_of_trucks_in_queue IS HIGH AND position_of_truck IS IN_THE_BACK_OF_THE_QUEUE THEN suggested_work_sharing_approach IS HUMAN_MANUALLY;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

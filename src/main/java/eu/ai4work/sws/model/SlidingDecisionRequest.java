@@ -1,4 +1,4 @@
-package eu.ai4work.sws.model.generic;
+package eu.ai4work.sws.model;
 
 import lombok.Data;
 import java.util.Map;

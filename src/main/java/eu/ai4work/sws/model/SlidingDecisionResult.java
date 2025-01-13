@@ -1,4 +1,4 @@
-package eu.ai4work.sws.model.generic;
+package eu.ai4work.sws.model;
 
 public enum SlidingDecisionResult {
     AI_AUTONOMOUSLY("AI can reschedule without human involvement"),

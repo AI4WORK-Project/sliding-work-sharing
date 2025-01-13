@@ -1,9 +1,9 @@
 package eu.ai4work.sws.controller;
 
-import eu.ai4work.sws.model.generic.SlidingDecisionResult;
-import eu.ai4work.sws.model.generic.SlidingDecisionStatus;
-import eu.ai4work.sws.model.generic.SlidingDecisionRequest;
-import eu.ai4work.sws.model.generic.SlidingDecisionResponse;
+import eu.ai4work.sws.model.SlidingDecisionResult;
+import eu.ai4work.sws.model.SlidingDecisionStatus;
+import eu.ai4work.sws.model.SlidingDecisionRequest;
+import eu.ai4work.sws.model.SlidingDecisionResponse;
 import eu.ai4work.sws.service.SlidingDecisionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +21,7 @@ public class SlidingDecisionController {
     private final SlidingDecisionService slidingDecisionService;
 
     @PostMapping("/sliding-decision")
-    public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) {
+    public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) throws Exception {
         SlidingDecisionResponse response = new SlidingDecisionResponse();
         response.setDecisionStatus(SlidingDecisionStatus.RESPONSE);
 

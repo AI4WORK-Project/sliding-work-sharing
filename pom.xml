@@ -29,10 +29,17 @@
         <maven.compiler.source>23</maven.compiler.source>
         <maven.compiler.target>23</maven.compiler.target>
         <java.version>23</java.version>
-        <drools.version>10.0.0</drools.version>
-        <kie.version>10.0.0</kie.version>
         <lombok.version>1.18.36</lombok.version>
+        <jFuzzyLogic.version>1.2.1</jFuzzyLogic.version>
     </properties>
+
+    <repositories>
+        <!-- OW2 repository for accessing jFuzzyLogic dependency -->
+        <repository>
+            <id>ow2-public</id>
+            <url>https://repository.ow2.org/nexus/content/repositories/public/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -54,23 +61,18 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Drools decision tables, for to define the rules -->
-        <dependency>
-            <groupId>org.drools</groupId>
-            <artifactId>drools-decisiontables</artifactId>
-            <version>${drools.version}</version>
-        </dependency>
-        <!-- Kubernetes Integrated Environment  -->
-        <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>kie-ci</artifactId>
-            <version>${kie.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- jFuzzyLogic library to manage the fuzzy logic/rules -->
+        <!-- Dependency information: https://mvnrepository.com/artifact/net.sourceforge.jFuzzyLogic/jFuzzyLogic/1.2.1 -->
+        <dependency>
+            <groupId>net.sourceforge.jFuzzyLogic</groupId>
+            <artifactId>jFuzzyLogic</artifactId>
+            <version>${jFuzzyLogic.version}</version>
         </dependency>
     </dependencies>
 
