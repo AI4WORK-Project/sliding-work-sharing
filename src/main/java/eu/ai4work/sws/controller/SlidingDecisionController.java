@@ -1,5 +1,6 @@
 package eu.ai4work.sws.controller;
 
+import eu.ai4work.sws.config.DemoScenarioConfiguration;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.model.SlidingDecisionStatus;
 import eu.ai4work.sws.model.SlidingDecisionRequest;
@@ -19,6 +20,7 @@ public class SlidingDecisionController {
     private static final String SLIDING_DECISION = "slidingDecision";
     private static final String DESCRIPTION = "description";
     private final SlidingDecisionService slidingDecisionService;
+    private final DemoScenarioConfiguration demoScenarioConfiguration;
 
     @PostMapping("/sliding-decision")
     public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) throws Exception {
@@ -29,7 +31,7 @@ public class SlidingDecisionController {
 
         Map<String, Object> decisionResultDetails = new HashMap<>();
         decisionResultDetails.put(SLIDING_DECISION, decisionResult);
-        decisionResultDetails.put(DESCRIPTION, decisionResult.getDisplayName());
+        decisionResultDetails.put(DESCRIPTION,  demoScenarioConfiguration.getDecisionResultsDescription().get(decisionResult.name()));
 
         response.setDecisionResult(decisionResultDetails);
 
