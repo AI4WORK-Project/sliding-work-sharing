@@ -1,0 +1,13 @@
+# This file defines Agriculture pilot configurations for the application.
+# To activate this profile use command 'mvn spring-boot:run -D"spring-boot.run.profiles"=agriculture'
+spring:
+  config:
+    activate:
+      on-profile: agriculture
+fcl-config:
+  fclRulesFilePath: rules/AgricultureSchedulingSlidingDecisionRules.fcl
+  decisionResultsDescription:
+    AI_AUTONOMOUSLY: "Let the drone carry the box"
+    HUMAN_ON_THE_LOOP: "Inform supervisor, who may potentially intervene"
+    HUMAN_IN_THE_LOOP: "Let the worker decide"
+    HUMAN_MANUALLY: "Let the worker carry the box"

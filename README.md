@@ -114,6 +114,10 @@ curl --request POST \
     }
   }'
 ```
+To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` in the POST request as mentioned below
+- `noOfTrucksInQueue`: Total number of trucks in the queue (0-20 trucks)
+- `positionOfTruckToBePrioritized`: Position of the truck number that needs to be prioritization (0-20)
+
 
 ### Example Response
 The application will respond with a JSON string similar to the following:
@@ -128,9 +132,11 @@ The application will respond with a JSON string similar to the following:
 }
 ```
 
-To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` in the POST request as mentioned below
-- `noOfTrucksInQueue`: Total number of trucks in the queue (0-20)
-- `positionOfTruckToBePrioritized`: Position of the truck that needs to be prioritization (0-20)
+Depending on the input parameters, the SWS may decide one of the following:
+- `AI_AUTONOMOUSLY`: "AI can reschedule without human involvement"
+- `HUMAN_ON_THE_LOOP`: "Human has to be informed about AI's rescheduling"
+- `HUMAN_IN_THE_LOOP`: "Human has to check AI's suggestion"
+- `HUMAN_MANUALLY`: "Human has to decide without AI support"
 
 ### Agriculture Scenario
 
@@ -143,9 +149,9 @@ This example is from the agriculture/horticulture domain:
 
 For each required transport of a harvest box, the SWS management decides in how far a human (either worker or supervisor) should be involved in the decision if this transport should be done by the drone or by the worker. This decision depends on:
 
-- the current waiting time for the drone (waiting time is in minutes)
-- the fatigue level of the worker (fatigue level is in percentage)
-- the distance from the current location of the box to the central collection point (distance in the meters)
+- the current waiting time for the drone
+- the fatigue level of the worker 
+- the distance from the current location of the box to the central collection point
 
 #### Example rules
 
@@ -183,12 +189,17 @@ curl --request POST \
   --data '{
     "decisionStatus": "Sliding Decision Request",
     "slidingDecisionInputParameters": {
-      "distanceToCentralCollectionPoint": 10,
-      "waitingTimeForDrone": 5,
-      "fatigueLevelOfWorker": 18
+      "distanceToCentralCollectionPoint": 250,
+      "waitingTimeForDrone": 2,
+      "fatigueLevelOfWorker": 80
     }
 }'
 ```
+To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` in the POST request as mentioned below
+- `distanceToCentralCollectionPoint`: The distance to the collection point, measured in meters (0-300 meters)
+- `waitingTimeForDrone`: The time until the drone becomes available, measured in minutes (0-15 minutes)
+- `fatigueLevelOfWorker`: The current fatigue level of the worker, measured in percentage (0%-100%)
+
 
 ### Example Response
 The application will respond with a JSON string similar to the following:
@@ -203,7 +214,8 @@ The application will respond with a JSON string similar to the following:
 }
 ```
 
-To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` in the POST request as mentioned below
-- `distanceToCentralCollectionPoint`: Distance to collection point (0-20)
-- `waitingTimeForDrone`: Time until drone becomes available (0-20)
-- `fatigueLevelOfWorker`: Current fatigue level of the worker (0-20)
+Depending on the input parameters, the SWS may decide one of the following:
+- `AI_AUTONOMOUSLY`: "Let the drone carry the box"
+- `HUMAN_ON_THE_LOOP`: "Inform supervisor, who may potentially intervene"
+- `HUMAN_IN_THE_LOOP`: "Let the worker decide"
+- `HUMAN_MANUALLY`: "Let the worker carry the box"

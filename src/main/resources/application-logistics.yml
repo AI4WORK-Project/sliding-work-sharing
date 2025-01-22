@@ -1,0 +1,15 @@
+# This file defines Logistics pilot configurations for the application.
+# To activate this profile use command 'mvn spring-boot:run -D"spring-boot.run.profiles"=logistics'
+spring:
+  config:
+    activate:
+      on-profile: logistics
+fcl-config:
+  fclRulesFilePath: rules/TruckSchedulingSlidingDecisionRules.fcl
+  decisionResultsDescription:
+    AI_AUTONOMOUSLY: "AI can reschedule without human involvement"
+    HUMAN_ON_THE_LOOP: "Human has to be informed about AI's rescheduling"
+    HUMAN_IN_THE_LOOP: "Human has to check AI's suggestion"
+    HUMAN_MANUALLY: "Human has to decide without AI support"
+
+

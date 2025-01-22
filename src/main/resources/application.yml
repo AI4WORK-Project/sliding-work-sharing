@@ -1,42 +1,5 @@
-# This file defines default and pilot-specific configurations for the application.
-# The Profiles:
-# 1. logistics - Configuration for logistics-related operations.
-# 2. agriculture - Configuration for agriculture-related operations.
-
-# Default Profile:
+# This file defines default configurations for the application.
 # To activate this profile use command 'mvn spring-boot:run'
 spring:
   profiles:
     active: logistics
-
----
-
-# Logistics Profile
-# To activate this profile use command 'mvn spring-boot:run -D"spring-boot.run.profiles"=logistics'
-spring:
-  config:
-    activate:
-      on-profile: logistics
-fcl-config:
-  fclRulesFilePath: rules/TruckSchedulingSlidingDecisionRules.fcl
-  decisionResultsDescription:
-    AI_AUTONOMOUSLY: "AI can reschedule without human involvement"
-    HUMAN_ON_THE_LOOP: "Human has to be informed about AI's rescheduling"
-    HUMAN_IN_THE_LOOP: "Human has to check AI's suggestion"
-    HUMAN_MANUALLY: "Human has to decide without AI support"
-
----
-
-# Agriculture Profile
-# To activate this profile use command 'mvn spring-boot:run -D"spring-boot.run.profiles"=agriculture'
-spring:
-  config:
-    activate:
-      on-profile: agriculture
-fcl-config:
-  fclRulesFilePath: rules/AgricultureSchedulingSlidingDecisionRules.fcl
-  decisionResultsDescription:
-    AI_AUTONOMOUSLY: "Let the drone carry the box"
-    HUMAN_ON_THE_LOOP: "Inform supervisor, who may potentially intervene"
-    HUMAN_IN_THE_LOOP: "Let the worker decide"
-    HUMAN_MANUALLY: "Let the worker carry the box"
