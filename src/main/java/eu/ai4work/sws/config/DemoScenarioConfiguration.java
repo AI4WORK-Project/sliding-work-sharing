@@ -8,8 +8,8 @@ import java.util.Map;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "fcl-config")
-public class DemoScenarioConfiguration {
+@ConfigurationProperties(prefix = "application-scenario-config")
+public class ApplicationScenarioConfiguration {
     private String fclRulesFilePath;
     private Map<String, String> decisionResultsDescription;
 }

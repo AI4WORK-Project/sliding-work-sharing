@@ -67,7 +67,9 @@ The application will respond with a JSON string similar to the following:
 
 ## Demonstration Scenarios
 
-The scenarios available in the application are:
+The aim of this software is to support work sharing between human and machine. It provides decision support about the degree of machine autonomy and the degree of human involvement, depending on the respective work situation. 
+
+To make it useful in different application scenarios, the software can be configured via application-specific rules. This is explained based on the following simplified demonstration scenarios:
 1. [Logistics Scenario](#logistics-scenario)
 2. [Agriculture Scenario](#agriculture-scenario)
 
@@ -99,7 +101,7 @@ mvn spring-boot:run -D"spring-boot.run.profiles"=logistics
 
 #### Testing the Logistics Scenario
 
-#### Example Request
+##### Example Request
 Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the `/sliding-decision` endpoint:
 
 ```bash
@@ -114,12 +116,12 @@ curl --request POST \
     }
   }'
 ```
-To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` in the POST request as mentioned below
+To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` as follows:
 - `noOfTrucksInQueue`: Total number of trucks in the queue (0-20 trucks)
 - `positionOfTruckToBePrioritized`: Position of the truck number that needs to be prioritization (0-20)
 
 
-### Example Response
+##### Example Response
 The application will respond with a JSON string similar to the following:
 
 ```json
@@ -132,7 +134,7 @@ The application will respond with a JSON string similar to the following:
 }
 ```
 
-Depending on the input parameters, the SWS may decide one of the following:
+Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "AI can reschedule without human involvement"
 - `HUMAN_ON_THE_LOOP`: "Human has to be informed about AI's rescheduling"
 - `HUMAN_IN_THE_LOOP`: "Human has to check AI's suggestion"
@@ -140,7 +142,7 @@ Depending on the input parameters, the SWS may decide one of the following:
 
 ### Agriculture Scenario
 
-This example is from the agriculture/horticulture domain:
+This example is from the agriculture domain:
 
 - imagine workers who are manually harvesting produce and putting it into boxes
 - whenever a box is full of produce, it has to be carried to a central collection point
@@ -171,7 +173,7 @@ For the time being, the potential outputs should be the same as for the transpor
 - inform supervisor, who may potentially intervene: "human on the loop"
 
 #### How to Run the Scenario
-To start the application and run the Agriculture scenario, use the following command:
+To start the application and run the agriculture scenario, use the following command:
 
 ```bash
 mvn spring-boot:run -D"spring-boot.run.profiles"=agriculture
@@ -179,7 +181,7 @@ mvn spring-boot:run -D"spring-boot.run.profiles"=agriculture
 
 #### Testing the Agriculture Scenario
 
-#### Example Request
+##### Example Request
 Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the `/sliding-decision` endpoint:
 
 ```bash
@@ -195,13 +197,13 @@ curl --request POST \
     }
 }'
 ```
-To test the implemented rules, you can pass different input parameters to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` in the POST request as mentioned below
+To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` as follows:
 - `distanceToCentralCollectionPoint`: The distance to the collection point, measured in meters (0-300 meters)
 - `waitingTimeForDrone`: The time until the drone becomes available, measured in minutes (0-15 minutes)
 - `fatigueLevelOfWorker`: The current fatigue level of the worker, measured in percentage (0%-100%)
 
 
-### Example Response
+##### Example Response
 The application will respond with a JSON string similar to the following:
 
 ```json

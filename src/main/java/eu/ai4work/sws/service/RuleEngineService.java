@@ -31,8 +31,8 @@ public class RuleEngineService {
         FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem(demoScenarioConfiguration.getFclRulesFilePath());
 
         // Set input parameters in the FIS
-        slidingDecisionInputParameters.forEach((key, value) -> {
-            Variable getValuesOfKey = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(key);
+        slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
+            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(key);
             if (getValuesOfKey != null) {
                 getValuesOfKey.setValue(((Number) value).doubleValue());
             } else {
