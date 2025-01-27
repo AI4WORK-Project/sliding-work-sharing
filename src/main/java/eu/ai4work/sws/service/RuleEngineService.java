@@ -1,6 +1,6 @@
 package eu.ai4work.sws.service;
 
-import eu.ai4work.sws.config.DemoScenarioConfiguration;
+import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
@@ -10,15 +10,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.io.Console;
 import java.net.URL;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class RuleEngineService {
-    private static final String SUGGESTED_WORK_SHARING_APPROACH = "suggested_work_sharing_approach";
+    private static final String SUGGESTED_WORK_SHARING_APPROACH = "suggestedWorkSharingApproach";
     private final Logger logger = LogManager.getLogger(RuleEngineService.class);
-    private final DemoScenarioConfiguration demoScenarioConfiguration;
+    private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
 
     /**
      * Evaluates the rules based on the provided inputs and returns the sliding decision result.
@@ -28,15 +29,15 @@ public class RuleEngineService {
      * @throws Exception if the FIS cannot be initialized (e.g. because the FCL input cannot be loaded or parsed).
      */
     public SlidingDecisionResult applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) throws Exception {
-        FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem(demoScenarioConfiguration.getFclRulesFilePath());
+        FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem(applicationScenarioConfiguration.getFclRulesFilePath());
 
         // Set input parameters in the FIS
         slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
-            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(key);
-            if (getValuesOfKey != null) {
-                getValuesOfKey.setValue(((Number) value).doubleValue());
+            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(parameterName);
+            if (fuzzyVariableForParameter != null) {
+                fuzzyVariableForParameter.setValue(((Number) parameterValue).doubleValue());
             } else {
-                logger.warn("Input variable {} not found in FIS", key);
+                logger.warn("Input variable {} not found in FIS", parameterName);
             }
         });
 
@@ -63,7 +64,7 @@ public class RuleEngineService {
             if (fuzzyInferenceSystem == null) {
                 throw new Exception("Failed to initialize Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
             }
-            logger.info("Successfully initialized FIS from file: {}", fclRulesFilePath);
+            logger.debug("Successfully initialized FIS from file: {}", fclRulesFilePath);
             return fuzzyInferenceSystem;
         } catch (Exception e) {
             logger.error(e);

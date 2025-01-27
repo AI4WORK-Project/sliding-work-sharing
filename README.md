@@ -19,7 +19,7 @@ mvn clean install
 ```
 
 ### 2. Start the Application
-Run the following command to start the application (it will start the default 'logistics' scenario):
+Run the following command to start the application:
 
 ```bash
 mvn spring-boot:run
@@ -157,20 +157,11 @@ For each required transport of a harvest box, the SWS management decides in how 
 
 #### Example rules
 
-The following is a first draft of the rules to be defined in an FCL file. Later we can later improve the rules by adjusting the FCL file.
-
 - if the distance is low, let the worker carry the box
 - if the distance is high or the waiting time for the drone is low, let the drone carry the box
 - if the waiting time for the drone is high and the fatigue level of the worker is low, let the worker carry the box
 - if the waiting time for the drone is high and the distance is high and the fatigue level of the worker is low, then let the worker decide (if or if not to wait for the drone)
 - if the waiting time for the drone is high and the fatigue level of the worker is high, let the drone carry the box, but inform the supervisor (who may intervene and decide to not wait for the drone)
-
-For the time being, the potential outputs should be the same as for the transport/logistics scenario. A rough mapping to the existing
-
-- let the worker carry the box: "human manually"
-- let the drone carry the box: "ai autonomously"
-- let the worker decide: "human in the loop"
-- inform supervisor, who may potentially intervene: "human on the loop"
 
 #### How to Run the Scenario
 To start the application and run the agriculture scenario, use the following command:

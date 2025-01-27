@@ -1,5 +1,4 @@
 # This file defines default configurations for the application.
-# To activate this profile use command 'mvn spring-boot:run'
 spring:
   profiles:
     active: logistics
