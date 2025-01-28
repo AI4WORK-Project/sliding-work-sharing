@@ -1,0 +1,48 @@
+FUNCTION_BLOCK agricultureSchedulingSlidingDecisionRules
+
+VAR_INPUT				// Define input variables
+	distanceToCentralCollectionPoint : REAL;
+	waitingTimeForDrone : REAL;
+	fatigueLevelOfWorker : REAL;
+END_VAR
+
+VAR_OUTPUT				// Define output variable
+	suggestedWorkSharingApproach : REAL;
+END_VAR
+
+FUZZIFY distanceToCentralCollectionPoint
+    TERM LOW := (1, 1) (90, 1) (210, 0);
+    TERM HIGH := (90, 0) (210, 1) (300, 1);
+END_FUZZIFY
+
+FUZZIFY waitingTimeForDrone
+    TERM LOW := (0, 1) (4, 1) (10, 0);
+    TERM HIGH := (4, 0) (10, 1) (15, 1);
+END_FUZZIFY
+
+FUZZIFY fatigueLevelOfWorker
+    TERM LOW := (1, 1) (30, 1) (70, 0);
+    TERM HIGH := (30, 0) (70, 1) (100, 1);
+END_FUZZIFY
+
+DEFUZZIFY suggestedWorkSharingApproach
+	TERM HUMAN_MANUALLY := (0,1) (1,1) (1,0);           // let the worker carry the box
+	TERM AI_AUTONOMOUSLY := (1,0) (1,1) (2,1) (2,0);    // let the drone carry the box
+	TERM HUMAN_IN_THE_LOOP := (2,0) (2,1) (3,1) (3,0);  // let the worker decide
+	TERM HUMAN_ON_THE_LOOP := (3,0) (3,1) (4,1) (4,0);  // inform supervisor, who may potentially intervene
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (HUMAN_MANUALLY if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	AND : MIN;			// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgan's Law)
+
+	RULE 1 : IF distanceToCentralCollectionPoint IS LOW THEN suggestedWorkSharingApproach IS HUMAN_MANUALLY;
+    RULE 2 : IF distanceToCentralCollectionPoint IS HIGH OR waitingTimeForDrone IS LOW THEN suggestedWorkSharingApproach IS AI_AUTONOMOUSLY;
+    RULE 3 : IF waitingTimeForDrone IS HIGH AND fatigueLevelOfWorker IS LOW THEN suggestedWorkSharingApproach IS HUMAN_MANUALLY;
+    RULE 4 : IF waitingTimeForDrone IS HIGH AND distanceToCentralCollectionPoint IS HIGH AND fatigueLevelOfWorker IS LOW THEN suggestedWorkSharingApproach IS HUMAN_IN_THE_LOOP;
+    RULE 5 : IF waitingTimeForDrone IS HIGH AND fatigueLevelOfWorker IS HIGH THEN suggestedWorkSharingApproach IS HUMAN_ON_THE_LOOP;
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

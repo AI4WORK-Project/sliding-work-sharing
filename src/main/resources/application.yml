@@ -1,0 +1,4 @@
+# This file defines default configurations for the application.
+spring:
+  profiles:
+    active: logistics

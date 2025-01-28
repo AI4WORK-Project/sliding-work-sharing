@@ -1,5 +1,6 @@
 package eu.ai4work.sws.service;
 
+import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
@@ -9,33 +10,36 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.io.Console;
 import java.net.URL;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class RuleEngineService {
-    private static final String NO_OF_TRUCKS_IN_QUEUE = "no_of_trucks_in_queue";
-    private static final String POSITION_OF_TRUCK = "position_of_truck";
-    private static final String SUGGESTED_WORK_SHARING_APPROACH = "suggested_work_sharing_approach";
-    private static final String TRUCK_SCHEDULING_RULES_FILE = "rules/TruckSchedulingSlidingDecisionRules.fcl";
-
-    Logger logger = LogManager.getLogger(RuleEngineService.class);
+    private static final String SUGGESTED_WORK_SHARING_APPROACH = "suggestedWorkSharingApproach";
+    private final Logger logger = LogManager.getLogger(RuleEngineService.class);
+    private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
 
     /**
      * Evaluates the rules based on the provided inputs and returns the sliding decision result.
      *
-     * @param noOfTrucksInQueue              The number of trucks.
-     * @param positionOfTruckToBePrioritized The position of the truck to be prioritized.
+     * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
      * @return SlidingDecisionResult representing the outcome of the sliding decision.
      * @throws Exception if the FIS cannot be initialized (e.g. because the FCL input cannot be loaded or parsed).
      */
-    public SlidingDecisionResult applySlidingDecisionRules(int noOfTrucksInQueue, int positionOfTruckToBePrioritized) throws Exception {
-        FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem();
+    public SlidingDecisionResult applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) throws Exception {
+        FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem(applicationScenarioConfiguration.getFclRulesFilePath());
 
-        // sets the input variables for the FIS
-        fuzzyInferenceSystem.getFuzzyRuleSet().setVariable(NO_OF_TRUCKS_IN_QUEUE, noOfTrucksInQueue);
-        fuzzyInferenceSystem.getFuzzyRuleSet().setVariable(POSITION_OF_TRUCK, positionOfTruckToBePrioritized);
+        // Set input parameters in the FIS
+        slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
+            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(parameterName);
+            if (fuzzyVariableForParameter != null) {
+                fuzzyVariableForParameter.setValue(((Number) parameterValue).doubleValue());
+            } else {
+                logger.warn("Input variable {} not found in FIS", parameterName);
+            }
+        });
 
         fuzzyInferenceSystem.getFuzzyRuleSet().evaluate();
 
@@ -50,16 +54,17 @@ public class RuleEngineService {
      * @return FIS object.
      * @throws Exception if the FCL file cannot be found or parsed.
      */
-    private FIS initializeFuzzyInferenceSystem() throws Exception {
+    private FIS initializeFuzzyInferenceSystem(String fclRulesFilePath) throws Exception {
         try {
-            URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(TRUCK_SCHEDULING_RULES_FILE);
+            URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(fclRulesFilePath);
             if (fuzzyLogicRulesResourceUrl == null) {
-                throw new Exception("Fuzzy Control Language (FCL) file not found: " + TRUCK_SCHEDULING_RULES_FILE);
+                throw new Exception("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
             }
             FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath(), false); // verbose set to 'false' because to avoid GUI-related processing
             if (fuzzyInferenceSystem == null) {
-                throw new Exception("Failed to initialize Fuzzy Control Language (FCL) file: " + TRUCK_SCHEDULING_RULES_FILE);
+                throw new Exception("Failed to initialize Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
             }
+            logger.debug("Successfully initialized FIS from file: {}", fclRulesFilePath);
             return fuzzyInferenceSystem;
         } catch (Exception e) {
             logger.error(e);
