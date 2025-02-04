@@ -53,7 +53,7 @@ public class RuleEngineService {
     private FIS initializeFuzzyInferenceSystem(String fclRulesFilePath) throws FileNotFoundException, UnValidFCLFileException {
         URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(fclRulesFilePath);
         if (fuzzyLogicRulesResourceUrl == null) {
-            throw new java.io.FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
+            throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
         }
 
         FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath(), false); // verbose set to 'false' because to avoid GUI-related processing

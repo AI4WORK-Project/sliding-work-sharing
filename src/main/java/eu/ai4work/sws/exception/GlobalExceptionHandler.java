@@ -37,8 +37,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex) {
-        logger.info("Exception log: ", ex);
+    public ResponseEntity<Map<String, Object>> handleUnexpectedExceptions(Exception ex) {
+        logger.error(ex);
         return createErrorResponse(ex, DebugHint.UNEXPECTED_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
