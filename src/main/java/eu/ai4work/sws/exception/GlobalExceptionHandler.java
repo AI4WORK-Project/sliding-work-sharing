@@ -26,13 +26,8 @@ public class GlobalExceptionHandler {
         return createErrorResponse(ex, DebugHint.UNKNOWN_INPUT, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UnIdentifiedTermException.class)
-    public ResponseEntity<Map<String, Object>> handleUnIdentifiedTermException(UnIdentifiedTermException ex) {
-        return createErrorResponse(ex, DebugHint.UNIDENTIFIED_TERM, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(UnValidFCLFileException.class)
-    public ResponseEntity<Map<String, Object>> handleUnValidFCFileException(UnValidFCLFileException ex) {
+    @ExceptionHandler(InValidFclFileException.class)
+    public ResponseEntity<Map<String, Object>> handleInValidFCFileException(InValidFclFileException ex) {
         return createErrorResponse(ex, DebugHint.INVALID_FCL_FILE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

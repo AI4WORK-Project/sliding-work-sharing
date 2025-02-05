@@ -1,8 +1,7 @@
 package eu.ai4work.sws.service;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
-import eu.ai4work.sws.exception.UnIdentifiedTermException;
-import eu.ai4work.sws.exception.UnValidFCLFileException;
+import eu.ai4work.sws.exception.InValidFclFileException;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.exception.UnknownInputParameterException;
 import lombok.RequiredArgsConstructor;
@@ -48,9 +47,9 @@ public class RuleEngineService {
      * @param fclRulesFilePath The file path of the FCL rules file.
      * @return Initialized FIS object.
      * @throws FileNotFoundException If the FCL file is not found.
-     * @throws UnValidFCLFileException If the FCL file cannot be parsed.
+     * @throws InValidFclFileException If the FCL file cannot be parsed.
      */
-    private FIS initializeFuzzyInferenceSystem(String fclRulesFilePath) throws FileNotFoundException, UnValidFCLFileException {
+    private FIS initializeFuzzyInferenceSystem(String fclRulesFilePath) throws FileNotFoundException, InValidFclFileException {
         URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(fclRulesFilePath);
         if (fuzzyLogicRulesResourceUrl == null) {
             throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
@@ -58,7 +57,7 @@ public class RuleEngineService {
 
         FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath(), false); // verbose set to 'false' because to avoid GUI-related processing
         if (fuzzyInferenceSystem == null) {
-            throw new UnValidFCLFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
+            throw new InValidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
         }
 
         logger.debug("Successfully initialized FIS from file: {}", fclRulesFilePath);
@@ -70,9 +69,8 @@ public class RuleEngineService {
      *
      * @param suggestedWorkSharingApproachAsFuzzyVariable The fuzzy output variable to evaluate.
      * @return The output as a linguistic term, i.e., the name of the membership function with the highest membership degree.
-     * @throws UnIdentifiedTermException if no linguistic term can be identified.
      */
-    private String mapFuzzyInferenceResultToLinguisticTerm(Variable suggestedWorkSharingApproachAsFuzzyVariable) throws UnIdentifiedTermException {
+    private String mapFuzzyInferenceResultToLinguisticTerm(Variable suggestedWorkSharingApproachAsFuzzyVariable) {
         return suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
                 // Map each linguistic term to its corresponding membership degree
                 // The key is the linguistic term name
@@ -84,13 +82,8 @@ public class RuleEngineService {
                 ))
                 // Identify the linguistic term with the highest membership degree
                 .max(Map.Entry.comparingByValue())
-                // Retrieve the linguistic term with the highest membership degree, if available
-                .map(Map.Entry::getKey)
-                // If no valid term is found, throw an exception
-                .orElseThrow(() -> new UnIdentifiedTermException(
-                        "Unable to identify the linguistic term for value: "
-                                + suggestedWorkSharingApproachAsFuzzyVariable.getLatestDefuzzifiedValue()
-                ));
+                // Retrieve the linguistic term name
+                .get().getKey();
     }
 
     /**
@@ -99,19 +92,14 @@ public class RuleEngineService {
      * @param fuzzyInferenceSystem           The FIS instance where input parameters will be set.
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
      * @throws UnknownInputParameterException if an input parameter is not recognized by the FIS.
-     * @throws IllegalArgumentException       if the input parameter map is null or empty.
      */
     private void setInputParametersToFuzzyInterfaceSystem(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) throws UnknownInputParameterException {
-        if (slidingDecisionInputParameters == null || slidingDecisionInputParameters.isEmpty()) {
-            throw new IllegalArgumentException("Input parameters must not be null or empty.");
-        }
-
         slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
             Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(parameterName);
             if (fuzzyVariableForParameter != null) {
                 fuzzyVariableForParameter.setValue(((Number) parameterValue).doubleValue());
             } else {
-                throw new UnknownInputParameterException("The following input parameter is unknown: " + parameterName);
+                throw new UnknownInputParameterException("The following sliding decision input parameter is unknown: " + parameterName);
             }
         });
     }
