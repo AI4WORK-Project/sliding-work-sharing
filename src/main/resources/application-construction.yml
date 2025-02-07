@@ -1,0 +1,8 @@
+# This file defines Logistics pilot configurations for the application.
+# To activate this profile use command 'mvn spring-boot:run -D"spring-boot.run.profiles"=construction'
+application-scenario-config:
+  fclRulesFilePath: rules/RobotAssistanceDecisionRules.fcl
+  decisionResultsDescription:
+    AI_AUTONOMOUSLY: "Let the robot continue trying"
+    HUMAN_IN_THE_LOOP: "Inform human so they can decide"
+    HUMAN_MANUALLY: "Ask human for help"
