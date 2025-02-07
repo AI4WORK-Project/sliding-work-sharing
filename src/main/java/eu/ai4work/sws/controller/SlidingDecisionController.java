@@ -1,7 +1,6 @@
 package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
-import eu.ai4work.sws.exception.GlobalExceptionHandler;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.model.SlidingDecisionStatus;
 import eu.ai4work.sws.model.SlidingDecisionRequest;
