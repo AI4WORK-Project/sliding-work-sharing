@@ -62,7 +62,7 @@ public class SlidingDecisionController {
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request
      * @throws IllegalArgumentException if parameter map is null or empty
      */
-    private void validateSlidingDecisionInputParameters(Map<String, Object> slidingDecisionInputParameters) {
+    private void assureInputParametersAreNotEmpty(Map<String, Object> slidingDecisionInputParameters) {
         if (slidingDecisionInputParameters == null || slidingDecisionInputParameters.isEmpty()) {
             throw new IllegalArgumentException("The sliding decision input parameters must not be null or empty.");
         }
