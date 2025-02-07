@@ -1,16 +1,17 @@
 package eu.ai4work.sws.service;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
+import eu.ai4work.sws.exception.InvalidFclFileException;
 import eu.ai4work.sws.model.SlidingDecisionResult;
+import eu.ai4work.sws.exception.UnknownInputParameterException;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
-import net.sourceforge.jFuzzyLogic.rule.LinguisticTerm;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Map;
 
@@ -26,20 +27,12 @@ public class RuleEngineService {
      *
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
      * @return SlidingDecisionResult representing the outcome of the sliding decision.
-     * @throws Exception if the FIS cannot be initialized (e.g. because the FCL input cannot be loaded or parsed).
+     * @throws Exception if there is an issue in process of initializing the FCL file or an evaluating the FCL rules.
      */
     public SlidingDecisionResult applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) throws Exception {
         FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem(applicationScenarioConfiguration.getFclRulesFilePath());
 
-        // Set input parameters in the FIS
-        slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
-            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(parameterName);
-            if (fuzzyVariableForParameter != null) {
-                fuzzyVariableForParameter.setValue(((Number) parameterValue).doubleValue());
-            } else {
-                logger.warn("Input variable {} not found in FIS", parameterName);
-            }
-        });
+        setInputParametersToFuzzyInterfaceSystem(fuzzyInferenceSystem, slidingDecisionInputParameters);
 
         fuzzyInferenceSystem.getFuzzyRuleSet().evaluate();
 
@@ -49,54 +42,65 @@ public class RuleEngineService {
     }
 
     /**
-     * Initializes a FIS based on an FCL rules file
+     * Initializes a Fuzzy Inference System (FIS) based on Fuzzy Control Language (FCL) rules file
      *
-     * @return FIS object.
-     * @throws Exception if the FCL file cannot be found or parsed.
+     * @param fclRulesFilePath The file path of the FCL rules file.
+     * @return Initialized FIS object.
+     * @throws FileNotFoundException If the FCL file is not found.
+     * @throws InvalidFclFileException If the FCL file cannot be parsed.
      */
-    private FIS initializeFuzzyInferenceSystem(String fclRulesFilePath) throws Exception {
-        try {
-            URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(fclRulesFilePath);
-            if (fuzzyLogicRulesResourceUrl == null) {
-                throw new Exception("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
-            }
-            FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath(), false); // verbose set to 'false' because to avoid GUI-related processing
-            if (fuzzyInferenceSystem == null) {
-                throw new Exception("Failed to initialize Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
-            }
-            logger.debug("Successfully initialized FIS from file: {}", fclRulesFilePath);
-            return fuzzyInferenceSystem;
-        } catch (Exception e) {
-            logger.error(e);
-            throw e;
+    private FIS initializeFuzzyInferenceSystem(String fclRulesFilePath) throws FileNotFoundException, InvalidFclFileException {
+        URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(fclRulesFilePath);
+        if (fuzzyLogicRulesResourceUrl == null) {
+            throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
         }
+
+        FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath(), false); // verbose set to 'false' because to avoid GUI-related processing
+        if (fuzzyInferenceSystem == null) {
+            throw new InvalidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
+        }
+
+        logger.debug("Successfully initialized FIS from file: {}", fclRulesFilePath);
+        return fuzzyInferenceSystem;
     }
 
     /**
-     * Determines the linguistic term with the highest membership degree for the given variable.
+     * Maps a fuzzy inference result to its corresponding linguistic term based on the highest membership degree.
      *
      * @param suggestedWorkSharingApproachAsFuzzyVariable The fuzzy output variable to evaluate.
-     * @return The output as linguistic term, i.e. the name of the membership function with the highest membership degree.
+     * @return The output as a linguistic term, i.e., the name of the membership function with the highest membership degree.
      */
     private String mapFuzzyInferenceResultToLinguisticTerm(Variable suggestedWorkSharingApproachAsFuzzyVariable) {
-        String linguisticTerm = null;
-        // The variable is initialized to -1.0. This value is chosen because membership degrees in fuzzy logic
-        // are typically between 0 and 1. Initializing to -1.0 ensures that any valid membership degree
-        // (which will be greater than -1.0) will replace this initial value.
-        double highestMembershipDegree = -1.0;
+        return suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
+                // Map each linguistic term to its corresponding membership degree
+                .map(linguisticTermWithMembershipDegree -> Map.entry(
+                        // The key is the linguistic term name
+                        linguisticTermWithMembershipDegree.getKey(),
+                        // The value is membership degree for the latest defuzzified value
+                        linguisticTermWithMembershipDegree.getValue().getMembershipFunction()
+                                .membership(suggestedWorkSharingApproachAsFuzzyVariable.getLatestDefuzzifiedValue())
+                ))
+                // Identify the linguistic term with the highest membership degree
+                .max(Map.Entry.comparingByValue())
+                // Retrieve the linguistic term name
+                .get().getKey();
+    }
 
-        for (Map.Entry<String, LinguisticTerm> termEntry : suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet()) {
-            double membershipDegree = termEntry.getValue().getMembershipFunction().membership(suggestedWorkSharingApproachAsFuzzyVariable.getLatestDefuzzifiedValue());
-            if (membershipDegree > highestMembershipDegree) {
-                highestMembershipDegree = membershipDegree;
-                linguisticTerm = termEntry.getKey();
+    /**
+     * Sets input parameters to the Fuzzy Inference System (FIS).
+     *
+     * @param fuzzyInferenceSystem           The FIS instance where input parameters will be set.
+     * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
+     * @throws UnknownInputParameterException if an input parameter is not recognized by the FIS.
+     */
+    private void setInputParametersToFuzzyInterfaceSystem(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) throws UnknownInputParameterException {
+        slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
+            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(parameterName);
+            if (fuzzyVariableForParameter != null) {
+                fuzzyVariableForParameter.setValue(((Number) parameterValue).doubleValue());
+            } else {
+                throw new UnknownInputParameterException("The following sliding decision input parameter is unknown: " + parameterName);
             }
-        }
-
-        if (linguisticTerm == null) {
-            throw new IllegalStateException("Unable to identify the linguistic term.");
-        }
-
-        return linguisticTerm;
+        });
     }
 }

@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SlidingDecisionStatus {
     REQUEST("Sliding Decision Request"),
-    RESPONSE("Sliding Decision Response");
+    RESPONSE("Sliding Decision Response"),
+    ERROR("Error - Sliding Decision not possible");
 
     private final String displayName;
 
