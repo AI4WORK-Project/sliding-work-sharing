@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
         return createErrorResponse(ex, DebugHint.UNKNOWN_INPUT, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InValidFclFileException.class)
-    public ResponseEntity<Map<String, Object>> handleInValidFCFileException(InValidFclFileException ex) {
+    @ExceptionHandler(InvalidFclFileException.class)
+    public ResponseEntity<Map<String, Object>> handleInValidFCFileException(InvalidFclFileException ex) {
         return createErrorResponse(ex, DebugHint.INVALID_FCL_FILE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

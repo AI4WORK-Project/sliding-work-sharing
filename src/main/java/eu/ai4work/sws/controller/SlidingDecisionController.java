@@ -1,6 +1,7 @@
 package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
+import eu.ai4work.sws.exception.GlobalExceptionHandler;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.model.SlidingDecisionStatus;
 import eu.ai4work.sws.model.SlidingDecisionRequest;
@@ -24,14 +25,16 @@ public class SlidingDecisionController {
 
     /**
      * Processes a sliding decision request by validating the input parameters from the sliding decision request,
-     * executing the decision logic and returns a decision response.
+     * calling the decision logic and returns a decision response.
+     *
+     * This method describes the "happy flow", while all exceptions that may potentially happen will be handled by the GlobalException handler.
      *
      * @param request The request body containing input parameters for decision process
      * @return SlidingDecisionResponse containing decision status and decision details
      */
     @PostMapping("/sliding-decision")
     public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) throws Exception {
-        validateSlidingDecisionInputParameters(request.getSlidingDecisionInputParameters());
+        assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
 
         SlidingDecisionResult decisionResult = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
 
@@ -39,8 +42,7 @@ public class SlidingDecisionController {
     }
 
     /**
-     * Creates a sliding decision response containing decision status and decision result details.
-     * Decision result details include the decision status and description.
+     * Creates a response based on the sliding decision result
      *
      * @param decisionResult Evaluated sliding decision result after applying the decision rules
      * @return SlidingDecisionResponse containing decision status and decision details
@@ -56,12 +58,6 @@ public class SlidingDecisionController {
                 .build();
     }
 
-    /**
-     * Validates the input parameters from the sliding decision request.
-     *
-     * @param slidingDecisionInputParameters The input parameters from the sliding decision request
-     * @throws IllegalArgumentException if parameter map is null or empty
-     */
     private void assureInputParametersAreNotEmpty(Map<String, Object> slidingDecisionInputParameters) {
         if (slidingDecisionInputParameters == null || slidingDecisionInputParameters.isEmpty()) {
             throw new IllegalArgumentException("The sliding decision input parameters must not be null or empty.");

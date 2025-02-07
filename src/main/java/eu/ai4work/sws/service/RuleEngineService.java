@@ -1,7 +1,7 @@
 package eu.ai4work.sws.service;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
-import eu.ai4work.sws.exception.InValidFclFileException;
+import eu.ai4work.sws.exception.InvalidFclFileException;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.exception.UnknownInputParameterException;
 import lombok.RequiredArgsConstructor;
@@ -47,9 +47,9 @@ public class RuleEngineService {
      * @param fclRulesFilePath The file path of the FCL rules file.
      * @return Initialized FIS object.
      * @throws FileNotFoundException If the FCL file is not found.
-     * @throws InValidFclFileException If the FCL file cannot be parsed.
+     * @throws InvalidFclFileException If the FCL file cannot be parsed.
      */
-    private FIS initializeFuzzyInferenceSystem(String fclRulesFilePath) throws FileNotFoundException, InValidFclFileException {
+    private FIS initializeFuzzyInferenceSystem(String fclRulesFilePath) throws FileNotFoundException, InvalidFclFileException {
         URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(fclRulesFilePath);
         if (fuzzyLogicRulesResourceUrl == null) {
             throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
@@ -57,7 +57,7 @@ public class RuleEngineService {
 
         FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath(), false); // verbose set to 'false' because to avoid GUI-related processing
         if (fuzzyInferenceSystem == null) {
-            throw new InValidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
+            throw new InvalidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
         }
 
         logger.debug("Successfully initialized FIS from file: {}", fclRulesFilePath);
@@ -73,10 +73,10 @@ public class RuleEngineService {
     private String mapFuzzyInferenceResultToLinguisticTerm(Variable suggestedWorkSharingApproachAsFuzzyVariable) {
         return suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
                 // Map each linguistic term to its corresponding membership degree
-                // The key is the linguistic term name
-                // The value is membership degree for the latest defuzzified value
                 .map(linguisticTermWithMembershipDegree -> Map.entry(
+                        // The key is the linguistic term name
                         linguisticTermWithMembershipDegree.getKey(),
+                        // The value is membership degree for the latest defuzzified value
                         linguisticTermWithMembershipDegree.getValue().getMembershipFunction()
                                 .membership(suggestedWorkSharingApproachAsFuzzyVariable.getLatestDefuzzifiedValue())
                 ))
