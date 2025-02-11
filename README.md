@@ -77,6 +77,7 @@ To make this software useful for application in different domains, it can be con
 
 1. [Logistics Scenario](#logistics-scenario)
 2. [Agriculture Scenario](#agriculture-scenario)
+3. [Construction Scenario](#construction-scenario)
 
 ### Logistics Scenario
 
@@ -221,3 +222,85 @@ Depending on the input parameters, the SWS may decide one of the following:
 - `HUMAN_ON_THE_LOOP`: "Inform supervisor, who may potentially intervene"
 - `HUMAN_IN_THE_LOOP`: "Let the worker decide"
 - `HUMAN_MANUALLY`: "Let the worker carry the box"
+
+___
+
+### Construction Scenario
+
+This example scenario is from the construction domain:
+
+- imagine a robot doing work on a construction site
+- while moving, the robot detects an unexpected obstacle in its way (e.g. some construction materials that are stored there temporarily)
+- depending on the situation, either of the following may now happen:
+  - the robot may be able to autonomously circumnavigate the obstacle and continue its work
+  - the robot may be blocked and thus unable to continue its work, so that it requires human support
+- Depending on the situation, SWS should support the decision if/when a human should be called for help.
+
+The SWS management decides in how far a human should be involved in the decision. This decision depends on:
+
+- the time of the robot is blocked
+- the battery status of robot
+- the waiting time for human to available
+
+#### Example Rules
+
+- if the battery status of robot is low, ask for human help
+- if the time of robot blocked is short and battery status of robot is not low, let robot continue trying
+- if the time of robot blocked is moderate and battery status of robot is high, send information to inform human so they can decide
+- if the time of robot blocked is moderate and battery status of robot is medium, send warning to inform human so they can decide
+- if the time of robot blocked is long, ask for human help
+- if the time of robot blocked is moderate and waiting time for human is low, ask for human help
+- if the time of robot blocked is moderate and waiting time for human is high and battery status of robot is medium send Information to inform human so they can decide
+- if the time of robot blocked is moderate and waiting time for human is high and battery status of robot is high, let robot continue trying
+
+
+#### How to Run and Test the Scenario
+
+To start the application and run the construction scenario, use the following command:
+
+```bash
+mvn spring-boot:run -D"spring-boot.run.profiles"=construction
+```
+
+##### Example Request
+
+Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the `/sliding-decision` endpoint:
+
+```bash
+curl --request POST \
+  --url http://localhost:8080/sliding-decision \
+  --header "Content-Type: application/json" \
+  --data '{
+    "decisionStatus": "Sliding Decision Request",
+    "slidingDecisionInputParameters": {
+      "timeRobotIsBlocked": 4,
+      "robotBatteryStatus": 65,
+      "waitingTimeForHuman": 10
+    }
+  }'
+```
+
+To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` as follows:
+- `timeRobotIsBlocked`: The time robot is blocked, measured in minutes (0-15 minutes)
+- `robotBatteryStatus`: The battery status of robot, measured in percentage (0%-100%)
+- `waitingTimeForHuman`: The waiting time for human to available, measured in minutes (0-15 minutes)
+
+##### Example Response
+
+The application will respond with a JSON string similar to the following:
+
+```json
+{
+  "decisionStatus": "Sliding Decision Response",
+  "decisionResult": {
+    "slidingDecision": "AI_AUTONOMOUSLY",
+    "description": "Let the robot continue trying"
+  }
+}
+```
+
+Depending on the input, the SWS may decide one of the following:
+- `AI_AUTONOMOUSLY`: "Let the robot continue trying"
+- `HUMAN_ON_THE_LOOP`: "Information: inform human so they can decide"
+- `HUMAN_IN_THE_LOOP`: "Warning: inform human so they can decide"
+- `HUMAN_MANUALLY`: "Ask human for help"
