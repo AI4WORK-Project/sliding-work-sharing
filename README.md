@@ -234,7 +234,7 @@ This example scenario is from the construction domain:
 - depending on the situation, either of the following may now happen:
   - the robot may be able to autonomously circumnavigate the obstacle and continue its work
   - the robot may be blocked and thus unable to continue its work, so that it requires human support
-- Depending on the situation, SWS should support the decision if/when a human should be called for help.
+- depending on the situation, SWS should support the decision if/when a human should be called for help.
 
 The SWS management decides in how far a human should be involved in the decision. This decision depends on:
 
