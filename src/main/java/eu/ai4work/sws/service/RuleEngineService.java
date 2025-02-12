@@ -34,9 +34,9 @@ public class RuleEngineService {
 
         setInputParametersToFuzzyInterfaceSystem(fuzzyInferenceSystem, slidingDecisionInputParameters);
 
-        fuzzyInferenceSystem.getFuzzyRuleSet().evaluate();
+        fuzzyInferenceSystem.evaluate();
 
-        String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(SUGGESTED_WORK_SHARING_APPROACH));
+        String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fuzzyInferenceSystem.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
 
         return SlidingDecisionResult.valueOf(resultAsLinguisticTerm);
     }
@@ -95,7 +95,7 @@ public class RuleEngineService {
      */
     private void setInputParametersToFuzzyInterfaceSystem(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) throws UnknownInputParameterException {
         slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
-            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getFuzzyRuleSet().getVariable(parameterName);
+            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getVariable(parameterName);
             if (fuzzyVariableForParameter != null) {
                 fuzzyVariableForParameter.setValue(((Number) parameterValue).doubleValue());
             } else {
