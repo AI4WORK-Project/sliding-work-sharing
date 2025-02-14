@@ -2,3 +2,6 @@
 spring:
   profiles:
     active: logistics
+logging:
+  level:
+    eu.ai4work.sws: debug
