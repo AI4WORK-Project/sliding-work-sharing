@@ -15,13 +15,14 @@ import java.net.URL;
 @Configuration
 @RequiredArgsConstructor
 public class FuzzyInterfaceSystemConfiguration {
-    private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
     private final static Logger logger = LogManager.getLogger(FuzzyInterfaceSystemConfiguration.class);
+    private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
 
     /**
-     * Initializes a Fuzzy Inference System (FIS) based on the Fuzzy Control Language (FCL) rules file on application startup.
+     * Initializes a Fuzzy Inference System (FIS) based on the Fuzzy Control Language (FCL) rules file.
+     * This process executes on application startup.
      *
-     * @return an initialized FIS object
+     * @return fuzzyInferenceSystem    an initialized FIS object.
      * @throws FileNotFoundException   if the FCL file cannot be found at the specified path.
      * @throws InvalidFclFileException if the FCL file cannot be parsed.
      */
@@ -34,7 +35,7 @@ public class FuzzyInterfaceSystemConfiguration {
             throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
         }
 
-        FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath(), false); // verbose set to 'false' to avoid GUI-related processing
+        FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath());
         if (fuzzyInferenceSystem == null) {
             throw new InvalidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
         }
