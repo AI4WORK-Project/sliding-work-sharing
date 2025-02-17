@@ -22,7 +22,7 @@ public class RuleEngineService {
      * @return SlidingDecisionResult representing the outcome of the sliding decision.
      */
     public SlidingDecisionResult applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) {
-        setInputParametersToFuzzyInterfaceSystem(fuzzyInferenceSystem, slidingDecisionInputParameters);
+        setInputParametersToFuzzyInferenceSystem(fuzzyInferenceSystem, slidingDecisionInputParameters);
 
         fuzzyInferenceSystem.evaluate();
 
@@ -60,7 +60,7 @@ public class RuleEngineService {
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
      * @throws UnknownInputParameterException if an input parameter is not recognized by the FIS.
      */
-    private void setInputParametersToFuzzyInterfaceSystem(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) throws UnknownInputParameterException {
+    private void setInputParametersToFuzzyInferenceSystem(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) throws UnknownInputParameterException {
         slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
             Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getVariable(parameterName);
             if (fuzzyVariableForParameter != null) {

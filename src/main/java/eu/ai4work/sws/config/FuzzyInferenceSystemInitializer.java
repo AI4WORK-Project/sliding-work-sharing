@@ -14,8 +14,8 @@ import java.net.URL;
 
 @Configuration
 @RequiredArgsConstructor
-public class FuzzyInterfaceSystemConfiguration {
-    private final static Logger logger = LogManager.getLogger(FuzzyInterfaceSystemConfiguration.class);
+public class FuzzyInferenceSystemInitializer {
+    private final static Logger logger = LogManager.getLogger(FuzzyInferenceSystemInitializer.class);
     private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
 
     /**
