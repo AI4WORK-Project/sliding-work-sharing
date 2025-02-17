@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -31,6 +32,8 @@ public class RuleEngineService {
      */
     public SlidingDecisionResult applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) throws Exception {
         FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem(applicationScenarioConfiguration.getFclRulesFilePath());
+
+        verifySlidingDecisionInputParameters(fuzzyInferenceSystem, slidingDecisionInputParameters);
 
         setInputParametersToFuzzyInterfaceSystem(fuzzyInferenceSystem, slidingDecisionInputParameters);
 
@@ -65,6 +68,36 @@ public class RuleEngineService {
     }
 
     /**
+     * Checks if any required sliding decision input parameters are unknown or missing.
+     *
+     * @param fuzzyInferenceSystem           The FIS instance to get the input parameters.
+     * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
+     * @throws UnknownInputParameterException if an input parameter is unknown or missing by the FIS.
+     */
+    private void verifySlidingDecisionInputParameters(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) throws UnknownInputParameterException{
+        List<String> missingSlidingDecisionInputParameters = getRequiredInputParameterFromFIS(fuzzyInferenceSystem).stream()
+                .filter(requiredInputParameter -> slidingDecisionInputParameters.get(requiredInputParameter) == null)
+                .toList();
+
+        if (!missingSlidingDecisionInputParameters.isEmpty()) {
+            throw new UnknownInputParameterException("The following sliding decision input parameter is incorrectly specified or missing: " + missingSlidingDecisionInputParameters);
+        }
+    }
+
+    // Retrieves the list of required sliding input parameter names from the Fuzzy Inference System
+    public List<String> getRequiredInputParameterFromFIS(FIS fuzzyInferenceSystem) {
+        return fuzzyInferenceSystem.getFunctionBlock(null)  // Get default function block
+                // get all variables
+                .getVariables().values().stream()
+                // keep only input variables
+                .filter(Variable::isInput)
+                // extract variable names
+                .map(Variable::getName)
+                // convert to list
+                .toList();
+    }
+
+    /**
      * Maps a fuzzy inference result to its corresponding linguistic term based on the highest membership degree.
      *
      * @param suggestedWorkSharingApproachAsFuzzyVariable The fuzzy output variable to evaluate.
@@ -91,16 +124,10 @@ public class RuleEngineService {
      *
      * @param fuzzyInferenceSystem           The FIS instance where input parameters will be set.
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
-     * @throws UnknownInputParameterException if an input parameter is not recognized by the FIS.
      */
-    private void setInputParametersToFuzzyInterfaceSystem(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) throws UnknownInputParameterException {
+    private void setInputParametersToFuzzyInterfaceSystem(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) {
         slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
-            Variable fuzzyVariableForParameter = fuzzyInferenceSystem.getVariable(parameterName);
-            if (fuzzyVariableForParameter != null) {
-                fuzzyVariableForParameter.setValue(((Number) parameterValue).doubleValue());
-            } else {
-                throw new UnknownInputParameterException("The following sliding decision input parameter is unknown: " + parameterName);
-            }
+            fuzzyInferenceSystem.getVariable(parameterName).setValue(((Number) parameterValue).doubleValue());
         });
     }
 }
