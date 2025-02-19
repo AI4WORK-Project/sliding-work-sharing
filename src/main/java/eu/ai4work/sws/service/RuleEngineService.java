@@ -41,8 +41,8 @@ public class RuleEngineService {
         String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fuzzyInferenceSystem.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
 
         // log explanation of sliding decision
-        String explanation = getSlidingDecisionResultExplanation(fuzzyInferenceSystem);
-        logger.debug(explanation);
+        String slidingDecisionExplanation = generateSlidingDecisionExplanation(fuzzyInferenceSystem);
+        logger.debug(slidingDecisionExplanation);
 
         return SlidingDecisionResult.valueOf(resultAsLinguisticTerm);
     }
@@ -111,54 +111,56 @@ public class RuleEngineService {
     }
 
     /**
-     * Creates a simplified explanation of the sliding decision result.
-     * It combines the sliding decision parameters explanation and the fired rules explanation.
+     * Provide a basic explanation of the sliding decision by showing membership values and rules that were applied.
      *
-     * @param fuzzyInferenceSystem the fuzzy inference system to obtain the explanation
-     * @return a formatted String containing the overall explanation
+     * @param fuzzyInferenceSystem the fuzzy inference system to obtain the explanation.
+     * @return a formatted String containing the overall explanation.
      */
-    private String getSlidingDecisionResultExplanation(FIS fuzzyInferenceSystem) {
+    private String generateSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
         var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
-        return "Sliding Decision Result Explanation:\n" +
-                getSlidingDecisionParametersExplanation(functionBlock) +
-                "Fired Rules:\n" +
-                getFiredRulesExplanation(functionBlock);
+        return "Sliding Decision Explanation:\n" +
+                generateSlidingDecisionFuzzyVariableExplanation(functionBlock) +
+                "Applied Rules:\n" +
+                getAppliedRules(functionBlock);
     }
 
-    // Generates an explanation for all sliding decision parameters.
-    // For each variable, it outputs its value and the membership values for each of its linguistic terms.
-    private String getSlidingDecisionParametersExplanation(FunctionBlock functionBlock) {
+    // Generates an explanation for all sliding decision fuzzy variable.
+    private String generateSlidingDecisionFuzzyVariableExplanation(FunctionBlock functionBlock) {
         return functionBlock.getVariables().entrySet().stream()
-                .map(variableMap -> {
-                    String fuzzyVariableName = variableMap.getKey();
-                    var fuzzyVariable = variableMap.getValue();
-                    // Build explanation for the variable, including its value and its linguistic terms
+                .map(fuzzyVariableMap -> {
+                    String fuzzyVariableName = fuzzyVariableMap.getKey();
+                    // The "fuzzyVariable" has the information of fuzzy variable "name" and its inputted "value" -
+                    // and term with its "name", "value" and "PieceWiseLinear" info
+                    // E.g.: noOfTrucksInQueue: Value 7.0  Term: HIGH  0.0  PieceWiseLinear: (11.0, 0.0), (15.0, 1.0), (20.0, 1.0);
+                    var fuzzyVariable = fuzzyVariableMap.getValue();
+                    // return the fuzzy variable name and value and its linguistic term (it includes Term name and its membership value)
                     return fuzzyVariableName + ":\n" +
-                            "\tValue: " + fuzzyVariable.getValue() + "\n" +
-                            explanationOfLinguisticTerms(fuzzyVariable);
+                            "\tValue " + fuzzyVariable.getValue() + "\n" +
+                            extractLinguisticTermNameAndMembershipValue(fuzzyVariable);
                 })
                 .collect(Collectors.joining());
     }
 
-    private String explanationOfLinguisticTerms(Variable fuzzyVariable) {
+    private String extractLinguisticTermNameAndMembershipValue(Variable fuzzyVariable) {
         return fuzzyVariable.getLinguisticTerms().entrySet().stream()
                 .map(linguisticTerm -> {
                     double membershipValue = linguisticTerm.getValue()
                             .getMembershipFunction()
                             .membership(fuzzyVariable.getValue());
-                    return "\tTerm: " + linguisticTerm.getKey() + "\t" + membershipValue + "\n";
+                    // returns the extracted linguistics term name and its membership value
+                    return "\tTerm " + linguisticTerm.getKey() + "\t" + membershipValue + "\n";
                 })
                 .collect(Collectors.joining());
     }
 
-    // Generates a concise explanation of the fired rules.
-    // It filters the rules to include only those with a degree of support greater than zero.
-    private String getFiredRulesExplanation(FunctionBlock functionBlock) {
+    // get the all applied rules.
+    private String getAppliedRules(FunctionBlock functionBlock) {
+        // It filters the rules with a degree of support greater than zero.
         return functionBlock.getRuleBlocks().values().stream()
                 .flatMap(ruleBlock -> ruleBlock.getRules().stream())
                 .filter(rule -> rule.getDegreeOfSupport() > 0)
-                .map(rule -> rule.toString() + "\n")
-                .collect(Collectors.joining());
+                .map(String::valueOf)
+                .collect(Collectors.joining("\n"));
     }
 
 }
