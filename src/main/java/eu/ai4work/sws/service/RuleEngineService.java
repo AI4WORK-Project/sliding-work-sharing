@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -118,39 +119,27 @@ public class RuleEngineService {
      */
     private String generateSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
         var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
-        return "Sliding Decision Explanation:\n" +
-                generateSlidingDecisionFuzzyVariableExplanation(functionBlock) +
-                "Applied Rules:\n" +
-                getAppliedRules(functionBlock);
+        return "Sliding Decision Explanation\n" +
+               "Sliding Decision Input Parameters:\n" + generateSlidingDecisionFuzzyVariableExplanation(functionBlock, Variable::isInput) + "\n" +
+               "Suggested Work Sharing Parameters:\n" + generateSlidingDecisionFuzzyVariableExplanation(functionBlock, Variable::isOutput) + "\n" +
+               "Applied Rules:\n" + getAppliedRules(functionBlock);
     }
 
     // Generates an explanation for all sliding decision fuzzy variable.
-    private String generateSlidingDecisionFuzzyVariableExplanation(FunctionBlock functionBlock) {
-        return functionBlock.getVariables().entrySet().stream()
-                .map(fuzzyVariableMap -> {
-                    String fuzzyVariableName = fuzzyVariableMap.getKey();
-                    // The "fuzzyVariable" has the information of fuzzy variable "name" and its inputted "value" -
-                    // and term with its "name", "value" and "PieceWiseLinear" info
-                    // E.g.: noOfTrucksInQueue: Value 7.0  Term: HIGH  0.0  PieceWiseLinear: (11.0, 0.0), (15.0, 1.0), (20.0, 1.0);
-                    var fuzzyVariable = fuzzyVariableMap.getValue();
-                    // return the fuzzy variable name and value and its linguistic term (it includes Term name and its membership value)
-                    return fuzzyVariableName + ":\n" +
-                            "\tValue " + fuzzyVariable.getValue() + "\n" +
-                            extractLinguisticTermNameAndMembershipValue(fuzzyVariable);
-                })
-                .collect(Collectors.joining());
+    private String generateSlidingDecisionFuzzyVariableExplanation(FunctionBlock functionBlock, Predicate<Variable> variableFilter) {
+        return functionBlock.getVariables().values().stream()
+             // filter variables could be Input or Output variables.
+             .filter(variableFilter)
+             // map variable details (name, value, linguistic terms and membership values) based on a predicate.
+             .map(fuzzyVariable -> fuzzyVariable.getName() + ":\n\tValue " + fuzzyVariable.getValue() + "\n" + extractLinguisticTermNameAndMembershipValue(fuzzyVariable))
+             .collect(Collectors.joining("\n"));
     }
 
     private String extractLinguisticTermNameAndMembershipValue(Variable fuzzyVariable) {
         return fuzzyVariable.getLinguisticTerms().entrySet().stream()
-                .map(linguisticTerm -> {
-                    double membershipValue = linguisticTerm.getValue()
-                            .getMembershipFunction()
-                            .membership(fuzzyVariable.getValue());
-                    // returns the extracted linguistics term name and its membership value
-                    return "\tTerm " + linguisticTerm.getKey() + "\t" + membershipValue + "\n";
-                })
-                .collect(Collectors.joining());
+            // map linguistic term details (name and membership value)
+            .map(linguisticTerm -> "\tTerm " + linguisticTerm.getKey() + "\t" + linguisticTerm.getValue().getMembershipFunction().membership(fuzzyVariable.getValue()) + "\n")
+            .collect(Collectors.joining());
     }
 
     // get the all applied rules.
