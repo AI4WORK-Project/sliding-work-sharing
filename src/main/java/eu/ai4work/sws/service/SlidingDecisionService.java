@@ -9,7 +9,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class SlidingDecisionService {
-    private final RuleEngineService ruleEngineService;
+    public final RuleEngineService ruleEngineService;
 
     public SlidingDecisionResult getSlidingDecision(Map<String, Object> slidingDecisionInputParameters) throws Exception {
         return ruleEngineService.applySlidingDecisionRules(slidingDecisionInputParameters);

@@ -2,6 +2,7 @@ package eu.ai4work.sws.service;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
 import eu.ai4work.sws.exception.InvalidFclFileException;
+import eu.ai4work.sws.model.SlidingDecisionExplanation;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.exception.UnknownInputParameterException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ public class RuleEngineService {
     private static final String SUGGESTED_WORK_SHARING_APPROACH = "suggestedWorkSharingApproach";
     private final Logger logger = LogManager.getLogger(RuleEngineService.class);
     private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
+    private Map<String, Object> slidingDecisionExplanation;
 
     /**
      * Evaluates the rules based on the provided inputs and returns the sliding decision result.
@@ -41,11 +44,19 @@ public class RuleEngineService {
 
         String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fuzzyInferenceSystem.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
 
-        // log explanation of sliding decision
-        String slidingDecisionExplanation = generateSlidingDecisionExplanation(fuzzyInferenceSystem);
-        logger.debug(slidingDecisionExplanation);
+        slidingDecisionExplanation = buildSlidingDecisionExplanation(fuzzyInferenceSystem);
 
         return SlidingDecisionResult.valueOf(resultAsLinguisticTerm);
+    }
+
+    /**
+     * Retrieves the sliding decision explanation.
+     * This method is provides the structured explanation of the sliding decision, which can be shared with a controller.
+     *
+     * @return A map containing the structured explanation.
+     */
+    public Map<String, Object> getSlidingDecisionExplanation() {
+        return slidingDecisionExplanation;
     }
 
     /**
@@ -112,44 +123,51 @@ public class RuleEngineService {
     }
 
     /**
-     * Provide a basic explanation of the sliding decision by showing membership values and rules that were applied.
+     * Build a basic explanation of the sliding decision by showing membership values and rules that were applied.
      *
      * @param fuzzyInferenceSystem the fuzzy inference system to obtain the explanation.
-     * @return a formatted String containing the overall explanation.
+     * @return a structured Map containing the overall explanation.
      */
-    private String generateSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
+    public Map<String, Object> buildSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
         var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
-        return "Sliding Decision Explanation\n" +
-               "Sliding Decision Input Parameters:\n" + generateSlidingDecisionFuzzyVariableExplanation(functionBlock, Variable::isInput) + "\n" +
-               "Suggested Work Sharing Parameters:\n" + generateSlidingDecisionFuzzyVariableExplanation(functionBlock, Variable::isOutput) + "\n" +
-               "Applied Rules:\n" + getAppliedRules(functionBlock);
+
+        return Map.of(
+                SlidingDecisionExplanation.INPUT_PARAMETERS.explanationString(), extractFuzzyVariableExplanation(functionBlock, Variable::isInput),
+                SlidingDecisionExplanation.OUTPUT_PARAMETERS.explanationString(), extractFuzzyVariableExplanation(functionBlock, Variable::isOutput),
+                SlidingDecisionExplanation.APPLIED_RULES.explanationString(), getAppliedRules(functionBlock));
     }
 
-    // Generates an explanation for all sliding decision fuzzy variable.
-    private String generateSlidingDecisionFuzzyVariableExplanation(FunctionBlock functionBlock, Predicate<Variable> variableFilter) {
+    /**
+     * extract explanation for all sliding decision fuzzy variable.
+     */
+    private Map<String, Object> extractFuzzyVariableExplanation(FunctionBlock functionBlock, Predicate<Variable> variableFilter) {
         return functionBlock.getVariables().values().stream()
-             // filter variables could be Input or Output variables.
-             .filter(variableFilter)
-             // map variable details (name, value, linguistic terms and membership values) based on a predicate.
-             .map(fuzzyVariable -> fuzzyVariable.getName() + ":\n\tValue " + fuzzyVariable.getValue() + "\n" + extractLinguisticTermNameAndMembershipValue(fuzzyVariable))
-             .collect(Collectors.joining("\n"));
+                // variableFilter could be isInput or isOutput variables.
+                .filter(variableFilter)
+                // return the map with fuzzy variables name, value and linguistic terms (term name and membership value).
+                .collect(Collectors.toMap(
+                        Variable::getName,
+                        fuzzyVariable -> Map.of(
+                                SlidingDecisionExplanation.VALUE.explanationString(), fuzzyVariable.getValue(),
+                                SlidingDecisionExplanation.TERMS.explanationString(), extractLinguisticTermNameAndMembershipValue(fuzzyVariable)
+                        )));
     }
 
-    private String extractLinguisticTermNameAndMembershipValue(Variable fuzzyVariable) {
+    private Map<String, Double> extractLinguisticTermNameAndMembershipValue(Variable fuzzyVariable) {
         return fuzzyVariable.getLinguisticTerms().entrySet().stream()
-            // map linguistic term details (name and membership value)
-            .map(linguisticTerm -> "\tTerm " + linguisticTerm.getKey() + "\t" + linguisticTerm.getValue().getMembershipFunction().membership(fuzzyVariable.getValue()) + "\n")
-            .collect(Collectors.joining());
+                // return the map of linguistic name and membership value.
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey, // Linguistic term name
+                        entry -> entry.getValue().getMembershipFunction().membership(fuzzyVariable.getValue())
+                ));
     }
 
-    // get the all applied rules.
-    private String getAppliedRules(FunctionBlock functionBlock) {
-        // It filters the rules with a degree of support greater than zero.
+    private List<String> getAppliedRules(FunctionBlock functionBlock) {
         return functionBlock.getRuleBlocks().values().stream()
                 .flatMap(ruleBlock -> ruleBlock.getRules().stream())
+                // filters the rules with a degree of support greater than zero.
                 .filter(rule -> rule.getDegreeOfSupport() > 0)
-                .map(String::valueOf)
-                .collect(Collectors.joining("\n"));
+                .map(rule -> rule.toString().replace("\t", " "))
+                .collect(Collectors.toList());
     }
-
 }
