@@ -2,8 +2,8 @@ package eu.ai4work.sws.service;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
 import eu.ai4work.sws.exception.InvalidFclFileException;
+import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.SlidingDecisionResult;
-import eu.ai4work.sws.exception.UnknownInputParameterException;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -68,19 +69,39 @@ public class RuleEngineService {
     }
 
     /**
-     * Checks if any required sliding decision input parameters are unknown or missing.
+     * Checks if any required sliding decision input parameters are unknown or missing or extra.
      *
      * @param fuzzyInferenceSystem           The FIS instance to get the input parameters.
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
-     * @throws UnknownInputParameterException if an input parameter is unknown or missing by the FIS.
+     * @throws InvalidInputParameterException if an input parameter is unknown or missing or extra.
      */
-    private void verifySlidingDecisionInputParameters(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters) throws UnknownInputParameterException{
-        List<String> missingSlidingDecisionInputParameters = getRequiredInputParameterFromFIS(fuzzyInferenceSystem).stream()
-                .filter(requiredInputParameter -> slidingDecisionInputParameters.get(requiredInputParameter) == null)
-                .toList();
-
-        if (!missingSlidingDecisionInputParameters.isEmpty()) {
-            throw new UnknownInputParameterException("The following sliding decision input parameter is incorrectly specified or missing: " + missingSlidingDecisionInputParameters);
+    private void verifySlidingDecisionInputParameters(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters)
+            throws InvalidInputParameterException {
+        Collection<String> requiredInputParameter = getRequiredInputParameterFromFIS(fuzzyInferenceSystem);
+        // Extra parameters provided
+        if (slidingDecisionInputParameters.size() > requiredInputParameter.size()) {
+            List<String> extraSlidingDecisionInputParameters = slidingDecisionInputParameters.keySet().stream()
+                    .filter(param -> !requiredInputParameter.contains(param))
+                    .toList();
+            if (!extraSlidingDecisionInputParameters.isEmpty()) {
+                throw new InvalidInputParameterException("The following sliding decision input parameter is extra: " + extraSlidingDecisionInputParameters);
+            }
+        } else if (slidingDecisionInputParameters.size() < requiredInputParameter.size()) {
+            // Missing parameters
+            List<String> missingSlidingDecisionInputParameters = requiredInputParameter.stream()
+                    .filter(param -> !slidingDecisionInputParameters.containsKey(param))
+                    .toList();
+            if (!missingSlidingDecisionInputParameters.isEmpty()) {
+                throw new InvalidInputParameterException("The following sliding decision input parameter is missing:" + missingSlidingDecisionInputParameters);
+            }
+        } else {
+            // Same count: validate that every provided parameter is expected
+            List<String> unknownSlidingDecisionInputParameters = slidingDecisionInputParameters.keySet().stream()
+                    .filter(param -> !requiredInputParameter.contains(param))
+                    .toList();
+            if (!unknownSlidingDecisionInputParameters.isEmpty()) {
+                throw new InvalidInputParameterException("The following sliding decision input parameter is unknown: " + unknownSlidingDecisionInputParameters);
+            }
         }
     }
 
