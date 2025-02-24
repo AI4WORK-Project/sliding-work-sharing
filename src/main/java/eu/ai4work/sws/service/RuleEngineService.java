@@ -50,10 +50,10 @@ public class RuleEngineService {
     }
 
     /**
-     * Retrieves the sliding decision explanation.
-     * This method is provides the structured explanation of the sliding decision, which can be shared with a controller.
+     * Retrieves the explanation of the sliding decision.
+     * This method is created for to share the sliding decision outside this service.
      *
-     * @return A map containing the structured explanation.
+     * @return A map containing an explanation of sliding decision.
      */
     public Map<String, Object> getSlidingDecisionExplanation() {
         return slidingDecisionExplanation;
@@ -128,7 +128,7 @@ public class RuleEngineService {
      * @param fuzzyInferenceSystem the fuzzy inference system to obtain the explanation.
      * @return a structured Map containing the overall explanation.
      */
-    public Map<String, Object> buildSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
+    private Map<String, Object> buildSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
         var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
 
         return Map.of(
@@ -138,7 +138,7 @@ public class RuleEngineService {
     }
 
     /**
-     * extract explanation for all sliding decision fuzzy variable.
+     * extract explanation for all fuzzy variable (input and output variable).
      */
     private Map<String, Object> extractFuzzyVariableExplanation(FunctionBlock functionBlock, Predicate<Variable> variableFilter) {
         return functionBlock.getVariables().values().stream()
