@@ -54,7 +54,7 @@ public class SlidingDecisionController {
         return SlidingDecisionResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.RESPONSE)
                 .decisionResult(decisionResultDetails)
-                .decisionExplanation(slidingDecisionService.ruleEngineService.getSlidingDecisionExplanation())
+                .decisionExplanation(slidingDecisionService.getSlidingDecisionExplanation())
                 .build();
     }
 

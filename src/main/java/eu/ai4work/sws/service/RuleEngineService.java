@@ -26,7 +26,7 @@ public class RuleEngineService {
     private static final String SUGGESTED_WORK_SHARING_APPROACH = "suggestedWorkSharingApproach";
     private final Logger logger = LogManager.getLogger(RuleEngineService.class);
     private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
-    private Map<String, Object> slidingDecisionExplanation;
+    private static FIS fuzzyInferenceSystem;
 
     /**
      * Evaluates the rules based on the provided inputs and returns the sliding decision result.
@@ -36,7 +36,7 @@ public class RuleEngineService {
      * @throws Exception if there is an issue in process of initializing the FCL file or an evaluating the FCL rules.
      */
     public SlidingDecisionResult applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) throws Exception {
-        FIS fuzzyInferenceSystem = initializeFuzzyInferenceSystem(applicationScenarioConfiguration.getFclRulesFilePath());
+        fuzzyInferenceSystem = initializeFuzzyInferenceSystem(applicationScenarioConfiguration.getFclRulesFilePath());
 
         setInputParametersToFuzzyInterfaceSystem(fuzzyInferenceSystem, slidingDecisionInputParameters);
 
@@ -44,19 +44,11 @@ public class RuleEngineService {
 
         String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fuzzyInferenceSystem.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
 
-        slidingDecisionExplanation = buildSlidingDecisionExplanation(fuzzyInferenceSystem);
-
         return SlidingDecisionResult.valueOf(resultAsLinguisticTerm);
     }
 
-    /**
-     * Retrieves the explanation of the sliding decision.
-     * This method is created for to share the sliding decision outside this service.
-     *
-     * @return A map containing an explanation of sliding decision.
-     */
-    public Map<String, Object> getSlidingDecisionExplanation() {
-        return slidingDecisionExplanation;
+    public Map<String, Object> buildSlidingDecisionExplanation() {
+        return buildSlidingDecisionExplanation(fuzzyInferenceSystem);
     }
 
     /**
