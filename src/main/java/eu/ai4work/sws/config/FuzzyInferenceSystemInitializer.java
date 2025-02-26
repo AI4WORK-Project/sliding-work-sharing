@@ -42,6 +42,5 @@ public class FuzzyInferenceSystemInitializer {
         logger.debug("Fuzzy Inference System (FIS) loaded successfully from FCL file: " + fclRulesFilePath);
 
         return fuzzyInferenceSystem;
-
     }
 }
