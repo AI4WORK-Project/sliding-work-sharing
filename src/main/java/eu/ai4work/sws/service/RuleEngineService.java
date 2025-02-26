@@ -77,7 +77,7 @@ public class RuleEngineService {
      */
     private void verifySlidingDecisionInputParameters(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters)
             throws InvalidInputParameterException {
-        List<String> requiredInputParameterList = getRequiredInputParameterFromFIS(fuzzyInferenceSystem);
+        List<String> requiredInputParameterList = getRequiredInputParametersFromFIS(fuzzyInferenceSystem);
         Set<String> providedInputParameterSet = slidingDecisionInputParameters.keySet();
 
         // filter the provided input parameters that are not required
