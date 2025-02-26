@@ -100,7 +100,7 @@ public class RuleEngineService {
     }
 
     // Retrieves the list of required sliding input parameter names from the Fuzzy Inference System
-    public List<String> getRequiredInputParameterFromFIS(FIS fuzzyInferenceSystem) {
+    private List<String> getRequiredInputParametersFromFIS(FIS fuzzyInferenceSystem) {
         return fuzzyInferenceSystem.getFunctionBlock(null)  // Get default function block
                 // get all variables
                 .getVariables().values().stream()
