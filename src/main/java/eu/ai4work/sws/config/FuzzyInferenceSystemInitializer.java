@@ -40,7 +40,7 @@ public class FuzzyInferenceSystemInitializer {
 
     private static FIS parseFclFile(String fclRulesFilePath) {
         try {
-            logger.debug("Parsing a Fuzzy Inference System (FIS) using an FCL file: " + fclRulesFilePath);
+            logger.debug("Initializing a Fuzzy Inference System (FIS) based on the FCL file: " + fclRulesFilePath);
             return FIS.load(fclRulesFilePath);
         } catch (Exception exception) {
             throw new InvalidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath, exception);
