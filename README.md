@@ -236,11 +236,11 @@ This example scenario is from the construction domain:
   - the robot may be blocked and thus unable to continue its work, so that it requires human support
 - depending on the situation, SWS should support the decision if/when a human should be called for help.
 
-The SWS management decides in how far a human should be involved in the decision. This decision depends on:
+The SWS management should decide if/when a human should be called to help the robot. This decision depends on:
 
-- the time of the robot is blocked
-- the battery status of robot
-- the waiting time for human to available
+- the time that the robot is already blocked
+- the battery status of the robot
+- the expected waiting time until the human will come to help
 
 #### Example Rules
 
@@ -281,9 +281,9 @@ curl --request POST \
 ```
 
 To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` as follows:
-- `timeRobotIsBlocked`: The time robot is blocked, measured in minutes (0-15 minutes)
-- `robotBatteryStatus`: The battery status of robot, measured in percentage (0%-100%)
-- `waitingTimeForHuman`: The waiting time for human to available, measured in minutes (0-15 minutes)
+- `timeRobotIsBlocked`: The time that the robot is blocked, measured in minutes (0-15 minutes)
+- `robotBatteryStatus`: The battery status of the robot, measured in percent (0%-100%)
+- `waitingTimeForHuman`: The waiting time for the human to become available, measured in minutes (0-15 minutes)
 
 ##### Example Response
 
