@@ -35,12 +35,15 @@ public class FuzzyInferenceSystemInitializer {
             throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
         }
 
-        FIS fuzzyInferenceSystem = FIS.load(fuzzyLogicRulesResourceUrl.getPath());
-        if (fuzzyInferenceSystem == null) {
-            throw new InvalidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath);
-        }
-        logger.debug("Fuzzy Inference System (FIS) loaded successfully from FCL file: " + fclRulesFilePath);
+        return parseFclFile(fuzzyLogicRulesResourceUrl.getPath());
+    }
 
-        return fuzzyInferenceSystem;
+    private static FIS parseFclFile(String fclRulesFilePath) {
+        try {
+            logger.debug("Parsing a Fuzzy Inference System (FIS) using an FCL file: " + fclRulesFilePath);
+            return FIS.load(fclRulesFilePath);
+        } catch (Exception exception) {
+            throw new InvalidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath, exception);
+        }
     }
 }
