@@ -16,8 +16,8 @@ FUZZIFY timeRobotIsBlocked     // in minutes (0 to 15 minutes)
     TERM LONG := (9, 0) (11, 1) (15, 1);
 END_FUZZIFY
 
-FUZZIFY robotBatteryStatus    // in percentage (0 to 30 percentage)
-    TERM LOW := (0, 1) (20, 1) (30, 0);
+FUZZIFY robotBatteryStatus    // in percent (0 to 100 percent)
+    TERM LOW := (0, 1) (20, 1) (30, 0);   // low battery, 0 to 30 percent
 END_FUZZIFY
 
 FUZZIFY waitingTimeForHuman   // in minutes (0 to 15 minutes)

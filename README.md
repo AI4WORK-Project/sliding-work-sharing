@@ -204,7 +204,7 @@ curl --request POST \
 To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify the values for the `slidingDecisionInputParameters` as follows:
 - `distanceToCentralCollectionPoint`: The distance to the collection point, measured in meters (0-300 meters)
 - `waitingTimeForDrone`: The time until the drone becomes available, measured in minutes (0-15 minutes)
-- `fatigueLevelOfWorker`: The current fatigue level of the worker, measured in percentage (0%-100%)
+- `fatigueLevelOfWorker`: The current fatigue level of the worker, measured in percent (0%-100%)
 
 ##### Example Response
 The application will respond with a JSON string similar to the following:
