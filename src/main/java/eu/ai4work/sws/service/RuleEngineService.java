@@ -40,32 +40,30 @@ public class RuleEngineService {
      *
      * @param fuzzyInferenceSystem           The FIS instance to get the required input parameters.
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
-     * @throws InvalidInputParameterException if an input parameter is unknown or missing.
+     * @throws InvalidInputParameterException if one or more input parameters are unknown or missing.
      */
     private void verifySlidingDecisionInputParameters(FIS fuzzyInferenceSystem, Map<String, Object> slidingDecisionInputParameters)
             throws InvalidInputParameterException {
-        List<String> requiredInputParametersList = getRequiredInputParametersFromFIS(fuzzyInferenceSystem);
-        Set<String> providedInputParametersSet = slidingDecisionInputParameters.keySet();
+        List<String> requiredParameters = getRequiredInputParametersFromFIS(fuzzyInferenceSystem);
+        Set<String> providedParameters = slidingDecisionInputParameters.keySet();
 
-        // filter the provided input parameters that are not required
-        List<String> unknownInputParametersList = providedInputParametersSet.stream()
-                .filter(providedInputParameter -> !requiredInputParametersList.contains(providedInputParameter))
+        // detect provided input parameters that are not required
+        List<String> unknownParameters = providedParameters.stream()
+                .filter(providedParameter -> !requiredParameters.contains(providedParameter))
                 .toList();
 
-        // filter the required parameters that are missing in the provided input
-        List<String> missingInputParametersList = requiredInputParametersList.stream()
-                .filter(requiredInputParameter -> !providedInputParametersSet.contains(requiredInputParameter))
+        // detect required parameters that are missing in the provided input
+        List<String> missingParameters = requiredParameters.stream()
+                .filter(requiredParameter -> !providedParameters.contains(requiredParameter))
                 .toList();
 
-        if (!unknownInputParametersList.isEmpty() || !missingInputParametersList.isEmpty()) {
-            String exceptionMessage = "";
-            if (!unknownInputParametersList.isEmpty()) {
-                exceptionMessage = "The following sliding decision input parameter is unknown: " + unknownInputParametersList;
+        if (! (unknownParameters.isEmpty() && missingParameters.isEmpty())) {
+            String exceptionMessage = "Invalid sliding decision input.";
+            if (!unknownParameters.isEmpty()) {
+                exceptionMessage += " - Unknown parameter(s): " + unknownParameters;
             }
-            if (!missingInputParametersList.isEmpty()) {
-                exceptionMessage = exceptionMessage.isEmpty()
-                        ? "The following sliding decision input parameter is missing: " + missingInputParametersList
-                        : exceptionMessage + ". The required sliding decision input parameter is: " + missingInputParametersList;
+            if (!missingParameters.isEmpty()) {
+                exceptionMessage += " - Missing parameter(s): " + missingParameters;
             }
             throw new InvalidInputParameterException(exceptionMessage);
         }
