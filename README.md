@@ -99,6 +99,8 @@ The SWS management decides in how far a human should be involved in the decision
 - if the queue is short and the truck is near its front, it can be automatically prioritized
 - if the queue is long and the truck is near its end, a human needs to be involved in the decision
 
+To explore the example rules in detail, please refer to the FCL file located [here](src/main/resources/rules/TruckSchedulingSlidingDecisionRules.fcl)
+
 #### How to Run and Test the Scenario
 
 To start the application and run the logistics scenario, use the following command:
@@ -170,8 +172,8 @@ For each required transport of a harvest box, the SWS management decides in how 
 - if the distance is low, let the worker carry the box
 - if the distance is high or the waiting time for the drone is low, let the drone carry the box
 - if the waiting time for the drone is high and the fatigue level of the worker is low, let the worker carry the box
-- if the waiting time for the drone is high and the distance is high and the fatigue level of the worker is low, then let the worker decide (if or if not to wait for the drone)
-- if the waiting time for the drone is high and the fatigue level of the worker is high, let the drone carry the box, but inform the supervisor (who may intervene and decide to not wait for the drone)
+
+To explore the example rules in detail, please refer to the FCL file located [here](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl)
 
 #### How to Run and Test the Scenario
 
@@ -246,13 +248,9 @@ The SWS management should decide if/when a human should be called to help the ro
 
 - if the battery status of robot is low, ask for human help
 - if the time of robot blocked is short and battery status of robot is not low, let robot continue trying
-- if the time of robot blocked is moderate and battery status of robot is high, send information to inform human so they can decide
-- if the time of robot blocked is moderate and battery status of robot is medium, send warning to inform human so they can decide
-- if the time of robot blocked is long, ask for human help
-- if the time of robot blocked is moderate and waiting time for human is low, ask for human help
-- if the time of robot blocked is moderate and waiting time for human is high and battery status of robot is medium send Information to inform human so they can decide
-- if the time of robot blocked is moderate and waiting time for human is high and battery status of robot is high, let robot continue trying
+- if the time of robot blocked is moderate and battery status of robot is not low, Inform human about the problem
 
+To explore the example rules in detail, please refer to the FCL file located [here](src/main/resources/rules/ConstructionRobotAssistanceDecisionRules.fcl)
 
 #### How to Run and Test the Scenario
 
@@ -301,6 +299,6 @@ The application will respond with a JSON string similar to the following:
 
 Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "Let the robot continue trying"
-- `HUMAN_ON_THE_LOOP`: "Information: inform human so they can decide"
-- `HUMAN_IN_THE_LOOP`: "Warning: inform human so they can decide"
+- `HUMAN_IN_THE_LOOP`: "Warn human, but let them decide"
+- `HUMAN_ON_THE_LOOP`: "Inform human about the problem"
 - `HUMAN_MANUALLY`: "Ask human for help"
