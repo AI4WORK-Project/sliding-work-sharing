@@ -1,22 +1,14 @@
 package eu.ai4work.sws.model;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.List;
+import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-public enum SlidingDecisionExplanation {
-    INPUT_PARAMETERS("slidingDecisionInputParameters"),
-    OUTPUT_PARAMETERS("slidingDecisionOutputParameters"),
-    APPLIED_RULES("appliedRules"),
-    VALUE("Value"),
-    TERMS("Terms");
-
-    private final String explanationString;
-
-    SlidingDecisionExplanation(String explanationString) {
-        this.explanationString = explanationString;
-    }
-
-    @JsonValue
-    public String explanationString() {
-        return explanationString;
-    }
+@Data
+@AllArgsConstructor
+public class SlidingDecisionExplanation {
+    private Map<String, VariableExplanation> inputVariables;
+    private List<RuleExplanation> appliedRules;
+    private Map<String, VariableExplanation> outputVariables;
 }

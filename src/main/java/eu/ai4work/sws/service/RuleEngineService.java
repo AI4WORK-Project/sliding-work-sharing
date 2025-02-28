@@ -3,6 +3,8 @@ package eu.ai4work.sws.service;
 import eu.ai4work.sws.model.SlidingDecisionExplanation;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.SlidingDecisionResult;
+import eu.ai4work.sws.model.VariableExplanation;
+import eu.ai4work.sws.model.RuleExplanation;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
@@ -39,8 +41,12 @@ public class RuleEngineService {
         return SlidingDecisionResult.valueOf(resultAsLinguisticTerm);
     }
 
-    public Map<String, Object> buildSlidingDecisionExplanation() {
-        return buildSlidingDecisionExplanation(fuzzyInferenceSystem);
+    public SlidingDecisionExplanation buildSlidingDecisionExplanation() {
+        var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
+
+        return new SlidingDecisionExplanation(extractFuzzyVariableExplanation(functionBlock, Variable::isInput),
+                getAppliedRules(functionBlock),
+                extractFuzzyVariableExplanation(functionBlock, Variable::isOutput));
     }
 
     /**
@@ -124,38 +130,25 @@ public class RuleEngineService {
     }
 
     /**
-     * Build a basic explanation of the sliding decision by showing membership values and rules that were applied.
-     *
-     * @param fuzzyInferenceSystem the fuzzy inference system to obtain the explanation.
-     * @return a structured Map containing the overall explanation.
-     */
-    private Map<String, Object> buildSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
-        var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
-
-        return Map.of(
-                SlidingDecisionExplanation.INPUT_PARAMETERS.explanationString(), extractFuzzyVariableExplanation(functionBlock, Variable::isInput),
-                SlidingDecisionExplanation.OUTPUT_PARAMETERS.explanationString(), extractFuzzyVariableExplanation(functionBlock, Variable::isOutput),
-                SlidingDecisionExplanation.APPLIED_RULES.explanationString(), getAppliedRules(functionBlock));
-    }
-
-    /**
      * extract explanation for all fuzzy variable (input and output variable).
      */
-    private Map<String, Object> extractFuzzyVariableExplanation(FunctionBlock functionBlock, Predicate<Variable> variableFilter) {
+    private Map<String, VariableExplanation> extractFuzzyVariableExplanation(FunctionBlock functionBlock, Predicate<Variable> variableFilter) {
         return functionBlock.getVariables().values().stream()
                 // variableFilter could be isInput or isOutput variables.
                 .filter(variableFilter)
                 // return the map with fuzzy variables name, value and linguistic terms (term name and membership value).
                 .collect(Collectors.toMap(
                         Variable::getName,
-                        fuzzyVariable -> Map.of(
-                                SlidingDecisionExplanation.VALUE.explanationString(), fuzzyVariable.getValue(),
-                                SlidingDecisionExplanation.TERMS.explanationString(), extractLinguisticTermNameAndMembershipValue(fuzzyVariable)
+                        fuzzyVariable -> new VariableExplanation(
+                                fuzzyVariable.getValue(),
+                                extractLinguisticTermNameAndMembershipValue(fuzzyVariable)
                         )));
     }
 
     private Map<String, Double> extractLinguisticTermNameAndMembershipValue(Variable fuzzyVariable) {
         return fuzzyVariable.getLinguisticTerms().entrySet().stream()
+                // filter the linguistic term which has the membership value greater than 0
+                .filter(entry -> entry.getValue().getMembershipFunction().membership(fuzzyVariable.getValue()) > 0)
                 // return the map of linguistic name and membership value.
                 .collect(Collectors.toMap(
                         Map.Entry::getKey, // Linguistic term name
@@ -163,12 +156,12 @@ public class RuleEngineService {
                 ));
     }
 
-    private List<String> getAppliedRules(FunctionBlock functionBlock) {
+    private List<RuleExplanation> getAppliedRules(FunctionBlock functionBlock) {
         return functionBlock.getRuleBlocks().values().stream()
                 .flatMap(ruleBlock -> ruleBlock.getRules().stream())
                 // filters the rules with a degree of support greater than zero.
                 .filter(rule -> rule.getDegreeOfSupport() > 0)
-                .map(rule -> rule.toString().replace("\t", " "))
+                .map(rule -> new RuleExplanation(rule.toString().replace("\t", " ")))
                 .collect(Collectors.toList());
     }
 }
