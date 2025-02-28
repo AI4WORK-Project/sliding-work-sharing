@@ -148,11 +148,11 @@ public class RuleEngineService {
     private Map<String, Double> extractLinguisticTermNameAndMembershipValue(Variable fuzzyVariable) {
         return fuzzyVariable.getLinguisticTerms().entrySet().stream()
                 // filter the linguistic term which has the membership value greater than 0
-                .filter(entry -> entry.getValue().getMembershipFunction().membership(fuzzyVariable.getValue()) > 0)
+                .filter(linguisticTerm -> linguisticTerm.getValue().getMembershipFunction().membership(fuzzyVariable.getValue()) > 0)
                 // return the map of linguistic name and membership value.
                 .collect(Collectors.toMap(
                         Map.Entry::getKey, // Linguistic term name
-                        entry -> entry.getValue().getMembershipFunction().membership(fuzzyVariable.getValue())
+                        linguisticTerm -> linguisticTerm.getValue().getMembershipFunction().membership(fuzzyVariable.getValue())
                 ));
     }
 
