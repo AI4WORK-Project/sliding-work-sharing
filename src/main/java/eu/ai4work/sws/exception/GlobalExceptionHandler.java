@@ -21,19 +21,14 @@ public class GlobalExceptionHandler {
     private static final String ERROR_DETAILS = "errorDetails";
     private static final Logger logger = LogManager.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(UnknownInputParameterException.class)
-    public ResponseEntity<Map<String, Object>> handleUnknownInputParameterException(UnknownInputParameterException ex) {
+    @ExceptionHandler(InvalidInputParameterException.class)
+    public ResponseEntity<Map<String, Object>> handleUnknownInputParameterException(InvalidInputParameterException ex) {
         return createErrorResponse(ex, DebugHint.UNKNOWN_INPUT, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(InvalidFclFileException.class)
-    public ResponseEntity<Map<String, Object>> handleInValidFCFileException(InvalidFclFileException ex) {
-        return createErrorResponse(ex, DebugHint.INVALID_FCL_FILE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleUnexpectedExceptions(Exception ex) {
-        logger.error(ex);
+        logger.error("An unexpected exception occurred.", ex);
         return createErrorResponse(ex, DebugHint.UNEXPECTED_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
