@@ -1,8 +1,8 @@
 package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
-import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.model.SlidingDecisionStatus;
+import eu.ai4work.sws.model.SlidingDecision;
 import eu.ai4work.sws.model.SlidingDecisionRequest;
 import eu.ai4work.sws.model.SlidingDecisionResponse;
 import eu.ai4work.sws.service.SlidingDecisionService;
@@ -29,32 +29,32 @@ public class SlidingDecisionController {
      * This method describes the "happy flow", while all exceptions that may potentially happen will be handled by the GlobalException handler.
      *
      * @param request The request body containing input parameters for decision process
-     * @return SlidingDecisionResponse containing decision status and decision details
+     * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
     @PostMapping("/sliding-decision")
-    public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) throws Exception {
+    public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) {
         assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
 
-        SlidingDecisionResult decisionResult = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
+        SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
 
-        return createResponse(decisionResult);
+        return createResponse(slidingDecision);
     }
 
     /**
-     * Creates a response based on the sliding decision result
+     * Creates a response based on the sliding decision
      *
-     * @param decisionResult Evaluated sliding decision result after applying the decision rules
-     * @return SlidingDecisionResponse containing decision status and decision details
+     * @param slidingDecision Evaluated sliding decision after applying the decision rules
+     * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
-    private SlidingDecisionResponse createResponse(SlidingDecisionResult decisionResult) {
+    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
         Map<String, Object> decisionResultDetails = new HashMap<>();
-        decisionResultDetails.put(SLIDING_DECISION, decisionResult);
-        decisionResultDetails.put(DESCRIPTION, applicationScenarioConfiguration.getDecisionResultsDescription().get(decisionResult.name()));
+        decisionResultDetails.put(SLIDING_DECISION, slidingDecision.getDecisionResult());
+        decisionResultDetails.put(DESCRIPTION, applicationScenarioConfiguration.getDecisionResultsDescription().get(slidingDecision.getDecisionResult().name()));
 
         return SlidingDecisionResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.RESPONSE)
                 .decisionResult(decisionResultDetails)
-                .decisionExplanation(slidingDecisionService.getSlidingDecisionExplanation())
+                .decisionExplanation(slidingDecision.getDecisionExplanation())
                 .build();
     }
 

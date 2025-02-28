@@ -1,7 +1,6 @@
 package eu.ai4work.sws.service;
 
-import eu.ai4work.sws.model.SlidingDecisionExplanation;
-import eu.ai4work.sws.model.SlidingDecisionResult;
+import eu.ai4work.sws.model.SlidingDecision;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +11,7 @@ import java.util.Map;
 public class SlidingDecisionService {
     private final RuleEngineService ruleEngineService;
 
-    public SlidingDecisionResult getSlidingDecision(Map<String, Object> slidingDecisionInputParameters) throws Exception {
+    public SlidingDecision getSlidingDecision(Map<String, Object> slidingDecisionInputParameters) {
         return ruleEngineService.applySlidingDecisionRules(slidingDecisionInputParameters);
-    }
-
-    public SlidingDecisionExplanation getSlidingDecisionExplanation() {
-        return ruleEngineService.buildSlidingDecisionExplanation();
     }
 }

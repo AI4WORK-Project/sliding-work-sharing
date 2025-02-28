@@ -5,6 +5,7 @@ import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.model.VariableExplanation;
 import eu.ai4work.sws.model.RuleExplanation;
+import eu.ai4work.sws.model.SlidingDecision;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
@@ -24,12 +25,13 @@ public class RuleEngineService {
     private final FIS fuzzyInferenceSystem;
 
     /**
-     * Evaluates the rules based on the provided inputs and returns the sliding decision result.
+     * Evaluates the fuzzy inference rules based on the provided inputs and returns the sliding decision
+     * with the result along with its explanation.
      *
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
-     * @return SlidingDecisionResult representing the outcome of the sliding decision.
+     * @return SlidingDecision containing the result and the explanation of the sliding decision.
      */
-    public SlidingDecisionResult applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) {
+    public SlidingDecision applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) {
         verifySlidingDecisionInputParameters(fuzzyInferenceSystem, slidingDecisionInputParameters);
 
         setInputParametersToFuzzyInferenceSystem(fuzzyInferenceSystem, slidingDecisionInputParameters);
@@ -38,15 +40,9 @@ public class RuleEngineService {
 
         String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fuzzyInferenceSystem.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
 
-        return SlidingDecisionResult.valueOf(resultAsLinguisticTerm);
-    }
+        SlidingDecisionExplanation decisionExplanation = createSlidingDecisionExplanation(fuzzyInferenceSystem);
 
-    public SlidingDecisionExplanation buildSlidingDecisionExplanation() {
-        var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
-
-        return new SlidingDecisionExplanation(extractFuzzyVariableExplanation(functionBlock, Variable::isInput),
-                getAppliedRules(functionBlock),
-                extractFuzzyVariableExplanation(functionBlock, Variable::isOutput));
+        return new SlidingDecision(SlidingDecisionResult.valueOf(resultAsLinguisticTerm), decisionExplanation);
     }
 
     /**
@@ -127,6 +123,19 @@ public class RuleEngineService {
         slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
             fuzzyInferenceSystem.getVariable(parameterName).setValue(((Number) parameterValue).doubleValue());
         });
+    }
+
+    /**
+     * Create the explanation for the sliding decision.
+     *
+     * @return SlidingDecisionExplanation containing explanation of the input variables, applied rules and output variables.
+     */
+    private SlidingDecisionExplanation createSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
+        var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
+
+        return new SlidingDecisionExplanation(extractFuzzyVariableExplanation(functionBlock, Variable::isInput),
+                getAppliedRules(functionBlock),
+                extractFuzzyVariableExplanation(functionBlock, Variable::isOutput));
     }
 
     /**
