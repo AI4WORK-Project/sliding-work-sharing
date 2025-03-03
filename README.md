@@ -65,12 +65,73 @@ The application will respond with a JSON string similar to the following:
   "decisionResult": {
     "slidingDecision": "HUMAN_ON_THE_LOOP",
     "description": "Human has to be informed about AI's rescheduling"
+  },
+  "decisionExplanation": { ... }
+}
+```
+
+The `decisionExplanation` field is represented as `{...}`. A detailed explanation of the `decisionExplanation` structure is provided in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field)
+
+---
+
+## Explanation of the `decisionExplanation` Field
+The Example of `decisionExplanation` field:
+
+```json
+"decisionExplanation": {
+  "inputVariables": {
+    "noOfTrucksInQueue": {
+      "value": 7.0,
+      "terms": {
+        "MEDIUM": 0.5,
+        "LOW": 0.5
+      }
+    },
+    "positionOfTruckToBePrioritized": {
+      "value": 5.0,
+      "terms": {
+        "NEAR_THE_FRONT_OF_THE_QUEUE": 1.0
+      }
+    }
+  },
+  "appliedRules": [
+    {
+      "rule": "1 (0.5) if noOfTrucksInQueue IS LOW then suggestedWorkSharingApproach IS AI_AUTONOMOUSLY [weight: 1.0]"
+    },
+    {
+      "rule": "2 (0.5) if (noOfTrucksInQueue IS MEDIUM) AND (positionOfTruckToBePrioritized IS NEAR_THE_FRONT_OF_THE_QUEUE) then suggestedWorkSharingApproach IS HUMAN_ON_THE_LOOP [weight: 1.0]"
+    }
+  ],
+  "outputVariables": {
+    "suggestedWorkSharingApproach": {
+      "value": 2.998,
+      "terms": {
+        "HUMAN_ON_THE_LOOP": 1.0
+      }
+    }
   }
 }
 ```
 
----
+The Example `decisionExplanation` field provides the explanation of how the sliding decision was determined by the `inputVariables`, `appliedRules` and `outputVariables`.
 
+- **inputVariables**:
+  - `value`: the "slidingDecisionInputParameters", provided as an input.  
+    - Example: `noOfTrucksInQueue`, the value could be `7.0`.
+  - `term`: these are the fuzzy sets (or linguistic terms) defined in the FUZZIFY sections in the `.fcl` file. Each term has an associated membership in between `0` and `1` that measures how input values belongs to that fuzzy set. It translates input values into fuzzy concepts (e.g., LOW, MEDIUM, HIGH) based on pre-defined membership functions.  
+    - For instance, the membership function (e.g., for `LOW` defined as `(0,1) (5,1) (9,0)`) is evaluated with the input value to a degree. For an input of `7.0`, this might result in a partial membership of `0.5` for both `LOW` and `MEDIUM`.
+    
+- **appliedRules:**  
+  Lists the fuzzy rules that were activated during the decision-making process. Defined in the `RULEBLOCK` in the `.fcl` file. The rule’s condition is satisfied, it is derived from the membership degrees of the inputs.
+  - For instance, if `noOfTrucksInQueue` has a membership of `0.5` in `LOW`, then "Rule 1" might fire with a strength of `0.5`.
+
+- **outputVariables:**  
+  Shows the final outcome after evaluating the all the activated rules and defuzzifying the result.
+  - `value`: the output value computed from the fuzzy inference process. 
+    - In example, the output value is approximately `2.998`.
+  - `terms`: represents the membership degree of the output value to each fuzzy set defined in the DEFUZZIFY section in the `.fcl` file. The defuzzification process takes all the contributions from activated rules and produces a single value (output `value`). This number is then mapped to the fuzzy linguistic terms. 
+    - For instance, if `2.998` corresponds to `HUMAN_ON_THE_LOOP`, it might be represented as having a membership degree of `1.0` for that term.
+  
 ## Demonstration Scenarios
 
 To make this software useful for application in different domains, it can be configured via application-scenario-specific rules. This is explained in the following, based on simplified example scenarios from the AI4Work project's pilot domains:
@@ -137,9 +198,13 @@ The application will respond with a JSON string similar to the following:
   "decisionResult": {
     "slidingDecision": "HUMAN_ON_THE_LOOP",
     "description": "Human has to be informed about AI's rescheduling"
-  }
+  },
+  "decisionExplanation": { ... }
 }
 ```
+
+The `decisionExplanation` field is represented as `{...}`. It is an explanation of how the `slidingDecision` was made.  
+The example of the `decisionExplanation` structure is provided in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field).  
 
 Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "AI can reschedule without human involvement"
@@ -212,9 +277,13 @@ The application will respond with a JSON string similar to the following:
     "decisionResult": {
         "slidingDecision": "AI_AUTONOMOUSLY",
         "description": "Let the drone carry the box"
-    }
+    },
+  "decisionExplanation": { ... }
 }
 ```
+
+The `decisionExplanation` field is represented as `{...}`. It is an explanation of how the `slidingDecision` was made.  
+The example of the `decisionExplanation` structure is provided in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field).
 
 Depending on the input parameters, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "Let the drone carry the box"
