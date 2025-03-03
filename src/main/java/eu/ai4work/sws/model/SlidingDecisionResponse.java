@@ -9,5 +9,5 @@ import java.util.Map;
 public class SlidingDecisionResponse {
     private SlidingDecisionStatus decisionStatus;
     private Map<String, Object> decisionResult;
-
+    private SlidingDecisionExplanation decisionExplanation;
 }
