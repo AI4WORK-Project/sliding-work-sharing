@@ -117,17 +117,15 @@ The Example of `decisionExplanation` field:
 
 The Example `decisionExplanation` field provides the explanation of how the sliding decision was determined by the `inputVariables`, `appliedRules` and `outputVariables`.
 
-- **inputVariables**:
+- `inputVariables`:
   - `value`: the "slidingDecisionInputParameters", provided as an input.  
     - Example: `noOfTrucksInQueue`, the value could be `7.0`.
   - `term`: these are the fuzzy sets (or linguistic terms) defined in the FUZZIFY sections in the `.fcl` file. Each term has an associated membership in between `0` and `1` that measures how input values belongs to that fuzzy set. It translates input values into fuzzy concepts (e.g., LOW, MEDIUM, HIGH) based on pre-defined membership functions.  
     - For instance, the membership function (e.g., for `LOW` defined as `(0,1) (5,1) (9,0)`) is evaluated with the input value to a degree. For an input of `7.0`, this might result in a partial membership of `0.5` for both `LOW` and `MEDIUM`.
-    
-- **appliedRules:**  
+- `appliedRules`:  
   Lists the fuzzy rules that were activated during the decision-making process. Defined in the `RULEBLOCK` in the `.fcl` file. The rule’s condition is satisfied, it is derived from the membership degrees of the inputs.
   - For instance, if `noOfTrucksInQueue` has a membership of `0.5` in `LOW`, then "Rule 1" might fire with a strength of `0.5`.
-
-- **outputVariables:**  
+- `outputVariables`:  
   Shows the final outcome after evaluating the all the activated rules and defuzzifying the result.
   - `value`: the output value computed from the fuzzy inference process. 
     - In example, the output value is approximately `2.998`.
