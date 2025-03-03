@@ -25,8 +25,7 @@ public class RuleEngineService {
     private final FIS fuzzyInferenceSystem;
 
     /**
-     * Evaluates the fuzzy inference rules based on the provided inputs and returns the sliding decision
-     * with the result along with its explanation.
+     * Evaluates the fuzzy inference rules based on the provided inputs, and it returns the sliding decision with its explanation.
      *
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
      * @return SlidingDecision containing the result and the explanation of the sliding decision.
@@ -126,13 +125,12 @@ public class RuleEngineService {
     }
 
     /**
-     * Create the explanation for the sliding decision.
+     * Creates the explanation for the sliding decision.
      *
      * @return SlidingDecisionExplanation containing explanation of the input variables, applied rules and output variables.
      */
     private SlidingDecisionExplanation createSlidingDecisionExplanation(FIS fuzzyInferenceSystem) {
-        var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null);
-
+        var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null); // selects the default function block
         return new SlidingDecisionExplanation(extractFuzzyVariableExplanation(functionBlock, Variable::isInput),
                 getAppliedRules(functionBlock),
                 extractFuzzyVariableExplanation(functionBlock, Variable::isOutput));
