@@ -66,11 +66,10 @@ The application will respond with a JSON string similar to the following:
     "slidingDecision": "HUMAN_ON_THE_LOOP",
     "description": "Human has to be informed about AI's rescheduling"
   },
-  "decisionExplanation": { ... }
+  "decisionExplanation": {}
 }
 ```
-
-The `decisionExplanation` field is represented as `{...}`. A detailed explanation of the `decisionExplanation` structure is provided in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field)
+_Note: The actual `decisionExplanation` field will include details about decision explanation. Please refer to the explanation of the `decisionExplanation` here in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field)._
 
 ---
 
@@ -78,38 +77,41 @@ The `decisionExplanation` field is represented as `{...}`. A detailed explanatio
 The Example of `decisionExplanation` field:
 
 ```json
-"decisionExplanation": {
-  "inputVariables": {
-    "noOfTrucksInQueue": {
-      "value": 7.0,
-      "terms": {
-        "MEDIUM": 0.5,
-        "LOW": 0.5
+{
+  "decisionExplanation": {
+    "inputVariables": {
+      "noOfTrucksInQueue": {
+        "value": 7.0,
+        "terms": {
+          "MEDIUM": 0.5,
+          "LOW": 0.5
+        }
+      },
+      "positionOfTruckToBePrioritized": {
+        "value": 5.0,
+        "terms": {
+          "NEAR_THE_FRONT_OF_THE_QUEUE": 1.0
+        }
       }
     },
-    "positionOfTruckToBePrioritized": {
-      "value": 5.0,
-      "terms": {
-        "NEAR_THE_FRONT_OF_THE_QUEUE": 1.0
+    "appliedRules": [
+      {
+        "rule": "1 (0.5) if noOfTrucksInQueue IS LOW then suggestedWorkSharingApproach IS AI_AUTONOMOUSLY [weight: 1.0]"
+      },
+      {
+        "rule": "2 (0.5) if (noOfTrucksInQueue IS MEDIUM) AND (positionOfTruckToBePrioritized IS NEAR_THE_FRONT_OF_THE_QUEUE) then suggestedWorkSharingApproach IS HUMAN_ON_THE_LOOP [weight: 1.0]"
       }
-    }
-  },
-  "appliedRules": [
-    {
-      "rule": "1 (0.5) if noOfTrucksInQueue IS LOW then suggestedWorkSharingApproach IS AI_AUTONOMOUSLY [weight: 1.0]"
-    },
-    {
-      "rule": "2 (0.5) if (noOfTrucksInQueue IS MEDIUM) AND (positionOfTruckToBePrioritized IS NEAR_THE_FRONT_OF_THE_QUEUE) then suggestedWorkSharingApproach IS HUMAN_ON_THE_LOOP [weight: 1.0]"
-    }
-  ],
-  "outputVariables": {
-    "suggestedWorkSharingApproach": {
-      "value": 2.998,
-      "terms": {
-        "HUMAN_ON_THE_LOOP": 1.0
+    ],
+    "outputVariables": {
+      "suggestedWorkSharingApproach": {
+        "value": 2.998,
+        "terms": {
+          "HUMAN_ON_THE_LOOP": 1.0
+        }
       }
     }
   }
+
 }
 ```
 
@@ -199,12 +201,11 @@ The application will respond with a JSON string similar to the following:
     "slidingDecision": "HUMAN_ON_THE_LOOP",
     "description": "Human has to be informed about AI's rescheduling"
   },
-  "decisionExplanation": { ... }
+  "decisionExplanation": {}
 }
 ```
 
-The `decisionExplanation` field is represented as `{...}`. It is an explanation of how the `slidingDecision` was made.  
-The example of the `decisionExplanation` structure is provided in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field).  
+_Note: The actual `decisionExplanation` field will include details about decision explanation. Please refer to the explanation of the `decisionExplanation` here in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field)._
 
 Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "AI can reschedule without human involvement"
@@ -278,12 +279,10 @@ The application will respond with a JSON string similar to the following:
         "slidingDecision": "AI_AUTONOMOUSLY",
         "description": "Let the drone carry the box"
     },
-  "decisionExplanation": { ... }
+  "decisionExplanation": {}
 }
 ```
-
-The `decisionExplanation` field is represented as `{...}`. It is an explanation of how the `slidingDecision` was made.  
-The example of the `decisionExplanation` structure is provided in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field).
+_Note: The actual `decisionExplanation` field will include details about decision explanation. Please refer to the explanation of the `decisionExplanation` here in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field)._
 
 Depending on the input parameters, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "Let the drone carry the box"
