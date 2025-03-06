@@ -137,7 +137,7 @@ public class RuleEngineService {
     }
 
     /**
-     * extract explanation for all fuzzy variable (input and output variable).
+     * extracts explanation for all fuzzy variables that match the given filter.
      */
     private Map<String, VariableExplanation> extractFuzzyVariableExplanation(FunctionBlock functionBlock, Predicate<Variable> variableFilter) {
         return functionBlock.getVariables().values().stream()

@@ -8,6 +8,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class VariableExplanation {
     private double value;
-    private Map<String, Double> terms;
+    private Map<String, Double> membershipValues;
 
 }
