@@ -53,7 +53,6 @@ curl --request POST \
       "positionOfTruckToBePrioritized": 5
     }
   }'
-
 ```
 
 ### Example Response
@@ -66,10 +65,12 @@ The application will respond with a JSON string similar to the following:
     "slidingDecision": "HUMAN_ON_THE_LOOP",
     "description": "Human has to be informed about AI's rescheduling"
   },
-  "decisionExplanation": {}
+  "decisionExplanation": {
+    "...": "..."
+  }
 }
 ```
-_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#explanation-of-the-decisionexplanation-field).  
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#how-to-read-the-decisionexplanation).  
 
 ---
 
@@ -140,11 +141,12 @@ The application will respond with a JSON string similar to the following:
     "slidingDecision": "HUMAN_ON_THE_LOOP",
     "description": "Human has to be informed about AI's rescheduling"
   },
-  "decisionExplanation": {}
+  "decisionExplanation": {
+    "...": "..."
+  }
 }
 ```
-
-_Note: The actual `decisionExplanation` field will include details about decision explanation. Please refer to the explanation of the `decisionExplanation` here in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field)._
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "AI can reschedule without human involvement"
@@ -213,15 +215,17 @@ The application will respond with a JSON string similar to the following:
 
 ```json
 {
-    "decisionStatus": "Sliding Decision Response",
-    "decisionResult": {
-        "slidingDecision": "AI_AUTONOMOUSLY",
-        "description": "Let the drone carry the box"
-    },
-  "decisionExplanation": {}
+  "decisionStatus": "Sliding Decision Response",
+  "decisionResult": {
+    "slidingDecision": "AI_AUTONOMOUSLY",
+    "description": "Let the drone carry the box"
+  },
+  "decisionExplanation": {
+    "...": "..."
+  }
 }
 ```
-_Note: The actual `decisionExplanation` field will include details about decision explanation. Please refer to the explanation of the `decisionExplanation` here in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field)._
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input parameters, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "Let the drone carry the box"
@@ -231,8 +235,13 @@ Depending on the input parameters, the SWS may decide one of the following:
 
 ---
 
-## How to Read the `decisionExplanation` 
-The Example of `decisionExplanation` field:
+## How to Read the `decisionExplanation`
+
+To make clear how the internal rule engine reached the "sliding decision", the response JSON contains the
+section `decisionExplanation`, subdivided into `inputVariables`, `appliedRules` and `outputVariables`. Each of those are
+described in the following based on examples.
+
+1. Input Variables (`inputVariables`)
 
 ```json
 {
@@ -240,51 +249,69 @@ The Example of `decisionExplanation` field:
     "inputVariables": {
       "noOfTrucksInQueue": {
         "value": 7.0,
-        "terms": {
+        "membershipValues": {
           "MEDIUM": 0.5,
           "LOW": 0.5
         }
       },
-      "positionOfTruckToBePrioritized": {
-        "value": 5.0,
-        "terms": {
-          "NEAR_THE_FRONT_OF_THE_QUEUE": 1.0
-        }
-      }
-    },
-    "appliedRules": [
-      {
-        "rule": "1 (0.5) if noOfTrucksInQueue IS LOW then suggestedWorkSharingApproach IS AI_AUTONOMOUSLY [weight: 1.0]"
-      },
-      {
-        "rule": "2 (0.5) if (noOfTrucksInQueue IS MEDIUM) AND (positionOfTruckToBePrioritized IS NEAR_THE_FRONT_OF_THE_QUEUE) then suggestedWorkSharingApproach IS HUMAN_ON_THE_LOOP [weight: 1.0]"
-      }
-    ],
-    "outputVariables": {
-      "suggestedWorkSharingApproach": {
-        "value": 2.998,
-        "terms": {
-          "HUMAN_ON_THE_LOOP": 1.0
-        }
+      "...": "..."
+    }
+  }
+}
+```
+
+- `value`: this is the original number provided as input. For example,`"noOfTrucksInQueue": { "value": 7.0, ... }`
+  indicates that the input value is `7.0`.
+- `membershipValues`: each fuzzy set (e.g. `LOW` or `MEDIUM`) receives a degree of membership between 0 and 1. For
+  instance, a value of `7.0` might partially belong to both the `LOW` and `MEDIUM` sets with a membership of `0.5` each.
+  This shows how well the input fits each fuzzy category.
+
+2. Applied Rules (`appliedRules`)  
+   This field lists the rules that were activated during the decision-making process.
+
+```json
+{
+  "appliedRules": [
+    {
+      "name": "1",
+      "ifClause": "noOfTrucksInQueue IS LOW",
+      "thenClause": "[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]",
+      "weight": "1.0",
+      "degreeOfSupport": "0.5"
+    }
+  ],
+  "...": "..."
+}
+```
+
+Each rule entry:
+
+- `name`: a identifier (e.g., `"name": "1"`).
+- `ifClause`: the condition of the rule (e.g., `"noOfTrucksInQueue IS LOW"`).
+- `thenClause`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]"`).
+- `weight` and `degreeOfSupport`: these values indicate the strength with which the rule fired based on the input’s
+  membership in the corresponding fuzzy set.
+
+The activated rules are derived from, how the input membership values match the conditions of each fuzzy rule. The degree
+of support shows the degree to which each rule contributed to the final decision.
+
+3. Output Variables (`outputVariables`)  
+   Shows the final outcome after evaluating the all the activated rules and the result.
+
+```json
+{
+  "outputVariables": {
+    "suggestedWorkSharingApproach": {
+      "value": 2.998000000000003,
+      "membershipValues": {
+        "HUMAN_ON_THE_LOOP": 1.0
       }
     }
   }
 }
 ```
 
-To make clear how the internal rule engine reached the "sliding decision", the response JSON contains the section `decisionExplanation`, subdivided into `inputVariables`, `appliedRules` and `outputVariables`. Each of those are described in the following based on examples.
-
-- `inputVariables`:
-  - `value`: the "slidingDecisionInputParameters", provided as an input.
-    - Example: `noOfTrucksInQueue`, the value could be `7.0`.
-  - `term`: these are the fuzzy sets (or linguistic terms) defined in the FUZZIFY sections in the `.fcl` file. Each term has an associated membership in between `0` and `1` that measures how input values belongs to that fuzzy set. It translates input values into fuzzy concepts (e.g., LOW, MEDIUM, HIGH) based on pre-defined membership functions.
-    - For instance, the membership function (e.g., for `LOW` defined as `(0,1) (5,1) (9,0)`) is evaluated with the input value to a degree. For an input of `7.0`, this might result in a partial membership of `0.5` for both `LOW` and `MEDIUM`.
-- `appliedRules`:  
-  Lists the fuzzy rules that were activated during the decision-making process. Defined in the `RULEBLOCK` in the `.fcl` file. The rule’s condition is satisfied, it is derived from the membership degrees of the inputs.
-  - For instance, if `noOfTrucksInQueue` has a membership of `0.5` in `LOW`, then "Rule 1" might fire with a strength of `0.5`.
-- `outputVariables`:  
-  Shows the final outcome after evaluating the all the activated rules and defuzzifying the result.
-  - `value`: the output value computed from the fuzzy inference process.
-    - In example, the output value is approximately `2.998`.
-  - `terms`: represents the membership degree of the output value to each fuzzy set defined in the DEFUZZIFY section in the `.fcl` file. The defuzzification process takes all the contributions from activated rules and produces a single value (`value`). This number is then mapped to the fuzzy linguistic terms.
-    - For instance, if `2.998` corresponds to `HUMAN_ON_THE_LOOP`, it might be represented as having a membership degree of `1.0` for that term.
+- `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical value. For example, a value approximately `2.998` is produced.
+- `membershipValues`: this final output is then associated with a fuzzy linguistic term. In our example, `2.998`
+  maps to "HUMAN_ON_THE_LOOP" with a membership degree of `1.0`. This means that, after all rules are applied, the
+  final decision is identified as that term.
