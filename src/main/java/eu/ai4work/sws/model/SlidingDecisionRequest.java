@@ -6,5 +6,4 @@ import java.util.Map;
 @Data
 public class SlidingDecisionRequest {
     private Map<String, Object> slidingDecisionInputParameters;
-
 }

@@ -141,7 +141,6 @@ public class RuleEngineService {
      */
     private Map<String, VariableExplanation> extractFuzzyVariableExplanation(FunctionBlock functionBlock, Predicate<Variable> variableFilter) {
         return functionBlock.getVariables().values().stream()
-                // variableFilter could be isInput or isOutput variables.
                 .filter(variableFilter)
                 // return the map with fuzzy variables name, value and linguistic terms (term name and membership value).
                 .collect(Collectors.toMap(

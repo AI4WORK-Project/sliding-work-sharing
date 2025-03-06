@@ -9,5 +9,4 @@ import lombok.Data;
 public class VariableExplanation {
     private double value;
     private Map<String, Double> membershipValues;
-
 }
