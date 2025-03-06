@@ -69,7 +69,7 @@ The application will respond with a JSON string similar to the following:
   "decisionExplanation": {}
 }
 ```
-_Note: The actual `decisionExplanation` field will include details about decision explanation. Please refer to the explanation of the `decisionExplanation` here in the section [Explanation of the `decisionExplanation` Field](#explanation-of-the-decisionexplanation-field)._  
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#explanation-of-the-decisionexplanation-field).  
 
 ---
 
@@ -231,7 +231,7 @@ Depending on the input parameters, the SWS may decide one of the following:
 
 ---
 
-## Explanation of the `decisionExplanation` Field
+## How to Read the `decisionExplanation` 
 The Example of `decisionExplanation` field:
 
 ```json
@@ -272,7 +272,7 @@ The Example of `decisionExplanation` field:
 }
 ```
 
-The Example `decisionExplanation` field provides the explanation of how the sliding decision was determined by the `inputVariables`, `appliedRules` and `outputVariables`.
+To make clear how the internal rule engine reached the "sliding decision", the response JSON contains the section `decisionExplanation`, subdivided into `inputVariables`, `appliedRules` and `outputVariables`. Each of those are described in the following based on examples.
 
 - `inputVariables`:
   - `value`: the "slidingDecisionInputParameters", provided as an input.
