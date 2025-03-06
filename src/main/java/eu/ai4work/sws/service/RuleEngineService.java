@@ -167,7 +167,13 @@ public class RuleEngineService {
                 .flatMap(ruleBlock -> ruleBlock.getRules().stream())
                 // filters the rules with a degree of support greater than zero.
                 .filter(rule -> rule.getDegreeOfSupport() > 0)
-                .map(rule -> new RuleExplanation(rule.toString().replace("\t", " ")))
+                .map(rule -> new RuleExplanation(
+                        rule.getName(),
+                        rule.getAntecedents().toString(),
+                        rule.getConsequents().toString(),
+                        Double.toString(rule.getWeight()),
+                        Double.toString(rule.getDegreeOfSupport())
+                ))
                 .collect(Collectors.toList());
     }
 }
