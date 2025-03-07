@@ -27,7 +27,7 @@ END_FUZZIFY
 
 DEFUZZIFY suggestedWorkSharingApproach
     TERM HUMAN_MANUALLY := (0, 1) (1, 1) (1, 0);   // Ask human for help
-    TERM HUMAN_IN_THE_LOOP := (1, 0) (1, 1) (2, 1) (2, 0); // Warn human, but let them decide
+    TERM HUMAN_IN_THE_LOOP := (1, 0) (1, 1) (2, 1) (2, 0); // Warn human, but let them decide if/when to help
     TERM HUMAN_ON_THE_LOOP := (2, 0) (2, 1) (3, 1) (3, 0); // Inform human about the problem
     TERM AI_AUTONOMOUSLY := (3,0) (3,1) (4,1) (4,0); // Let the robot continue trying
     METHOD : COG;        // Use 'Center Of Gravity' defuzzification method
