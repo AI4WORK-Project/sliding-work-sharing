@@ -238,7 +238,7 @@ This example scenario is from the construction domain:
   - the robot may be blocked and thus unable to continue its work, so that it requires human support
 - depending on the situation, SWS should support the decision if/when a human should be called for help.
 
-The SWS management should decide if/when a human should be called to help the robot. This decision depends on:
+The SWS management should support the decision if/when a human should be called to help the robot. This decision depends on:
 
 - the time that the robot is already blocked
 - the battery status of the robot
@@ -246,9 +246,9 @@ The SWS management should decide if/when a human should be called to help the ro
 
 #### Example Rules
 
-- if the battery status of robot is low, ask for human help
-- if the time of robot blocked is short and battery status of robot is not low, let robot continue trying
-- if the time of robot blocked is moderate and battery status of robot is not low, Inform human about the problem
+- if the battery status of the robot is low, ask for human help
+- if the time the robot is already blocked is short and the battery status of the robot is not low, let the robot continue trying
+- if the time the robot is already blocked is moderate and the battery status of the robot is not low, inform the human about the problem (so that they may decide if/when to help)
 
 To explore the example rules in detail, please refer to the FCL file located [here](src/main/resources/rules/ConstructionRobotAssistanceDecisionRules.fcl)
 
@@ -299,6 +299,6 @@ The application will respond with a JSON string similar to the following:
 
 Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "Let the robot continue trying"
-- `HUMAN_IN_THE_LOOP`: "Warn human, but let them decide"
+- `HUMAN_IN_THE_LOOP`: "Warn human, but let them decide if/when to help"
 - `HUMAN_ON_THE_LOOP`: "Inform human about the problem"
 - `HUMAN_MANUALLY`: "Ask human for help"
