@@ -364,13 +364,11 @@ described in the following based on examples.
 }
 ```
 
-Each rule entry:
-
-- `name`: a identifier (e.g., `"name": "1"`).
-- `ifClause`: the condition of the rule (e.g., `"noOfTrucksInQueue IS LOW"`).
-- `thenClause`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]"`).
+- `name`: a identifier (e.g., `"name": "1"`)
+- `ifClause`: the condition of the rule (e.g., `"noOfTrucksInQueue IS LOW"`)
+- `thenClause`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]"`)
 - `weight` and `degreeOfSupport`: these values indicate the strength with which the rule fired based on the input’s
-  membership in the corresponding fuzzy set.
+  membership in the corresponding fuzzy set
 
 The activated rules are derived from, how the input membership values match the conditions of each fuzzy rule. The degree
 of support shows the degree to which each rule contributed to the final decision.
