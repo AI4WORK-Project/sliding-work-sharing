@@ -169,8 +169,8 @@ public class RuleEngineService {
                 .filter(rule -> rule.getDegreeOfSupport() > 0)
                 .map(rule -> new RuleExplanation(
                         rule.getName(),
-                        rule.getAntecedents().toString(),
-                        rule.getConsequents().toString(),
+                        "IF " + rule.getAntecedents().toString(),
+                        "THEN " + rule.getConsequents().toString(),
                         Double.toString(rule.getWeight()),
                         Double.toString(rule.getDegreeOfSupport())
                 ))

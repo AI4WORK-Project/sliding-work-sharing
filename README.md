@@ -340,8 +340,7 @@ described in the following based on examples.
 }
 ```
 
-- `value`: this is the original number provided as input. For example,`"noOfTrucksInQueue": { "value": 7.0, ... }`
-  indicates that the input value is `7.0`.
+- `value`: this is the original number provided as input in the Sliding Decision Request. 
 - `membershipValues`: each fuzzy set (e.g. `LOW` or `MEDIUM`) receives a degree of membership between 0 and 1. For
   instance, a value of `7.0` might partially belong to both the `LOW` and `MEDIUM` sets with a membership of `0.5` each.
   This shows how well the input fits each fuzzy category.
@@ -364,8 +363,8 @@ described in the following based on examples.
 }
 ```
 
-- `name`: a identifier (e.g., `"name": "1"`)
-- `ifClause`: the condition of the rule (e.g., `"noOfTrucksInQueue IS LOW"`)
+- `name`: an identifier for the rule
+- `ifClause`: the condition of the rule, which is evaluated based on the input value's membership in the fuzzy category
 - `thenClause`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]"`)
 - `weight` and `degreeOfSupport`: these values indicate the strength with which the rule fired based on the input’s
   membership in the corresponding fuzzy set
@@ -374,7 +373,7 @@ The activated rules are derived from, how the input membership values match the 
 of support shows the degree to which each rule contributed to the final decision.
 
 3. Output Variables (`outputVariables`)  
-   Shows the final outcome after evaluating the all the activated rules and the result.
+   Shows the final outcome after evaluating all the activated rules.
 
 ```json
 {
@@ -389,7 +388,7 @@ of support shows the degree to which each rule contributed to the final decision
 }
 ```
 
-- `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical value. For example, a value approximately `2.998` is produced.
+- `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical value. In the given example, a value of approximately `2.998` is produced.
 - `membershipValues`: this final output is then associated with a fuzzy linguistic term. In our example, `2.998`
   maps to "HUMAN_ON_THE_LOOP" with a membership degree of `1.0`. This means that, after all rules are applied, the
   final decision is identified as that term.

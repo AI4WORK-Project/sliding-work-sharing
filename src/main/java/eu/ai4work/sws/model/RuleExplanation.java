@@ -7,8 +7,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class RuleExplanation {
     private String name;
-    private String ifClause;
-    private String thenClause;
+    private String condition;
+    private String consequence;
     private String weight;
     private String degreeOfSupport;
 }
