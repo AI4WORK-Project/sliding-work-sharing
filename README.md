@@ -303,6 +303,9 @@ The application will respond with a JSON string similar to the following:
   "decisionResult": {
     "slidingDecision": "AI_AUTONOMOUSLY",
     "description": "Let the robot continue trying"
+  },
+  "decisionExplanation": {
+    "...": "..."
   }
 }
 ```
@@ -321,7 +324,7 @@ To make clear how the internal rule engine reached the "sliding decision", the r
 section `decisionExplanation`, subdivided into `inputVariables`, `appliedRules` and `outputVariables`. Each of those are
 described in the following based on examples.
 
-1. Input Variables (`inputVariables`)
+### Input Variables
 
 ```json
 {
@@ -341,11 +344,9 @@ described in the following based on examples.
 ```
 
 - `value`: this is the original number provided as input in the Sliding Decision Request. 
-- `membershipValues`: each fuzzy set (e.g. `LOW` or `MEDIUM`) receives a degree of membership between 0 and 1. For
-  instance, a value of `7.0` might partially belong to both the `LOW` and `MEDIUM` sets with a membership of `0.5` each.
-  This shows how well the input fits each fuzzy category.
+- `membershipValues`: this shows the "fuzzy categories" into which the input value fits. Each category is assigned a membership degree between 0 and 1. In the given example, the input value of `7.0` might partially belong to both the `LOW` and `MEDIUM` categories with a membership degree of `0.5` each.
 
-2. Applied Rules (`appliedRules`)  
+### Applied Rules   
    This field lists the rules that were activated during the decision-making process.
 
 ```json
@@ -353,8 +354,8 @@ described in the following based on examples.
   "appliedRules": [
     {
       "name": "1",
-      "ifClause": "noOfTrucksInQueue IS LOW",
-      "thenClause": "[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]",
+      "condition": "IF noOfTrucksInQueue IS LOW",
+      "consequence": "THEN [suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]",
       "weight": "1.0",
       "degreeOfSupport": "0.5"
     }
@@ -364,15 +365,12 @@ described in the following based on examples.
 ```
 
 - `name`: an identifier for the rule
-- `ifClause`: the condition of the rule, which is evaluated based on the input value's membership in the fuzzy category
-- `thenClause`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]"`)
-- `weight` and `degreeOfSupport`: these values indicate the strength with which the rule fired based on the input’s
-  membership in the corresponding fuzzy set
+- `condition`:  the part that decides if this rule should be activated, based on the input values' memberships in the fuzzy categories
+- `consequence`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]"`)
+- `weight`: is a pre-defined value, which defines the general "importance/impact" of this rule 
+- `degreeOfSupport`: the level of impact that this rule has on the final decision, calculated based on the fuzzy membership degrees of the input values
 
-The activated rules are derived from, how the input membership values match the conditions of each fuzzy rule. The degree
-of support shows the degree to which each rule contributed to the final decision.
-
-3. Output Variables (`outputVariables`)  
+### Output Variables
    Shows the final outcome after evaluating all the activated rules.
 
 ```json
@@ -389,6 +387,6 @@ of support shows the degree to which each rule contributed to the final decision
 ```
 
 - `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical value. In the given example, a value of approximately `2.998` is produced.
-- `membershipValues`: this final output is then associated with a fuzzy linguistic term. In our example, `2.998`
+- `membershipValues`: this final output is then associated with a fuzzy category. In our example, `2.998`
   maps to "HUMAN_ON_THE_LOOP" with a membership degree of `1.0`. This means that, after all rules are applied, the
-  final decision is identified as that term.
+  final decision is identified as that suggested work sharing approach.
