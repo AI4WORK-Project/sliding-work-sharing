@@ -309,6 +309,7 @@ The application will respond with a JSON string similar to the following:
   }
 }
 ```
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "Let the robot continue trying"
