@@ -53,7 +53,6 @@ curl --request POST \
       "positionOfTruckToBePrioritized": 5
     }
   }'
-
 ```
 
 ### Example Response
@@ -65,9 +64,13 @@ The application will respond with a JSON string similar to the following:
   "decisionResult": {
     "slidingDecision": "HUMAN_ON_THE_LOOP",
     "description": "Human has to be informed about AI's rescheduling"
+  },
+  "decisionExplanation": {
+    "...": "..."
   }
 }
 ```
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#how-to-read-the-decisionexplanation).  
 
 ---
 
@@ -140,9 +143,13 @@ The application will respond with a JSON string similar to the following:
   "decisionResult": {
     "slidingDecision": "HUMAN_ON_THE_LOOP",
     "description": "Human has to be informed about AI's rescheduling"
+  },
+  "decisionExplanation": {
+    "...": "..."
   }
 }
 ```
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "AI can reschedule without human involvement"
@@ -211,13 +218,17 @@ The application will respond with a JSON string similar to the following:
 
 ```json
 {
-    "decisionStatus": "Sliding Decision Response",
-    "decisionResult": {
-        "slidingDecision": "AI_AUTONOMOUSLY",
-        "description": "Let the drone carry the box"
-    }
+  "decisionStatus": "Sliding Decision Response",
+  "decisionResult": {
+    "slidingDecision": "AI_AUTONOMOUSLY",
+    "description": "Let the drone carry the box"
+  },
+  "decisionExplanation": {
+    "...": "..."
+  }
 }
 ```
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input parameters, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "Let the drone carry the box"
@@ -225,7 +236,7 @@ Depending on the input parameters, the SWS may decide one of the following:
 - `HUMAN_IN_THE_LOOP`: "Let the worker decide"
 - `HUMAN_MANUALLY`: "Let the worker carry the box"
 
-___
+---
 
 ### Construction Scenario
 
@@ -292,12 +303,91 @@ The application will respond with a JSON string similar to the following:
   "decisionResult": {
     "slidingDecision": "AI_AUTONOMOUSLY",
     "description": "Let the robot continue trying"
+  },
+  "decisionExplanation": {
+    "...": "..."
   }
 }
 ```
+_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input, the SWS may decide one of the following:
 - `AI_AUTONOMOUSLY`: "Let the robot continue trying"
 - `HUMAN_ON_THE_LOOP`: "Inform human about the problem"
 - `HUMAN_IN_THE_LOOP`: "Warn human, but let them decide if/when to help"
 - `HUMAN_MANUALLY`: "Ask human for help"
+
+---
+
+## How to Read the `decisionExplanation`
+
+To make clear how the internal rule engine reached the "sliding decision", the response JSON contains the
+section `decisionExplanation`, subdivided into `inputVariables`, `appliedRules` and `outputVariables`. Each of those are
+described in the following based on examples.
+
+### Input Variables
+
+```json
+{
+  "decisionExplanation": {
+    "inputVariables": {
+      "noOfTrucksInQueue": {
+        "value": 7.0,
+        "membershipValues": {
+          "MEDIUM": 0.5,
+          "LOW": 0.5
+        }
+      },
+      "...": "..."
+    }
+  }
+}
+```
+
+- `value`: this is the original number provided as input in the Sliding Decision Request. 
+- `membershipValues`: this shows the "fuzzy categories" into which the input value fits. Each category is assigned a membership degree between 0 and 1. In the given example, the input value of `7.0` might partially belong to both the `LOW` and `MEDIUM` categories with a membership degree of `0.5` each.
+
+### Applied Rules   
+   This field lists the rules that were activated during the decision-making process.
+
+```json
+{
+  "appliedRules": [
+    {
+      "name": "1",
+      "condition": "IF noOfTrucksInQueue IS LOW",
+      "consequence": "THEN [suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]",
+      "weight": "1.0",
+      "degreeOfSupport": "0.5"
+    }
+  ],
+  "...": "..."
+}
+```
+
+- `name`: an identifier for the rule
+- `condition`:  the part that decides if this rule should be activated, based on the input values' memberships in the fuzzy categories
+- `consequence`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]"`)
+- `weight`: is a pre-defined value, which defines the general "importance/impact" of this rule 
+- `degreeOfSupport`: the level of impact that this rule has on the final decision, calculated based on the fuzzy membership degrees of the input values
+
+### Output Variables
+   Shows the final outcome after evaluating all the activated rules.
+
+```json
+{
+  "outputVariables": {
+    "suggestedWorkSharingApproach": {
+      "value": 2.998000000000003,
+      "membershipValues": {
+        "HUMAN_ON_THE_LOOP": 1.0
+      }
+    }
+  }
+}
+```
+
+- `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical value. In the given example, a value of approximately `2.998` is produced.
+- `membershipValues`: this final output is then associated with a fuzzy category. In our example, `2.998`
+  maps to "HUMAN_ON_THE_LOOP" with a membership degree of `1.0`. This means that, after all rules are applied, the
+  final decision is identified as that suggested work sharing approach.
