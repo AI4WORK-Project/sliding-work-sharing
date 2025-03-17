@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 
@@ -29,13 +30,20 @@ public class FuzzyInferenceSystemInitializer {
     @Bean(name = "fuzzyInferenceSystem")
     public FIS initializeFuzzyInferenceSystem() throws FileNotFoundException, InvalidFclFileException {
         String fclRulesFilePath = applicationScenarioConfiguration.getFclRulesFilePath();
-        URL fuzzyLogicRulesResourceUrl = getClass().getClassLoader().getResource(fclRulesFilePath);
 
-        if (fuzzyLogicRulesResourceUrl == null) {
-            throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
+        // Try external file system
+        File externalFuzzyRuleResourceUrl = new File(fclRulesFilePath);
+        if (externalFuzzyRuleResourceUrl.exists()) {
+            return parseFclFile(externalFuzzyRuleResourceUrl.getPath());
         }
 
-        return parseFclFile(fuzzyLogicRulesResourceUrl.getPath());
+        // Then try classpath resources
+        URL internalFuzzyRuleResourceUrl = getClass().getClassLoader().getResource(fclRulesFilePath);
+        if (internalFuzzyRuleResourceUrl != null) {
+            return parseFclFile(internalFuzzyRuleResourceUrl.getPath());
+        }
+
+        throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
     }
 
     private static FIS parseFclFile(String fclRulesFilePath) {
