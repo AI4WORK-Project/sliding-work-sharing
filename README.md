@@ -74,6 +74,58 @@ _Please Note_: The `decisionExplanation` is not shown here for the sake of brevi
 
 ---
 
+## How to apply the SWS to your own application scenario
+
+It allows running SWS with configurations that are not included in this repository. To apply Sliding Work Sharing to
+your own application scenario, follow these steps:
+
+### 1. Create Custom `.fcl` file and `application.yml`
+
+#### Create your custom `.fcl` file
+
+- suggestion would be to take one of the existing `.fcl` file as template and adjust "the input parameters" and "
+  decision rules" to your scenario
+- existing `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
+
+#### Create your custom `application.yml` file
+
+- suggestion would be to take an existing `application-{existing-configration}.yml` as template and adjust
+  the `fclRulesFilePath` to your `.fcl` file and also the textual description of the sliding decision approaches so that
+  they fit your scenario
+- replace the `{existing-configration}` with a name representing your custom scenario
+- existing configuration files (`.yml`) can be found at [src/main/resources](src/main/resources)
+
+### 2. How to run your custom application scenario
+
+#### Build the SWS `jar` file
+
+- open a terminal in the project directory and execute the following command to clean previous build artifacts and
+  package the application into `jar` file
+
+```bash
+mvn clean package
+```
+
+- after successful build, the `jar` file can be found at the `target/sliding-work-sharing-0.0.1-SNAPSHOT.jar`
+
+#### Run the application using your custom configuration
+
+- place the following files in a single directory
+  - your custom `.fcl` file
+  - your custom `.yml` file
+  - the JAR file `sliding-work-sharing-0.0.1-SNAPSHOT.jar`
+- now, open a terminal in that directory and run
+
+```bash
+java -jar .\sliding-work-sharing-0.0.1-SNAPSHOT.jar --spring.config.location=application-{your-configration-name}.yml
+```
+
+_Please Note_: here the `{your-configration-name}` would be the name your custom scenario's name
+
+To test your custom scenario, refer the example of testing the application section [here](#how-to-test-the-application)
+
+---
+
 ## Demonstration Scenarios
 
 To make this software useful for application in different domains, it can be configured via application-scenario-specific rules. This is explained in the following, based on simplified example scenarios from the AI4Work project's pilot domains:
