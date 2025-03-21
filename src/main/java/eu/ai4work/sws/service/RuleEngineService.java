@@ -90,12 +90,12 @@ public class RuleEngineService {
     }
 
     /**
-     * Maps a fuzzy inference result to its corresponding linguistic term based on the highest membership degree.
+     * Reads a fuzzy inference result to its corresponding linguistic term based on the highest membership degree.
      *
-     * @param suggestedWorkSharingApproachAsFuzzyVariable The fuzzy output variable to evaluate.
      * @return The output as a linguistic term, i.e., the name of the membership function with the highest membership degree.
      */
-    private String mapFuzzyInferenceResultToLinguisticTerm(Variable suggestedWorkSharingApproachAsFuzzyVariable) {
+    private String readFuzzyInferenceResultAsLinguisticTerm() {
+        Variable suggestedWorkSharingApproachAsFuzzyVariable = fuzzyInferenceSystem.getVariable(SUGGESTED_WORK_SHARING_APPROACH);
         return suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
                 // Map each linguistic term to its corresponding membership degree
                 .map(linguisticTermWithMembershipDegree -> Map.entry(
@@ -122,11 +122,11 @@ public class RuleEngineService {
     }
 
     /**
-     * Creates the explanation for the sliding decision.
+     * Reads the explanation for the sliding decision.
      *
      * @return SlidingDecisionExplanation containing explanation of the input variables, applied rules and output variables.
      */
-    private SlidingDecisionExplanation createSlidingDecisionExplanation() {
+    private SlidingDecisionExplanation readSlidingDecisionExplanationFromFuzzyInferenceSystem() {
         var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null); // selects the default function block
         return new SlidingDecisionExplanation(extractFuzzyVariableExplanation(functionBlock, Variable::isInput),
                 getAppliedRules(functionBlock),
