@@ -37,9 +37,9 @@ public class RuleEngineService {
 
         fuzzyInferenceSystem.evaluate();
 
-        String resultAsLinguisticTerm = mapFuzzyInferenceResultToLinguisticTerm(fuzzyInferenceSystem.getVariable(SUGGESTED_WORK_SHARING_APPROACH));
+        String resultAsLinguisticTerm = readFuzzyInferenceResultAsLinguisticTerm();
 
-        SlidingDecisionExplanation decisionExplanation = createSlidingDecisionExplanation();
+        SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem();
 
         return new SlidingDecision(SlidingDecisionResult.valueOf(resultAsLinguisticTerm), decisionExplanation);
     }
