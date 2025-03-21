@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put(EXCEPTION_NAME, exception.getClass().getName());
         errorDetails.put(EXCEPTION_MESSAGE, exception.getMessage());
-        errorDetails.put(DEBUG_HINT, debugHint.getDebugHintMessage());
+        errorDetails.put(DEBUG_HINT, debugHint);
 
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put(DECISION_STATUS, SlidingDecisionStatus.ERROR);
