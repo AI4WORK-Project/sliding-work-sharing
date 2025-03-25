@@ -91,6 +91,7 @@ your own application scenario, follow these steps:
 
 #### Create your custom `.fcl` file
 
+- `fcl` (fuzzy control language) is used to define input parameters and decision rules. 
 - suggestion would be to take one of the existing `.fcl` file as template and adjust "the input parameters" and "
   decision rules" to your scenario
 - existing `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
@@ -99,7 +100,7 @@ your own application scenario, follow these steps:
 
 - suggestion would be to take an existing `application-{existing-configration}.yml` as template and adjust
   the `fclRulesFilePath` to your `.fcl` file and also the textual description of the sliding decision approaches so that
-  they fit your scenario
+  they fit to your scenario
 - replace the `{existing-configration}` with a name representing your custom scenario
 - existing configuration files (`.yml`) can be found at [src/main/resources](src/main/resources)
 
