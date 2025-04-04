@@ -122,8 +122,11 @@ mvn clean package
 - place the following files in a single directory
   - your custom `.fcl` file
   - your custom `.yml` file
-  - the JAR file `sliding-work-sharing-0.0.1-SNAPSHOT.jar`
-- now, open a terminal in that directory and run
+  - the JAR file `sliding-work-sharing-0.0.1-SNAPSHOT.jar`  
+  
+_Note_: Ensure the `fclRulesFilePath` is correctly specified in this `.fcl` file
+  
+- next, open a terminal in the same directory (where all files are located) and run the following command
 
 ```bash
 java -jar .\sliding-work-sharing-0.0.1-SNAPSHOT.jar --spring.config.location=application-{your-configration-name}.yml
