@@ -2,7 +2,7 @@ name: Java CI with Maven and Release Artifact
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "*" ]
   pull_request:
     branches: [ "main" ]
   release:
@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      version: ${{ steps.extract_version.outputs.version }}
-      artifactId: ${{ steps.extract_artifactId.outputs.artifactId }}
+      artifactId: ${{ steps.extract-metadata.outputs.artifactId }}
+      version: ${{ steps.extract-metadata.outputs.version }}
 
     steps:
       - uses: actions/checkout@v4
@@ -31,34 +31,33 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn -B clean install
+        run: mvn -B clean verify
 
-      - name: Extract project version
-        id: extract_version
-        run: |
-          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Extract artifactID
-        id: extract_artifactId
+      - name: Extract project version and artifactId (Release Only)
+        if: github.event_name == 'release'
+        id: extract-metadata
         run: |
           ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "artifactId=$ARTIFACT_ID" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Upload JAR
+      - name: Upload JAR (Release Only)
+        if: github.event_name == 'release'
         uses: actions/upload-artifact@v4
         with:
-          name: java-artifact
-          path: target/${{ steps.extract_artifactId.outputs.artifactId }}-${{ steps.extract_version.outputs.version }}.jar
+          name: release-jar
+          path: target/${{ steps.extract-metadata.outputs.artifactId }}-${{ steps.extract-metadata.outputs.version }}.jar
 
   release:
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'release'
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download JAR
+        uses: actions/download-artifact@v4
         with:
-          name: java-artifact
+          name: release-jar
           path: target
 
       - name: Upload Release Asset
