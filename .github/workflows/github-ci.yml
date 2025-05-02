@@ -1,0 +1,68 @@
+name: Java CI with Maven and Release Artifact
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+  release:
+    types: [ created ]
+
+permissions:
+  contents: write
+  actions: read
+  checks: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      artifactId: ${{ steps.extract-metadata.outputs.artifactId }}
+      version: ${{ steps.extract-metadata.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B clean verify
+
+      - name: Extract project version and artifactId (Release Only)
+        if: github.event_name == 'release'
+        id: extract-metadata
+        run: |
+          ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "artifactId=$ARTIFACT_ID" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Upload JAR (Release Only)
+        if: github.event_name == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-jar
+          path: target/${{ steps.extract-metadata.outputs.artifactId }}-${{ steps.extract-metadata.outputs.version }}.jar
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'release'
+    steps:
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: release-jar
+          path: target
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/${{ needs.build.outputs.artifactId }}-${{ needs.build.outputs.version }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
