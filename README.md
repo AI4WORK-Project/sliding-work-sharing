@@ -91,7 +91,7 @@ your own application scenario, follow these steps:
 
 #### Create your custom `.fcl` file
 
-- `fcl` (fuzzy control language) is used to define input parameters and decision rules. 
+- `fcl` (fuzzy control language) is used to define input parameters and decision rules.
 - suggestion would be to take one of the existing `.fcl` file as template and adjust "the input parameters" and "
   decision rules" to your scenario
 - existing `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
@@ -107,18 +107,19 @@ your own application scenario, follow these steps:
 ### 2. Download the SWS `jar` file
 
 - visit the https://github.com/AI4WORK-Project/sliding-work-sharing/releases release page of repository
-- find the latest release and download the `jar` file named in format `sliding-work-sharing-{version-number}.jar` under the "Assets" list 
+- find the latest release and download the `jar` file named in format `sliding-work-sharing-{version-number}.jar` under
+  the "Assets" list
 - after download completes, the `jar` file can be found in your download folder
 
 ### 3. Run the application using your custom configuration
 
 - place the following files in a single directory
-  - your custom `.fcl` file
-  - your custom `.yml` file
-  - the downloaded JAR file (e.g.,`sliding-work-sharing-0.0.1.jar`)  
-  
+    - your custom `.fcl` file
+    - your custom `.yml` file
+    - the downloaded JAR file (e.g.,`sliding-work-sharing-0.0.1.jar`)
+
 _Note_: Ensure the `fclRulesFilePath` is correctly specified in this `.fcl` file
-  
+
 - next, open a terminal in the same directory (where all files are located) and run the following command
 
 ```bash
