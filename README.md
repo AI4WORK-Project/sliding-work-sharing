@@ -84,7 +84,7 @@ described [here](#how-to-read-the-decisionexplanation).
 
 ## How to apply the SWS to your own application scenario
 
-It allows running SWS with configurations that are not included in this repository. To apply Sliding Work Sharing to
+It allows running SWS with configurations that are not included in this repository. To apply SWS to
 your own application scenario, follow these steps:
 
 ### 1. Create Custom `.fcl` file and `application.yml`
@@ -104,32 +104,25 @@ your own application scenario, follow these steps:
 - replace the `{existing-configration}` with a name representing your custom scenario
 - existing configuration files (`.yml`) can be found at [src/main/resources](src/main/resources)
 
-### 2. How to run your custom application scenario
+### 2. Download the SWS `jar` file
 
-#### Build the SWS `jar` file
+- visit the https://github.com/AI4WORK-Project/sliding-work-sharing/releases release page of repository
+- download the latest `jar` file named in format `sliding-work-sharing-{version-number}.jar` 
+- after download completes, the `jar` file can be found in your download folder
 
-- open a terminal in the project directory and execute the following command to clean previous build artifacts and
-  package the application into `jar` file
-
-```bash
-mvn clean package
-```
-
-- after successful build, the `jar` file can be found at the `target/sliding-work-sharing-0.0.1-SNAPSHOT.jar`
-
-#### Run the application using your custom configuration
+### 3. Run the application using your custom configuration
 
 - place the following files in a single directory
   - your custom `.fcl` file
   - your custom `.yml` file
-  - the JAR file `sliding-work-sharing-0.0.1-SNAPSHOT.jar`  
+  - the downloaded JAR file (e.g.,`sliding-work-sharing-0.0.1.jar`)  
   
 _Note_: Ensure the `fclRulesFilePath` is correctly specified in this `.fcl` file
   
 - next, open a terminal in the same directory (where all files are located) and run the following command
 
 ```bash
-java -jar .\sliding-work-sharing-0.0.1-SNAPSHOT.jar --spring.config.location=application-{your-configration-name}.yml
+java -jar .\sliding-work-sharing-0.1.0.jar --spring.config.location=application-{your-configration-name}.yml
 ```
 
 _Please Note_: here the `{your-configration-name}` would be the name your custom scenario's name
