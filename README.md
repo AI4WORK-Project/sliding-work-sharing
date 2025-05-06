@@ -106,7 +106,8 @@ your own application scenario, follow these steps:
 
 ### 2. Download the SWS `.jar` file
 
-- download the `.jar` file from the following link: https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.0/sliding-work-sharing-0.1.0.jar
+- download the `.jar` file from the following link: 
+  https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.0/sliding-work-sharing-0.1.0.jar
 - after download complete, the `.jar` file can be found in your download folder
 
 ### 3. Run the application using your custom configuration
