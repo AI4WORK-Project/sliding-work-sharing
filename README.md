@@ -93,21 +93,20 @@ To apply SWS to your own application scenario, you need to do the following:
 ### Create your custom `.fcl` file
 
 - `fcl` (fuzzy control language) is used to define input parameters and decision rules.
-- our suggestion would be to take one of the existing `.fcl` file as template and adjust it to your scenario
-  decision rules to your scenario
-- existing `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
+- our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
+- existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
 ### Create your custom `.yml` configuration file
 
-- suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust
-  the `fclRulesFilePath` to your `.fcl` file and also the textual description of the sliding decision approaches so that
-  they fit to your scenario
+- our suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust it:
+  - the `fclRulesFilePath` should point to the location of your `.fcl` file
+  - the textual description of the decision results should fit to your scenario
 - replace the `{existing-configuration}` with a name representing your custom scenario
-- existing configuration files (`.yml`) can be found at [src/main/resources](src/main/resources)
+- existing example configuration files can be found at [src/main/resources](src/main/resources)
 
 ### Download (or build) the sliding-work-sharing `.jar` file
 
-- download the `.jar` file from the following link:
+- the easiest way is to download the release `.jar` file from the following link:
   https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.0/sliding-work-sharing-0.1.0.jar
 - alternatively, in case you prefer to build your own jar file, follow
   the [instructions above](#how-to-build-and-run-the-application)
@@ -129,7 +128,8 @@ java -jar sliding-work-sharing-0.1.0.jar --spring.config.location=application-{y
 
 _Please Note_: here the `{your-configuration-name}` would be the name of your custom scenario's name
 
-To test your custom scenario, refer the example of testing the application section [here](#how-to-test-the-application)
+To test your custom scenario, follow the example in the [testing the application](#how-to-test-the-application)
+section and adjust its input parameters to fit to your own scenario.
 
 ---
 
