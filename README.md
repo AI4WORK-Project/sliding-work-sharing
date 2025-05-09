@@ -84,8 +84,7 @@ described [here](#how-to-read-the-decisionexplanation).
 
 ## How to apply the SWS to your own application scenario
 
-To apply SWS to
-your own application scenario, you need to do the following:
+To apply SWS to your own application scenario, you need to do the following:
 - define your own input parameters and decision rules in an `.fcl` file
 - create your custom `.yml` configuration file
 - download a runnable version of the software (or build it yourself)
@@ -95,15 +94,15 @@ your own application scenario, you need to do the following:
 
 - `fcl` (fuzzy control language) is used to define input parameters and decision rules.
 - our suggestion would be to take one of the existing `.fcl` file as template and adjust it to your scenario
-  decision rules" to your scenario
+  decision rules to your scenario
 - existing `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
 ### Create your custom `.yml` configuration file
 
-- suggestion would be to take an existing `application-{existing-configration}.yml` as template and adjust
+- suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust
   the `fclRulesFilePath` to your `.fcl` file and also the textual description of the sliding decision approaches so that
   they fit to your scenario
-- replace the `{existing-configration}` with a name representing your custom scenario
+- replace the `{existing-configuration}` with a name representing your custom scenario
 - existing configuration files (`.yml`) can be found at [src/main/resources](src/main/resources)
 
 ### Download (or build) the sliding-work-sharing `.jar` file
@@ -112,7 +111,7 @@ your own application scenario, you need to do the following:
   https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.0/sliding-work-sharing-0.1.0.jar
 - alternatively, in case you prefer to build your own jar file, follow the [instructions above](#how-to-build-and-run-the-application)
 
-### 3. Run the application using your custom configuration
+### Run the application using your custom configuration
 
 - place the following files in a single directory
     - your custom `.fcl` file
@@ -124,10 +123,10 @@ _Note_: Ensure that the path to your `.fcl` file is correctly specified as `fclR
 - next, open a terminal in the same directory (where all files are located) and run the following command
 
 ```bash
-java -jar .\sliding-work-sharing-0.1.0.jar --spring.config.location=application-{your-configration-name}.yml
+java -jar sliding-work-sharing-0.1.0.jar --spring.config.location=application-{your-configuration-name}.yml
 ```
 
-_Please Note_: here the `{your-configration-name}` would be the name your custom scenario's name
+_Please Note_: here the `{your-configuration-name}` would be the name of your custom scenario's name
 
 To test your custom scenario, refer the example of testing the application section [here](#how-to-test-the-application)
 
