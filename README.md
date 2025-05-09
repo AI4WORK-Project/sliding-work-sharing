@@ -82,6 +82,57 @@ described [here](#how-to-read-the-decisionexplanation).
 
 ---
 
+## How to apply the SWS to your own application scenario
+
+To apply SWS to your own application scenario, you need to do the following:
+
+- define your own input parameters and decision rules in an `.fcl` file
+- create your custom `.yml` configuration file
+- download a runnable version of the software (or build it yourself)
+
+### Create your custom `.fcl` file
+
+- `fcl` (fuzzy control language) is used to define input parameters and decision rules.
+- our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
+- existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
+
+### Create your custom `.yml` configuration file
+
+- our suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust it:
+  - the `fclRulesFilePath` should point to the location of your `.fcl` file
+  - the textual description of the decision results should fit to your scenario
+  - replace `{existing-configuration}` with a name representing your custom scenario
+- existing example configuration files can be found at [src/main/resources](src/main/resources)
+
+### Download (or build) the sliding-work-sharing `.jar` file
+
+- the easiest way is to download the release `.jar` file from the following link:
+  https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.0/sliding-work-sharing-0.1.0.jar
+- alternatively, in case you prefer to build your own jar file, follow
+  the [instructions above](#how-to-build-and-run-the-application)
+
+### Run the application using your custom configuration
+
+- place the following files in a single directory
+    - your custom `.fcl` file
+    - your custom `.yml` file
+    - the `.jar` file (e.g.,`sliding-work-sharing-0.1.0.jar`)
+
+_Note_: Ensure that the path to your `.fcl` file is correctly specified as `fclRulesFilePath` in the `.yml` file
+
+- next, open a terminal in the same directory (where all files are located) and run the following command
+
+```bash
+java -jar sliding-work-sharing-0.1.0.jar --spring.config.location=application-{your-configuration-name}.yml
+```
+
+_Please Note_: here the `{your-configuration-name}` would be the name of your custom scenario's name
+
+To test your custom scenario, follow the example in the [testing the application](#how-to-test-the-application)
+section and adjust its input parameters to fit to your own scenario.
+
+---
+
 ## Demonstration Scenarios
 
 To make this software useful for application in different domains, it can be configured via
