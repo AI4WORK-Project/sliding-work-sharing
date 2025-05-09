@@ -101,7 +101,7 @@ To apply SWS to your own application scenario, you need to do the following:
 - our suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust it:
   - the `fclRulesFilePath` should point to the location of your `.fcl` file
   - the textual description of the decision results should fit to your scenario
-- replace the `{existing-configuration}` with a name representing your custom scenario
+  - replace `{existing-configuration}` with a name representing your custom scenario
 - existing example configuration files can be found at [src/main/resources](src/main/resources)
 
 ### Download (or build) the sliding-work-sharing `.jar` file
