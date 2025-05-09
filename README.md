@@ -84,19 +84,21 @@ described [here](#how-to-read-the-decisionexplanation).
 
 ## How to apply the SWS to your own application scenario
 
-It allows running SWS with configurations that are not included in this repository. To apply SWS to
-your own application scenario, follow these steps:
+To apply SWS to
+your own application scenario, you need to do the following:
+- define your own input parameters and decision rules in an `.fcl` file
+- create your custom `.yml` configuration file
+- download a runnable version of the software (or build it yourself)
 
-### 1. Create Custom `.fcl` file and `application.yml`
 
-#### Create your custom `.fcl` file
+### Create your custom `.fcl` file
 
 - `fcl` (fuzzy control language) is used to define input parameters and decision rules.
-- suggestion would be to take one of the existing `.fcl` file as template and adjust "the input parameters" and "
+- our suggestion would be to take one of the existing `.fcl` file as template and adjust it to your scenario
   decision rules" to your scenario
 - existing `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
-#### Create your custom `application.yml` file
+### Create your custom `.yml` configuration file
 
 - suggestion would be to take an existing `application-{existing-configration}.yml` as template and adjust
   the `fclRulesFilePath` to your `.fcl` file and also the textual description of the sliding decision approaches so that
@@ -104,20 +106,20 @@ your own application scenario, follow these steps:
 - replace the `{existing-configration}` with a name representing your custom scenario
 - existing configuration files (`.yml`) can be found at [src/main/resources](src/main/resources)
 
-### 2. Download the SWS `.jar` file
+### Download (or build) the sliding-work-sharing `.jar` file
 
 - download the `.jar` file from the following link: 
   https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.0/sliding-work-sharing-0.1.0.jar
-- after download complete, the `.jar` file can be found in your download folder
+- alternatively, in case you prefer to build your own jar file, follow the [instructions above](#how-to-build-and-run-the-application)
 
 ### 3. Run the application using your custom configuration
 
 - place the following files in a single directory
     - your custom `.fcl` file
     - your custom `.yml` file
-    - the downloaded `.jar` file (e.g.,`sliding-work-sharing-0.0.1.jar`)
+    - the `.jar` file (e.g.,`sliding-work-sharing-0.1.0.jar`)
 
-_Note_: Ensure the `fclRulesFilePath` is correctly specified in this `.fcl` file
+_Note_: Ensure that the path to your `.fcl` file is correctly specified as `fclRulesFilePath` in the `.yml` file
 
 - next, open a terminal in the same directory (where all files are located) and run the following command
 
