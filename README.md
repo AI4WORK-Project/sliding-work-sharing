@@ -85,10 +85,10 @@ described [here](#how-to-read-the-decisionexplanation).
 ## How to apply the SWS to your own application scenario
 
 To apply SWS to your own application scenario, you need to do the following:
+
 - define your own input parameters and decision rules in an `.fcl` file
 - create your custom `.yml` configuration file
 - download a runnable version of the software (or build it yourself)
-
 
 ### Create your custom `.fcl` file
 
@@ -107,9 +107,10 @@ To apply SWS to your own application scenario, you need to do the following:
 
 ### Download (or build) the sliding-work-sharing `.jar` file
 
-- download the `.jar` file from the following link: 
+- download the `.jar` file from the following link:
   https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.0/sliding-work-sharing-0.1.0.jar
-- alternatively, in case you prefer to build your own jar file, follow the [instructions above](#how-to-build-and-run-the-application)
+- alternatively, in case you prefer to build your own jar file, follow
+  the [instructions above](#how-to-build-and-run-the-application)
 
 ### Run the application using your custom configuration
 
