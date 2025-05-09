@@ -32,9 +32,9 @@ public class FuzzyInferenceSystemInitializer {
         String fclRulesFilePath = applicationScenarioConfiguration.getFclRulesFilePath();
 
         // Try external file system
-        File externalFuzzyRuleResourceUrl = new File(fclRulesFilePath);
-        if (externalFuzzyRuleResourceUrl.exists()) {
-            return parseFclFile(externalFuzzyRuleResourceUrl.getPath());
+        File externalFuzzyRuleFile = new File(fclRulesFilePath);
+        if (externalFuzzyRuleFile.exists()) {
+            return parseFclFile(externalFuzzyRuleFile.getPath());
         }
 
         // Then try classpath resources
