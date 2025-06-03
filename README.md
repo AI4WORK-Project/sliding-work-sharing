@@ -107,7 +107,7 @@ To apply SWS to your own application scenario, you need to do the following:
 ### Download (or build) the sliding-work-sharing `.jar` file
 
 - the easiest way is to download the release `.jar` file from the following link:
-  https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.0/sliding-work-sharing-0.1.1.jar
+  https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.1/sliding-work-sharing-0.1.1.jar
 - alternatively, in case you prefer to build your own jar file, follow
   the [instructions above](#how-to-build-and-run-the-application)
 
