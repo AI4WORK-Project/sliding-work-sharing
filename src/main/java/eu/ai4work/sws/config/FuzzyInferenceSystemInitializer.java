@@ -31,28 +31,28 @@ public class FuzzyInferenceSystemInitializer {
     @Bean(name = "fuzzyInferenceSystem")
     public FIS initializeFuzzyInferenceSystem() throws FileNotFoundException, InvalidFclFileException {
         String fclRulesFilePath = applicationScenarioConfiguration.getFclRulesFilePath();
+        logger.info("Initializing a Fuzzy Inference System (FIS) from FCL file: " + fclRulesFilePath);
 
         // Try external file system
         File externalFuzzyRuleFile = new File(fclRulesFilePath);
         if (externalFuzzyRuleFile.exists()) {
-            return parseFclFile(new FileInputStream(externalFuzzyRuleFile), fclRulesFilePath);
+            return parseFclFile(new FileInputStream(externalFuzzyRuleFile));
         }
 
         // Then try classpath resources
         InputStream internalFuzzyRuleResourceFile = getClass().getClassLoader().getResourceAsStream(fclRulesFilePath);
         if (internalFuzzyRuleResourceFile != null) {
-            return parseFclFile(internalFuzzyRuleResourceFile, fclRulesFilePath);
+            return parseFclFile(internalFuzzyRuleResourceFile);
         }
 
         throw new FileNotFoundException("Fuzzy Control Language (FCL) file not found: " + fclRulesFilePath);
     }
 
-    private static FIS parseFclFile(InputStream inputStream, String fclRulesFilePath) {
+    private static FIS parseFclFile(InputStream inputStream) {
         try {
-            logger.debug("Initializing a Fuzzy Inference System (FIS) based on the FCL file: " + fclRulesFilePath);
             return FIS.load(inputStream, true);
         } catch (Exception exception) {
-            throw new InvalidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: " + fclRulesFilePath, exception);
+            throw new InvalidFclFileException("Failed to parse Fuzzy Control Language (FCL) file: ", exception);
         }
     }
 }
