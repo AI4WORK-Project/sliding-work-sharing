@@ -28,7 +28,7 @@ class SlidingDecisionControllerTests {
                   }
                 }
                 """;
-        assertSlidingDecisionResponsStatusAndContents(
+        assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithBody(slidingDecisionRequestJsonBody),
                 HttpStatus.OK,
                 "\"decisionStatus\":\"Sliding Decision Response\"",
@@ -46,7 +46,7 @@ class SlidingDecisionControllerTests {
                   }
                 }
                 """;
-        assertSlidingDecisionResponsStatusAndContents(
+        assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithBody(slidingDecisionRequestInvalidJsonBody),
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 DECISION_STATUS_ERROR_STRING,
@@ -58,7 +58,7 @@ class SlidingDecisionControllerTests {
         String slidingDecisionInputParametersJson = """
                     "positionOfTruckToBePrioritized": 5
                 """;
-        assertSlidingDecisionResponsStatusAndContents(
+        assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
@@ -71,7 +71,7 @@ class SlidingDecisionControllerTests {
                     "noOfTrucksInQueuee": 7,
                     "positionOfTruckToBePrioritized": 5
                 """;
-        assertSlidingDecisionResponsStatusAndContents(
+        assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
@@ -85,7 +85,7 @@ class SlidingDecisionControllerTests {
                     "positionOfTruckToBePrioritized": 5,
                     "additionalParameter": 42
                 """;
-        assertSlidingDecisionResponsStatusAndContents(
+        assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
@@ -99,7 +99,7 @@ class SlidingDecisionControllerTests {
                     "noOfTrucksInQueue": "seven",
                     "positionOfTruckToBePrioritized": 5
                 """;
-        assertSlidingDecisionResponsStatusAndContents(
+        assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
@@ -126,7 +126,7 @@ class SlidingDecisionControllerTests {
         return testSlidingDecisionRestTemplate.postForEntity("/sliding-decision", slidingDecisionRequestHttpEntity, String.class);
     }
 
-    private void assertSlidingDecisionResponsStatusAndContents(ResponseEntity<String> slidingDecisionResponse, HttpStatus expectedResponseStatus, String... expectedResponseContains) {
+    private void assertSlidingDecisionResponseStatusAndContents(ResponseEntity<String> slidingDecisionResponse, HttpStatus expectedResponseStatus, String... expectedResponseContains) {
         assertThat(slidingDecisionResponse.getStatusCode()).isEqualTo(expectedResponseStatus);
         for (String expectedResponse : expectedResponseContains) {
             assertThat(slidingDecisionResponse.getBody()).contains(expectedResponse);
