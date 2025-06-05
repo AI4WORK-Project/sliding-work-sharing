@@ -119,7 +119,7 @@ public class RuleEngineService {
     private void setInputParametersToFuzzyInferenceSystem(Map<String, Object> slidingDecisionInputParameters) {
         slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
             if (parameterValue instanceof Number parameterValueAsNumber) {
-                fuzzyInferenceSystem.getVariable(parameterName).setValue(parameterValueInNumber.doubleValue());
+                fuzzyInferenceSystem.getVariable(parameterName).setValue(parameterValueAsNumber.doubleValue());
             } else {
                 throw new InvalidInputParameterException(
                         "Invalid sliding decision input: The parameter '" + parameterName + "' must be a number."
