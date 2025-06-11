@@ -65,7 +65,7 @@ public class RuleEngineService {
                 .filter(requiredParameter -> !providedParameters.contains(requiredParameter))
                 .toList();
 
-        if (! (unknownParameters.isEmpty() && missingParameters.isEmpty())) {
+        if (!(unknownParameters.isEmpty() && missingParameters.isEmpty())) {
             String exceptionMessage = "Invalid sliding decision input.";
             if (!unknownParameters.isEmpty()) {
                 exceptionMessage += " - Unknown parameter(s): " + unknownParameters;
@@ -117,8 +117,15 @@ public class RuleEngineService {
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
      */
     private void setInputParametersToFuzzyInferenceSystem(Map<String, Object> slidingDecisionInputParameters) {
-        slidingDecisionInputParameters.forEach((parameterName, parameterValue) ->
-                fuzzyInferenceSystem.getVariable(parameterName).setValue(((Number) parameterValue).doubleValue()));
+        slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
+            if (parameterValue instanceof Number parameterValueAsNumber) {
+                fuzzyInferenceSystem.getVariable(parameterName).setValue(parameterValueAsNumber.doubleValue());
+            } else {
+                throw new InvalidInputParameterException(
+                        "Invalid sliding decision input: The parameter '" + parameterName + "' must be a number."
+                );
+            }
+        });
     }
 
     /**
