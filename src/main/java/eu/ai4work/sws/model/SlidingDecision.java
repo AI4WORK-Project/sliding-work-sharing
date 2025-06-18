@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class SlidingDecision {
-    private SlidingDecisionResult decisionResult;
+    private String decisionResult;
     private SlidingDecisionExplanation decisionExplanation;
 }

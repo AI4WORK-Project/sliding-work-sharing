@@ -49,7 +49,7 @@ public class SlidingDecisionController {
     private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
         Map<String, Object> decisionResultDetails = new HashMap<>();
         decisionResultDetails.put(SLIDING_DECISION, slidingDecision.getDecisionResult());
-        decisionResultDetails.put(DESCRIPTION, applicationScenarioConfiguration.getDecisionResultsDescription().get(slidingDecision.getDecisionResult().name()));
+        decisionResultDetails.put(DESCRIPTION, applicationScenarioConfiguration.getDecisionResultsDescription().get(slidingDecision.getDecisionResult()));
 
         return SlidingDecisionResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.RESPONSE)
