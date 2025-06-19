@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.Set;
@@ -93,7 +94,7 @@ public class RuleEngineService {
                 .filter(Variable::isOutput)
                 .map(Variable::getName)
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No output variable defined in the FCL file"));
+                .orElseThrow(() -> new NoSuchElementException("Output variable missing in the provided FCL file. Please define the output variable."));
     }
 
     /**
