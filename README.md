@@ -86,13 +86,13 @@ described [here](#how-to-read-the-decisionexplanation).
 
 To apply SWS to your own application scenario, you need to do the following:
 
-- define your own input parameters and decision rules in an `.fcl` file
+- define your own input parameters, output parameters and decision rules in an `.fcl` file
 - create your custom `.yml` configuration file
 - download a runnable version of the software (or build it yourself)
 
 ### Create your custom `.fcl` file
 
-- `fcl` (fuzzy control language) is used to define input parameters and decision rules.
+- `fcl` (fuzzy control language) is used to define input parameters, output parameters and decision rules. 
 - our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
 - existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
