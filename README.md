@@ -86,13 +86,16 @@ described [here](#how-to-read-the-decisionexplanation).
 
 To apply SWS to your own application scenario, you need to do the following:
 
-- define your own input parameters, output parameters and decision rules in an `.fcl` file
+- define your own input parameters, output parameter and decision rules in an `.fcl` file
 - create your custom `.yml` configuration file
 - download a runnable version of the software (or build it yourself)
 
+_Note_: currently the application only supports a single output parameter, which is the `slidingDecision` that can have several
+  different values, such as `AI_AUTONOMOUSLY`, `HUMAN_ON_THE_LOOP`, etc.
+
 ### Create your custom `.fcl` file
 
-- `fcl` (fuzzy control language) is used to define input parameters, output parameters and decision rules.
+- `fcl` (fuzzy control language) is used to define input parameters, output parameter and decision rules.
 - our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
 - existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
@@ -297,7 +300,7 @@ The application will respond with a JSON string similar to the following:
 {
   "decisionStatus": "Sliding Decision Response",
   "decisionResult": {
-    "slidingDecision": "AI_AUTONOMOUSLY",
+    "slidingDecision": "DRONE_AUTONOMOUSLY",
     "description": "Let the drone carry the box"
   },
   "decisionExplanation": {
@@ -311,7 +314,7 @@ described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input parameters, the SWS may decide one of the following:
 
-- `AI_AUTONOMOUSLY`: "Let the drone carry the box"
+- `DRONE_AUTONOMOUSLY`: "Let the drone carry the box"
 - `HUMAN_ON_THE_LOOP`: "Inform supervisor, who may potentially intervene"
 - `HUMAN_IN_THE_LOOP`: "Let the worker decide"
 - `HUMAN_MANUALLY`: "Let the worker carry the box"
@@ -389,7 +392,7 @@ The application will respond with a JSON string similar to the following:
 {
   "decisionStatus": "Sliding Decision Response",
   "decisionResult": {
-    "slidingDecision": "AI_AUTONOMOUSLY",
+    "slidingDecision": "ROBOT_AUTONOMOUSLY",
     "description": "Let the robot continue trying"
   },
   "decisionExplanation": {
@@ -403,10 +406,10 @@ described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input, the SWS may decide one of the following:
 
-- `AI_AUTONOMOUSLY`: "Let the robot continue trying"
+- `ROBOT_AUTONOMOUSLY`: "Let the robot continue trying"
 - `HUMAN_ON_THE_LOOP`: "Inform human about the problem"
 - `HUMAN_IN_THE_LOOP`: "Warn human, but let them decide if/when to help"
-- `HUMAN_MANUALLY`: "Ask human for help"
+- `HUMAN_REQUIRED`: "Ask human for help"
 
 ---
 
