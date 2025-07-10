@@ -86,11 +86,16 @@ public class RuleEngineService {
     }
 
     private List<String> getOutputVariableNamesFromFIS() {
-        return fuzzyInferenceSystem.getFunctionBlock(null)
+        List<String> outputVariablesFromFIS = fuzzyInferenceSystem.getFunctionBlock(null)
                 .getVariables().values().stream()
                 .filter(Variable::isOutput)
                 .map(Variable::getName)
-                .toList(); // todo what if the list is empty?
+                .toList();
+
+        if (outputVariablesFromFIS.isEmpty()) {
+            throw new NoSuchElementException("Output variable missing in the provided FCL file. Please define the output variable.");
+        }
+        return outputVariablesFromFIS;
     }
 
     /**
