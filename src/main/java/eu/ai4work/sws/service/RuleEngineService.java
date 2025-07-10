@@ -11,12 +11,9 @@ import net.sourceforge.jFuzzyLogic.FunctionBlock;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -36,11 +33,11 @@ public class RuleEngineService {
 
         fuzzyInferenceSystem.evaluate();
 
-        String resultAsLinguisticTerm = readFuzzyInferenceResultAsLinguisticTerm();
+        Map<String, String> decisionResult = readAllFuzzyInferenceResults();
 
         SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem();
 
-        return new SlidingDecision(resultAsLinguisticTerm, decisionExplanation);
+        return new SlidingDecision(decisionResult, decisionExplanation);
     }
 
     /**
@@ -88,35 +85,39 @@ public class RuleEngineService {
                 .toList();
     }
 
-    private String getOutputVariableNameFromFIS() {
+    private List<String> getOutputVariableNamesFromFIS() {
         return fuzzyInferenceSystem.getFunctionBlock(null)
                 .getVariables().values().stream()
                 .filter(Variable::isOutput)
                 .map(Variable::getName)
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Output variable missing in the provided FCL file. Please define the output variable."));
+                .toList(); // todo what if the list is empty?
     }
 
     /**
-     * Reads a fuzzy inference result to its corresponding linguistic term based on the highest membership degree.
+     * Reads all fuzzy inference results to their corresponding linguistic terms based on the highest membership degree.
      *
-     * @return The output as a linguistic term, i.e., the name of the membership function with the highest membership degree.
+     * @return Map of fuzzy inference output variable names to their linguistic term (the name of the membership function with the highest membership degree).
      */
-    private String readFuzzyInferenceResultAsLinguisticTerm() {
-        Variable suggestedWorkSharingApproachAsFuzzyVariable = fuzzyInferenceSystem.getVariable(getOutputVariableNameFromFIS());
-        return suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
-                // Map each linguistic term to its corresponding membership degree
-                .map(linguisticTermWithMembershipDegree -> Map.entry(
-                        // The key is the linguistic term name
-                        linguisticTermWithMembershipDegree.getKey(),
-                        // The value is membership degree for the latest defuzzified value
-                        linguisticTermWithMembershipDegree.getValue().getMembershipFunction()
-                                .membership(suggestedWorkSharingApproachAsFuzzyVariable.getLatestDefuzzifiedValue())
-                ))
-                // Identify the linguistic term with the highest membership degree
-                .max(Map.Entry.comparingByValue())
-                // Retrieve the linguistic term name
-                .get().getKey();
+    private Map<String, String> readAllFuzzyInferenceResults() {
+        Map<String, String> fuzzyInferenceResults = new HashMap<>();
+        for (String outputVariableNameFromFIS : getOutputVariableNamesFromFIS()) {
+            Variable resultAsFuzzyVariable = fuzzyInferenceSystem.getVariable(outputVariableNameFromFIS);
+            String resultAsLinguisticTerm = resultAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
+                    // Map each linguistic term to its corresponding membership degree
+                    .map(linguisticTermWithMembershipDegree -> Map.entry(
+                            // The key is the linguistic term name
+                            linguisticTermWithMembershipDegree.getKey(),
+                            // The value is membership degree for the latest defuzzified value
+                            linguisticTermWithMembershipDegree.getValue().getMembershipFunction()
+                                    .membership(resultAsFuzzyVariable.getLatestDefuzzifiedValue())
+                    ))
+                    // Identify the linguistic term with the highest membership degree
+                    .max(Map.Entry.comparingByValue())
+                    // Retrieve the linguistic term name
+                    .get().getKey();
+            fuzzyInferenceResults.put(outputVariableNameFromFIS, resultAsLinguisticTerm);
+        }
+        return fuzzyInferenceResults;
     }
 
     /**
