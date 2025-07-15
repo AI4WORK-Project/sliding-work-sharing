@@ -33,11 +33,11 @@ public class RuleEngineService {
 
         fuzzyInferenceSystem.evaluate();
 
-        Map<String, String> decisionResult = readAllFuzzyInferenceResults();
+        Map<String, String> allDecisionResult = readAllSlidingDecisionResultsFromFIS();
 
         SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem();
 
-        return new SlidingDecision(decisionResult, decisionExplanation);
+        return new SlidingDecision(allDecisionResult, decisionExplanation);
     }
 
     /**
@@ -99,14 +99,17 @@ public class RuleEngineService {
     }
 
     /**
-     * Reads all fuzzy inference results to their corresponding linguistic terms based on the highest membership degree.
+     * Reads all sliding decision results to their corresponding linguistic terms from the fuzzy inference system.
      *
-     * @return Map of fuzzy inference output variable names to their linguistic term (the name of the membership function with the highest membership degree).
+     * @return Map of sliding decision results which contains output variable names and
+     * to their result in linguistic term (the name of the membership function with the highest membership degree).
      */
-    private Map<String, String> readAllFuzzyInferenceResults() {
-        Map<String, String> fuzzyInferenceResults = new HashMap<>();
+    private Map<String, String> readAllSlidingDecisionResultsFromFIS() {
+        Map<String, String> allSlidingDecisionResults = new HashMap<>();
         for (String outputVariableNameFromFIS : getOutputVariableNamesFromFIS()) {
+            // Get the calculated sliding decision result of each output variable from the fuzzy inference system
             Variable resultAsFuzzyVariable = fuzzyInferenceSystem.getVariable(outputVariableNameFromFIS);
+            // Get the linguistic term of each calculated sliding decision result
             String resultAsLinguisticTerm = resultAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
                     // Map each linguistic term to its corresponding membership degree
                     .map(linguisticTermWithMembershipDegree -> Map.entry(
@@ -120,9 +123,9 @@ public class RuleEngineService {
                     .max(Map.Entry.comparingByValue())
                     // Retrieve the linguistic term name
                     .get().getKey();
-            fuzzyInferenceResults.put(outputVariableNameFromFIS, resultAsLinguisticTerm);
+            allSlidingDecisionResults.put(outputVariableNameFromFIS, resultAsLinguisticTerm);
         }
-        return fuzzyInferenceResults;
+        return allSlidingDecisionResults;
     }
 
     /**
