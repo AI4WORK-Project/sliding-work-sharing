@@ -47,13 +47,18 @@ public class SlidingDecisionController {
      * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
     private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
-        Map<String, Object> decisionResultDetails = new HashMap<>();
-        decisionResultDetails.put(SLIDING_DECISION, slidingDecision.getDecisionResult());
-        decisionResultDetails.put(DESCRIPTION, applicationScenarioConfiguration.getDecisionResultsDescription().get(slidingDecision.getDecisionResult()));
+        Map<String, Object> decisionResult = new HashMap<>();
+
+        slidingDecision.getDecisionResult().forEach((outputVariableName, resultAsLinguisticTerm) -> {
+            Map<String, Object> decisionResultDetails = new HashMap<>();
+            decisionResultDetails.put(SLIDING_DECISION, resultAsLinguisticTerm);
+            decisionResultDetails.put(DESCRIPTION, applicationScenarioConfiguration.getDecisionResultsDescription().get(resultAsLinguisticTerm));
+            decisionResult.put(outputVariableName, decisionResultDetails);
+        });
 
         return SlidingDecisionResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.RESPONSE)
-                .decisionResult(decisionResultDetails)
+                .decisionResult(decisionResult)
                 .decisionExplanation(slidingDecision.getDecisionExplanation())
                 .build();
     }

@@ -7,3 +7,6 @@ application-scenario-config:
     HUMAN_ON_THE_LOOP: "Inform human about the problem"
     HUMAN_IN_THE_LOOP: "Warn human, but let them decide if/when to help"
     HUMAN_REQUIRED: "Ask human for help"
+    AUTONOMOUS: "system is currently operating autonomously"
+    SEMI_AUTONOMOUS: "system currently operating semi-autonomously"
+    MANUAL: "system currently operating manually"
