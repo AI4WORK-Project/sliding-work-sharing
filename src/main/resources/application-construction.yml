@@ -3,7 +3,7 @@
 application-scenario-config:
   fclRulesFilePath: rules/ConstructionRobotAssistanceDecisionRules.fcl
   decisionResultsDescription:
-    AI_AUTONOMOUSLY: "Let the robot continue trying"
+    ROBOT_AUTONOMOUSLY: "Let the robot continue trying"
     HUMAN_ON_THE_LOOP: "Inform human about the problem"
     HUMAN_IN_THE_LOOP: "Warn human, but let them decide if/when to help"
-    HUMAN_MANUALLY: "Ask human for help"
+    HUMAN_REQUIRED: "Ask human for help"

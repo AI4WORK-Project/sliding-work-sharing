@@ -2,7 +2,6 @@ package eu.ai4work.sws.service;
 
 import eu.ai4work.sws.model.SlidingDecisionExplanation;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
-import eu.ai4work.sws.model.SlidingDecisionResult;
 import eu.ai4work.sws.model.VariableExplanation;
 import eu.ai4work.sws.model.RuleExplanation;
 import eu.ai4work.sws.model.SlidingDecision;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.Set;
@@ -21,7 +21,6 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class RuleEngineService {
-    private static final String SUGGESTED_WORK_SHARING_APPROACH = "suggestedWorkSharingApproach";
     private final FIS fuzzyInferenceSystem;
 
     /**
@@ -41,7 +40,7 @@ public class RuleEngineService {
 
         SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem();
 
-        return new SlidingDecision(SlidingDecisionResult.valueOf(resultAsLinguisticTerm), decisionExplanation);
+        return new SlidingDecision(resultAsLinguisticTerm, decisionExplanation);
     }
 
     /**
@@ -89,13 +88,22 @@ public class RuleEngineService {
                 .toList();
     }
 
+    private String getOutputVariableNameFromFIS() {
+        return fuzzyInferenceSystem.getFunctionBlock(null)
+                .getVariables().values().stream()
+                .filter(Variable::isOutput)
+                .map(Variable::getName)
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Output variable missing in the provided FCL file. Please define the output variable."));
+    }
+
     /**
      * Reads a fuzzy inference result to its corresponding linguistic term based on the highest membership degree.
      *
      * @return The output as a linguistic term, i.e., the name of the membership function with the highest membership degree.
      */
     private String readFuzzyInferenceResultAsLinguisticTerm() {
-        Variable suggestedWorkSharingApproachAsFuzzyVariable = fuzzyInferenceSystem.getVariable(SUGGESTED_WORK_SHARING_APPROACH);
+        Variable suggestedWorkSharingApproachAsFuzzyVariable = fuzzyInferenceSystem.getVariable(getOutputVariableNameFromFIS());
         return suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
                 // Map each linguistic term to its corresponding membership degree
                 .map(linguisticTermWithMembershipDegree -> Map.entry(
