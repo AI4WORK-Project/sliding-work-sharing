@@ -90,14 +90,13 @@ To apply SWS to your own application scenario, you need to do the following:
 - create your custom `.yml` configuration file
 - download a runnable version of the software (or build it yourself)
 
-_Note_: currently the application only supports a single output parameter, which is the `slidingDecision` that can have several
-  different values, such as `AI_AUTONOMOUSLY`, `HUMAN_ON_THE_LOOP`, etc.
-
 ### Create your custom `.fcl` file
 
 - `fcl` (fuzzy control language) is used to define input parameters, output parameter and decision rules.
 - our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
 - existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
+
+_Note_: Please note that the application right now only supports a single output parameter (defined as VAR_OUTPUT in the .fcl file).
 
 ### Create your custom `.yml` configuration file
 
