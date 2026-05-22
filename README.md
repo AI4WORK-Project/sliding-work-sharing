@@ -14,7 +14,7 @@ involvement, depending on the respective work situation.
 
 To build and run the Sliding Work Sharing, the following software is required:
 
-- **Java**: Version 23.
+- **Java**: Version 25 or later.
 - **Apache Maven**: Version 3.8.5 or later.
 
 ### 2. Install Dependencies and Build the Application
