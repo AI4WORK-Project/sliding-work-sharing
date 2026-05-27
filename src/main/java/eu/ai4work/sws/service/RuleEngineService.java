@@ -1,5 +1,6 @@
 package eu.ai4work.sws.service;
 
+import eu.ai4work.sws.config.InitializeFuzzyIOParameters;
 import eu.ai4work.sws.model.SlidingDecisionExplanation;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.VariableExplanation;
@@ -11,17 +12,16 @@ import net.sourceforge.jFuzzyLogic.FunctionBlock;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class RuleEngineService {
     private final FIS fuzzyInferenceSystem;
+    private final List<String> getRequiredInputParametersFromFIS;
+    private final List<String> getOutputVariableNamesFromFIS;
 
     /**
      * Evaluates the fuzzy inference rules based on the provided inputs, and it returns the sliding decision with its explanation.
@@ -30,17 +30,18 @@ public class RuleEngineService {
      * @return SlidingDecision containing the result and the explanation of the sliding decision.
      */
     public SlidingDecision applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) {
+
         verifySlidingDecisionInputParameters(slidingDecisionInputParameters);
 
         setInputParametersToFuzzyInferenceSystem(slidingDecisionInputParameters);
 
         fuzzyInferenceSystem.evaluate();
 
-        String resultAsLinguisticTerm = readFuzzyInferenceResultAsLinguisticTerm();
+        Map<String, String> allDecisionResult = readAllSlidingDecisionResultsFromFIS();
 
         SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem();
 
-        return new SlidingDecision(resultAsLinguisticTerm, decisionExplanation);
+        return new SlidingDecision(allDecisionResult, decisionExplanation);
     }
 
     /**
@@ -51,7 +52,7 @@ public class RuleEngineService {
      */
     private void verifySlidingDecisionInputParameters(Map<String, Object> slidingDecisionInputParameters)
             throws InvalidInputParameterException {
-        List<String> requiredParameters = getRequiredInputParametersFromFIS();
+        List<String> requiredParameters = getRequiredInputParametersFromFIS;
         Set<String> providedParameters = slidingDecisionInputParameters.keySet();
 
         // detect provided input parameters that are not required
@@ -76,42 +77,30 @@ public class RuleEngineService {
         }
     }
 
-    private List<String> getRequiredInputParametersFromFIS() {
-        return fuzzyInferenceSystem.getFunctionBlock(null)  // Get default function block
-                // get all variables
-                .getVariables().values().stream()
-                // keep only input variables
-                .filter(Variable::isInput)
-                // extract variable names
-                .map(Variable::getName)
-                // convert to list
-                .toList();
-    }
-
-    private String getOutputVariableNameFromFIS() {
-        return fuzzyInferenceSystem.getFunctionBlock(null)
-                .getVariables().values().stream()
-                .filter(Variable::isOutput)
-                .map(Variable::getName)
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Output variable missing in the provided FCL file. Please define the output variable."));
-    }
-
     /**
-     * Reads a fuzzy inference result to its corresponding linguistic term based on the highest membership degree.
+     * Reads all sliding decision results to their corresponding linguistic terms from the fuzzy inference system.
      *
-     * @return The output as a linguistic term, i.e., the name of the membership function with the highest membership degree.
+     * @return Map of sliding decision results which contains output variable names and
+     * to their result in linguistic term (the name of the membership function with the highest membership degree).
      */
-    private String readFuzzyInferenceResultAsLinguisticTerm() {
-        Variable suggestedWorkSharingApproachAsFuzzyVariable = fuzzyInferenceSystem.getVariable(getOutputVariableNameFromFIS());
-        return suggestedWorkSharingApproachAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
+    private Map<String, String> readAllSlidingDecisionResultsFromFIS() {
+        Map<String, String> allSlidingDecisionResults = new HashMap<>();
+        for (String outputVariableNameFromFIS : getOutputVariableNamesFromFIS) {
+            allSlidingDecisionResults.put(outputVariableNameFromFIS, getLinguisticTermForOutputVariable(outputVariableNameFromFIS));
+        }
+        return allSlidingDecisionResults;
+    }
+
+    private String getLinguisticTermForOutputVariable(String outputVariableNameFromFIS) {
+        Variable resultAsFuzzyVariable = fuzzyInferenceSystem.getVariable(outputVariableNameFromFIS);
+        return resultAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
                 // Map each linguistic term to its corresponding membership degree
                 .map(linguisticTermWithMembershipDegree -> Map.entry(
                         // The key is the linguistic term name
                         linguisticTermWithMembershipDegree.getKey(),
                         // The value is membership degree for the latest defuzzified value
                         linguisticTermWithMembershipDegree.getValue().getMembershipFunction()
-                                .membership(suggestedWorkSharingApproachAsFuzzyVariable.getLatestDefuzzifiedValue())
+                                .membership(resultAsFuzzyVariable.getLatestDefuzzifiedValue())
                 ))
                 // Identify the linguistic term with the highest membership degree
                 .max(Map.Entry.comparingByValue())
