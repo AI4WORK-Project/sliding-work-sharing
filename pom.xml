@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.14</version>
         <relativePath/>
     </parent>
     <groupId>eu.ai4work</groupId>
@@ -26,10 +26,8 @@
     </organization>
 
     <properties>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
-        <java.version>23</java.version>
-        <lombok.version>1.18.36</lombok.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <java.version>25</java.version>
         <jFuzzyLogic.version>2016-07-04</jFuzzyLogic.version>
     </properties>
 
@@ -64,7 +62,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- jFuzzyLogic library to manage the fuzzy logic/rules -->
@@ -83,8 +80,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
                     <compilerArgs>
                         <arg>--add-modules</arg>
                         <arg>java.base</arg>
@@ -93,7 +88,6 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
