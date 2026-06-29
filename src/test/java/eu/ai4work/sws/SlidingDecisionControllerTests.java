@@ -92,7 +92,7 @@ class SlidingDecisionControllerTests {
                     "numberOfTrucksInQueue": 7,
                     "positionOfTruckToBePrioritized": 5,
                     "materialUrgency":0,
-                    "operationalWorkload":1
+                    "operationalWorkload":1,
                     "additionalParameter": 42
                 """;
         assertSlidingDecisionResponseStatusAndContents(
