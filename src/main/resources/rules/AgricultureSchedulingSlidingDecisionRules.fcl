@@ -45,11 +45,10 @@ RULEBLOCK No1
 	AND : MIN;			// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgan's Law)
 
     RULE 1 : IF droneBatteryLevel IS low THEN suggestedApproach IS letTheSupervisorDecide WITH 1.0;
-    RULE 2 : IF distanceToCentralCollectionPoint IS low THEN suggestedApproach IS humanShouldCarryTheBox WITH 1.0;
+    RULE 2 : IF distanceToCentralCollectionPoint IS low AND isDroneCurrentlyAvailable IS FALSE OR fatigueLevelOfWorker IS low THEN suggestedApproach IS humanShouldCarryTheBox WITH 1.0;
     RULE 3 : IF distanceToCentralCollectionPoint IS high OR isDroneCurrentlyAvailable IS TRUE AND droneBatteryLevel IS NOT low THEN suggestedApproach IS droneShouldCarryTheBox WITH 1.0;
     RULE 4 : IF distanceToCentralCollectionPoint IS high AND isDroneCurrentlyAvailable IS FALSE AND fatigueLevelOfWorker IS low THEN suggestedApproach IS letTheWorkerDecide WITH 0.5;
-    RULE 5 : IF isDroneCurrentlyAvailable IS FALSE AND fatigueLevelOfWorker IS low THEN suggestedApproach IS humanShouldCarryTheBox WITH 0.5;
-    RULE 6 : IF isDroneCurrentlyAvailable IS FALSE AND fatigueLevelOfWorker IS high THEN suggestedApproach IS letTheSupervisorDecide WITH 1.0;
+    RULE 5 : IF isDroneCurrentlyAvailable IS FALSE AND fatigueLevelOfWorker IS high THEN suggestedApproach IS letTheSupervisorDecide WITH 1.0;
 
 END_RULEBLOCK
 
