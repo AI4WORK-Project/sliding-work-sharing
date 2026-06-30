@@ -98,14 +98,15 @@ To apply SWS to your own application scenario, you need to do the following:
 - our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
 - existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
-_Note_: Please note that the application right now only supports a single output parameter (defined as VAR_OUTPUT in the .fcl file).
+_Note_: Please note that the application right now only supports a single output parameter (defined as VAR_OUTPUT in the
+.fcl file).
 
 ### Create your custom `.yml` configuration file
 
 - our suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust it:
-  - the `fclRulesFilePath` should point to the location of your `.fcl` file
-  - the textual description of the decision results should fit to your scenario
-  - replace `{existing-configuration}` with a name representing your custom scenario
+    - the `fclRulesFilePath` should point to the location of your `.fcl` file
+    - the textual description of the decision results should fit to your scenario
+    - replace `{existing-configuration}` with a name representing your custom scenario
 - existing example configuration files can be found at [src/main/resources](src/main/resources)
 
 ### Download (or build) the sliding-work-sharing `.jar` file
@@ -259,7 +260,8 @@ decision depends on:
 #### Example rules
 
 - if drone battery level is low, let supervisor decide if the drone should carry the box or not
-- if distance from the current location is low and the is drone currently available is FALSE or fatigue level of worker is low, let the worker carry the box
+- if distance from the current location is low and the is drone currently available is FALSE or fatigue level of worker
+  is low, let the worker carry the box
 
 To explore the example rules in detail, please refer to the FCL file
 located [here](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl).
@@ -352,7 +354,6 @@ on:
 - if the robot battery status is low or the time the robot is already moving is long, ask for human help
 - if the time robot is already moving is short and robot battery status is not low, let the robot continue trying
 
-
 To explore the example rules in detail, please refer to the FCL file
 located [here](src/main/resources/rules/ConstructionRobotAssistanceDecisionRules.fcl).
 
@@ -444,7 +445,8 @@ described in the following based on examples.
 
 - `value`: this is the original number provided as input in the Sliding Decision Request.
 - `membershipValues`: this shows the "fuzzy categories" into which the input value fits. Each category is assigned a
-  membership degree between 0 and 1. In the given example, the input value of `7.0` belong to `moderate` categories with a membership degree of `1.0`.
+  membership degree between 0 and 1. In the given example, the input value of `7.0` belong to `moderate` categories with
+  a membership degree of `1.0`.
 
 ### Applied Rules
 
@@ -468,7 +470,8 @@ This field lists the rules that were activated during the decision-making proces
 - `name`: an identifier for the rule
 - `condition`:  the part that decides if this rule should be activated, based on the input values' memberships in the
   fuzzy categories
-- `consequence`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS autonomousReprioritization]"`)
+- `consequence`: the outcome that the rule suggests (e.g.,
+  `"[suggestedWorkSharingApproach IS autonomousReprioritization]"`)
 - `weight`: is a pre-defined value, which defines the general "importance/impact" of this rule
 - `degreeOfSupport`: the level of impact that this rule has on the final decision, calculated based on the fuzzy
   membership degrees of the input values
