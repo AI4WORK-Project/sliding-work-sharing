@@ -25,8 +25,8 @@ class SlidingDecisionControllerTests {
                   "slidingDecisionInputParameters": {
                     "numberOfTrucksInQueue": 7,
                     "positionOfTruckToBePrioritized": 5,
-                    "materialUrgency":0,
-                    "operationalWorkload":1
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                   }
                 }
                 """;
@@ -45,8 +45,8 @@ class SlidingDecisionControllerTests {
                   "slidingDecisionInputParameters":
                     "numberOfTrucksInQueue": 7,
                     "positionOfTruckToBePrioritized": 5,
-                    "materialUrgency":0,
-                    "operationalWorkload":1
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                   }
                 }
                 """;
@@ -61,8 +61,8 @@ class SlidingDecisionControllerTests {
     void testMissingParameter() {
         String slidingDecisionInputParametersJson = """
                     "positionOfTruckToBePrioritized": 5,
-                    "materialUrgency":0,
-                    "operationalWorkload":1
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                 """;
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
@@ -76,8 +76,8 @@ class SlidingDecisionControllerTests {
         String slidingDecisionInputParametersJson = """
                     "numberOfTrucksInQueuee": 7,
                     "positionOfTruckToBePrioritized": 5,
-                    "materialUrgency":0,
-                    "operationalWorkload":1
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                 """;
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
@@ -91,8 +91,8 @@ class SlidingDecisionControllerTests {
         String slidingDecisionInputParametersJson = """
                     "numberOfTrucksInQueue": 7,
                     "positionOfTruckToBePrioritized": 5,
-                    "materialUrgency":0,
-                    "operationalWorkload":1,
+                    "materialUrgency":30,
+                    "operationalWorkload":80,
                     "additionalParameter": 42
                 """;
         assertSlidingDecisionResponseStatusAndContents(
@@ -108,8 +108,8 @@ class SlidingDecisionControllerTests {
         String slidingDecisionInputParametersJson = """
                     "numberOfTrucksInQueue": "seven",
                     "positionOfTruckToBePrioritized": 5,
-                    "materialUrgency":0,
-                    "operationalWorkload":1
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                 """;
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),

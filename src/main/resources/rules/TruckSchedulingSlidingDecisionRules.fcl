@@ -11,24 +11,24 @@ VAR_OUTPUT				// Define output variable
 	suggestedApproach : REAL;
 END_VAR
 
-FUZZIFY numberOfTrucksInQueue
+FUZZIFY numberOfTrucksInQueue // 0 to 20 trucks
 	TERM moderate := (0, 1) (7, 1) (9, 0);
 	TERM high := (7, 0) (9, 1) (20, 1);
 END_FUZZIFY
 
-FUZZIFY positionOfTruckToBePrioritized
+FUZZIFY positionOfTruckToBePrioritized // 0 to 20 trucks
 	TERM nearFrontOfTheQueue := (0, 1) (8, 1) (12, 0);
 	TERM nearEndOfTheQueue := (8, 0) (12, 1) (20, 1);
 END_FUZZIFY
 
-FUZZIFY materialUrgency
-    TERM moderate := 0; // 0 = moderate
-    TERM critical := 1; // 1 = critical
+FUZZIFY materialUrgency // in percentage (0 to 100 percent)
+    TERM moderate := (0, 1) (50, 1) (80,0); // moderate from 0 to 50, gradually decreases from 50 to 80
+    TERM critical := (50, 0) (80, 1) (100, 1); // high from 80 to 100, gradually increases from 50 to 80
 END_FUZZIFY
 
-FUZZIFY operationalWorkload
-    TERM moderate := 0; // 0 = moderate
-    TERM high     := 1; // 1 = high
+FUZZIFY operationalWorkload // in percentage (0 to 100 percent)
+    TERM moderate := (0, 1) (50, 1) (80,0); // moderate from 0 to 50, gradually decreases from 50 to 80
+    TERM high     := (50, 0) (80, 1) (100, 1); // high from 80 to 100, gradually increases from 50 to 80
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach

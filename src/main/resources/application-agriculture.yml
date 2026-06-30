@@ -4,6 +4,6 @@ application-scenario-config:
   fclRulesFilePath: rules/AgricultureSchedulingSlidingDecisionRules.fcl
   decisionResultsDescription:
     droneShouldCarryTheBox: "Let the drone carry the box"
-    letTheSupervisorDecide: "Inform supervisor, who may potentially intervene"
+    letTheSupervisorDecide: "Let the supervisor decide"
     letTheWorkerDecide: "Let the worker decide"
     humanShouldCarryTheBox: "Let the worker carry the box"

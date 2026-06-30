@@ -54,8 +54,10 @@ curl --request POST \
   --data '{
     "decisionStatus": "Sliding Decision Request",
     "slidingDecisionInputParameters": {
-      "noOfTrucksInQueue": 7,
-      "positionOfTruckToBePrioritized": 5
+      "numberOfTrucksInQueue": 7,
+      "positionOfTruckToBePrioritized": 5,
+      "materialUrgency":30,
+      "operationalWorkload":80
     }
   }'
 ```
@@ -68,7 +70,7 @@ The application will respond with a JSON string similar to the following:
 {
   "decisionStatus": "Sliding Decision Response",
   "decisionResult": {
-    "slidingDecision": "HUMAN_ON_THE_LOOP",
+    "slidingDecision": "informHuman",
     "description": "Human has to be informed about AI's rescheduling"
   },
   "decisionExplanation": {
@@ -159,8 +161,10 @@ This example scenario is from the logistics domain:
 
 The SWS management decides in how far a human should be involved in the decision. This decision depends on:
 
-- the length of the queue
+- the number of trucks in the queue
 - the position of the truck in the queue
+- the urgency of the material that is being delivered by the truck
+- the current workload of the warehouse
 
 #### Example Rules
 
@@ -190,8 +194,10 @@ curl --request POST \
   --data '{
     "decisionStatus": "Sliding Decision Request",
     "slidingDecisionInputParameters": {
-      "noOfTrucksInQueue": 7,
-      "positionOfTruckToBePrioritized": 5
+      "numberOfTrucksInQueue": 7,
+      "positionOfTruckToBePrioritized": 5,
+      "materialUrgency":30,
+      "operationalWorkload":80
     }
   }'
 ```
@@ -199,8 +205,10 @@ curl --request POST \
 To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify
 the values for the `slidingDecisionInputParameters` as follows:
 
-- `noOfTrucksInQueue`: Total number of trucks in the queue (0-20 trucks)
+- `numberOfTrucksInQueue`: Total number of trucks in the queue (0-20 trucks)
 - `positionOfTruckToBePrioritized`: Position of the truck number that needs to be prioritization (0-20)
+- `materialUrgency`: Urgency of the material that is being delivered by the truck (0%-100%)
+- `operationalWorkload`: Current workload of the warehouse (0%-100%)
 
 ##### Example Response
 
@@ -210,7 +218,7 @@ The application will respond with a JSON string similar to the following:
 {
   "decisionStatus": "Sliding Decision Response",
   "decisionResult": {
-    "slidingDecision": "HUMAN_ON_THE_LOOP",
+    "slidingDecision": "informHuman",
     "description": "Human has to be informed about AI's rescheduling"
   },
   "decisionExplanation": {
@@ -224,10 +232,9 @@ described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input, the SWS may decide one of the following:
 
-- `AI_AUTONOMOUSLY`: "AI can reschedule without human involvement"
-- `HUMAN_ON_THE_LOOP`: "Human has to be informed about AI's rescheduling"
-- `HUMAN_IN_THE_LOOP`: "Human has to check AI's suggestion"
-- `HUMAN_MANUALLY`: "Human has to decide without AI support"
+- `autonomousReprioritization`: "AI can reschedule without human involvement"
+- `informHuman`: "Human has to be informed about AI's rescheduling"
+- `requireHumanApproval`: "Human has to decide without AI support"
 
 ---
 
@@ -244,15 +251,15 @@ For each required transport of a harvest box, the SWS management decides in how 
 supervisor) should be involved in the decision if this transport should be done by the drone or by the worker. This
 decision depends on:
 
-- the current waiting time for the drone
+- the drone's battery level
+- the availability of the drone
 - the fatigue level of the worker
 - the distance from the current location of the box to the central collection point
 
 #### Example rules
 
-- if the distance is low, let the worker carry the box
-- if the distance is high or the waiting time for the drone is low, let the drone carry the box
-- if the waiting time for the drone is high and the fatigue level of the worker is low, let the worker carry the box
+- if drone battery level is low, let supervisor decide if the drone should carry the box or not
+- if distance from the current location is low and the is drone currently available is FALSE or fatigue level of worker is low, let the worker carry the box
 
 To explore the example rules in detail, please refer to the FCL file
 located [here](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl).
@@ -278,8 +285,9 @@ curl --request POST \
     "decisionStatus": "Sliding Decision Request",
     "slidingDecisionInputParameters": {
       "distanceToCentralCollectionPoint": 250,
-      "waitingTimeForDrone": 2,
-      "fatigueLevelOfWorker": 80
+      "fatigueLevelOfWorker": 80,
+      "droneBatteryLevel":80,
+      "isDroneCurrentlyAvailable":1
     }
 }'
 ```
@@ -288,8 +296,9 @@ To test the implemented rules, you can pass different inputs to the application 
 the values for the `slidingDecisionInputParameters` as follows:
 
 - `distanceToCentralCollectionPoint`: The distance to the collection point, measured in meters (0-300 meters)
-- `waitingTimeForDrone`: The time until the drone becomes available, measured in minutes (0-15 minutes)
 - `fatigueLevelOfWorker`: The current fatigue level of the worker, measured in percent (0%-100%)
+- `droneBatteryLevel`: The current battery level of the drone, measured in percent (0%-100%)
+- `isDroneCurrentlyAvailable`: Whether the drone is currently available (1 = yes, 0 = no)
 
 ##### Example Response
 
@@ -299,7 +308,7 @@ The application will respond with a JSON string similar to the following:
 {
   "decisionStatus": "Sliding Decision Response",
   "decisionResult": {
-    "slidingDecision": "DRONE_AUTONOMOUSLY",
+    "slidingDecision": "droneShouldCarryTheBox",
     "description": "Let the drone carry the box"
   },
   "decisionExplanation": {
@@ -313,10 +322,10 @@ described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input parameters, the SWS may decide one of the following:
 
-- `DRONE_AUTONOMOUSLY`: "Let the drone carry the box"
-- `HUMAN_ON_THE_LOOP`: "Inform supervisor, who may potentially intervene"
-- `HUMAN_IN_THE_LOOP`: "Let the worker decide"
-- `HUMAN_MANUALLY`: "Let the worker carry the box"
+- `droneShouldCarryTheBox`: "Let the drone carry the box"
+- `letTheSupervisorDecide`: "Let the supervisor decide"
+- `letTheWorkerDecide`: "Let the worker decide"
+- `humanShouldCarryTheBox`: "Let the worker carry the box"
 
 ---
 
@@ -334,17 +343,15 @@ This example scenario is from the construction domain:
 The SWS management should support the decision if/when a human should be called to help the robot. This decision depends
 on:
 
-- the time that the robot is already blocked
+- the time that the robot is already moving
 - the battery status of the robot
-- the expected waiting time until the human will come to help
+- the number of humans currently present in the room
 
 #### Example Rules
 
-- if the battery status of the robot is low, ask for human help
-- if the time the robot is already blocked is short and the battery status of the robot is not low, let the robot
-  continue trying
-- if the time the robot is already blocked is moderate and the battery status of the robot is not low, inform the human
-  about the problem (so that they may decide if/when to help)
+- if the robot battery status is low or the time the robot is already moving is long, ask for human help
+- if the time robot is already moving is short and robot battery status is not low, let the robot continue trying
+
 
 To explore the example rules in detail, please refer to the FCL file
 located [here](src/main/resources/rules/ConstructionRobotAssistanceDecisionRules.fcl).
@@ -369,9 +376,9 @@ curl --request POST \
   --data '{
     "decisionStatus": "Sliding Decision Request",
     "slidingDecisionInputParameters": {
-      "timeRobotIsBlocked": 4,
+      "timeTheRobotIsAlreadyMoving": 4,
       "robotBatteryStatus": 65,
-      "waitingTimeForHuman": 10
+      "noOfHumansInTheRoom": 10
     }
   }'
 ```
@@ -379,9 +386,9 @@ curl --request POST \
 To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify
 the values for the `slidingDecisionInputParameters` as follows:
 
-- `timeRobotIsBlocked`: The time that the robot is blocked, measured in minutes (0-15 minutes)
+- `timeTheRobotIsAlreadyMoving`: The time that the robot is blocked, measured in minutes (0-15 minutes)
 - `robotBatteryStatus`: The battery status of the robot, measured in percent (0%-100%)
-- `waitingTimeForHuman`: The waiting time for the human to become available, measured in minutes (0-15 minutes)
+- `noOfHumansInTheRoom`: The number of humans currently present in the room (0-20 humans)
 
 ##### Example Response
 
@@ -391,7 +398,7 @@ The application will respond with a JSON string similar to the following:
 {
   "decisionStatus": "Sliding Decision Response",
   "decisionResult": {
-    "slidingDecision": "ROBOT_AUTONOMOUSLY",
+    "slidingDecision": "letRobotContinue",
     "description": "Let the robot continue trying"
   },
   "decisionExplanation": {
@@ -405,10 +412,9 @@ described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input, the SWS may decide one of the following:
 
-- `ROBOT_AUTONOMOUSLY`: "Let the robot continue trying"
-- `HUMAN_ON_THE_LOOP`: "Inform human about the problem"
-- `HUMAN_IN_THE_LOOP`: "Warn human, but let them decide if/when to help"
-- `HUMAN_REQUIRED`: "Ask human for help"
+- `letRobotContinue`: "Let the robot continue trying"
+- `informHumanAboutSituation`: "Inform human about the situation"
+- `askForHumanHelp`: "Ask human for help"
 
 ---
 
@@ -424,11 +430,10 @@ described in the following based on examples.
 {
   "decisionExplanation": {
     "inputVariables": {
-      "noOfTrucksInQueue": {
+      "numberOfTrucksInQueue": {
         "value": 7.0,
         "membershipValues": {
-          "MEDIUM": 0.5,
-          "LOW": 0.5
+          "moderate": 1.0
         }
       },
       "...": "..."
@@ -439,8 +444,7 @@ described in the following based on examples.
 
 - `value`: this is the original number provided as input in the Sliding Decision Request.
 - `membershipValues`: this shows the "fuzzy categories" into which the input value fits. Each category is assigned a
-  membership degree between 0 and 1. In the given example, the input value of `7.0` might partially belong to both
-  the `LOW` and `MEDIUM` categories with a membership degree of `0.5` each.
+  membership degree between 0 and 1. In the given example, the input value of `7.0` belong to `moderate` categories with a membership degree of `1.0`.
 
 ### Applied Rules
 
@@ -451,10 +455,10 @@ This field lists the rules that were activated during the decision-making proces
   "appliedRules": [
     {
       "name": "1",
-      "condition": "IF noOfTrucksInQueue IS LOW",
-      "consequence": "THEN [suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]",
+      "condition": "IF numberOfTrucksInQueue IS moderate",
+      "consequence": "THEN [suggestedWorkSharingApproach IS autonomousReprioritization]",
       "weight": "1.0",
-      "degreeOfSupport": "0.5"
+      "degreeOfSupport": "1.0"
     }
   ],
   "...": "..."
@@ -464,7 +468,7 @@ This field lists the rules that were activated during the decision-making proces
 - `name`: an identifier for the rule
 - `condition`:  the part that decides if this rule should be activated, based on the input values' memberships in the
   fuzzy categories
-- `consequence`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS AI_AUTONOMOUSLY]"`)
+- `consequence`: the outcome that the rule suggests (e.g., `"[suggestedWorkSharingApproach IS autonomousReprioritization]"`)
 - `weight`: is a pre-defined value, which defines the general "importance/impact" of this rule
 - `degreeOfSupport`: the level of impact that this rule has on the final decision, calculated based on the fuzzy
   membership degrees of the input values
@@ -477,9 +481,9 @@ Shows the final outcome after evaluating all the activated rules.
 {
   "outputVariables": {
     "suggestedWorkSharingApproach": {
-      "value": 2.998000000000003,
+      "value": 1.4977511244377752,
       "membershipValues": {
-        "HUMAN_ON_THE_LOOP": 1.0
+        "informHuman": 1.0
       }
     }
   }
@@ -487,7 +491,7 @@ Shows the final outcome after evaluating all the activated rules.
 ```
 
 - `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical
-  value. In the given example, a value of approximately `2.998` is produced.
-- `membershipValues`: this final output is then associated with a fuzzy category. In our example, `2.998`
-  maps to "HUMAN_ON_THE_LOOP" with a membership degree of `1.0`. This means that, after all rules are applied, the
+  value. In the given example, a value of approximately `1.497` is produced.
+- `membershipValues`: this final output is then associated with a fuzzy category. In our example, `1.497`
+  maps to "informHuman" with a membership degree of `1.0`. This means that, after all rules are applied, the
   final decision is identified as that suggested work sharing approach.
