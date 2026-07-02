@@ -22,7 +22,7 @@ END_FUZZIFY
 
 FUZZIFY noOfHumansInTheRoom   // 0 to 20 humans in the room
     TERM none := 0;      // 0 means no human
-    TERM some := (1,1) (20, 1);      // 1 to 20 humans
+    TERM some := (0,0) (1,1) (20, 1);      // 1 to 20 humans
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
