@@ -3,7 +3,7 @@ FUNCTION_BLOCK agricultureSchedulingSlidingDecisionRules
 VAR_INPUT				// Define input variables
 	distanceToCentralCollectionPoint : REAL;
 	fatigueLevelOfWorker : REAL;
-	isDroneCurrentlyAvailable : REAL;	// 0 = FALSE (not available), 1 = TRUE (available)
+	isDroneCurrentlyAvailable : REAL;
 	droneBatteryLevel : REAL;
 END_VAR
 

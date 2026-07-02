@@ -17,7 +17,7 @@ FUZZIFY timeTheRobotIsAlreadyMoving     // in minutes (0 to 15 minutes)
 END_FUZZIFY
 
 FUZZIFY robotBatteryStatus    // in percent (0 to 100 percent)
-    TERM low := (0, 1) (20, 1) (30, 0);   // low battery, 0 to 30 percent
+    TERM low := (0, 1) (20, 1) (30, 0);   // low battery from 0 to 20 percent, then gradually decreasing up to 30 percent
 END_FUZZIFY
 
 FUZZIFY noOfHumansInTheRoom   // 0 to 20 humans in the room
