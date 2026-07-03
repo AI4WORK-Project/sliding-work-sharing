@@ -20,11 +20,11 @@ FUZZIFY materialUrgency // in hours until the material is needed
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
-	TERM autonomousReprioritization := (0, 0) (1, 1) (2, 0); // 1 = autonomous reprioritization
-	TERM requireHumanApproval := (1, 0) (2, 1) (3, 0);       // 2 = require human approval
+	TERM autonomousReprioritization := (0, 1) (1, 0) ; // 0 = autonomous reprioritization
+	TERM requireHumanApproval := (0, 0) (1, 1) ;       // 1 = require human approval
 
 	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
-	DEFAULT := 3;		// Default value IS 3 (requireHumanApproval if no rule activates defuzzifier)
+	DEFAULT := 1;		// Default value IS 1 (requireHumanApproval if no rule activates defuzzifier)
 END_DEFUZZIFY
 
 RULEBLOCK No1
