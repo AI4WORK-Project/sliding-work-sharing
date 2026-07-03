@@ -54,12 +54,10 @@ curl --request POST \
   --data '{
     "decisionStatus": "Sliding Decision Request",
     "slidingDecisionInputParameters": {
-      "numberOfTrucksInQueue": 7,
-      "positionOfTruckToBePrioritized": 5,
-      "materialUrgency":30,
-      "operationalWorkload":80
+      "positionOfTruckToBePrioritized": 8,
+      "materialUrgency": 3
     }
-  }'
+  }' | jq
 ```
 
 ### Example Response
