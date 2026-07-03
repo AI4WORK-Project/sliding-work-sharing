@@ -5,4 +5,4 @@ application-scenario-config:
   decisionResultsDescription:
     autonomousReprioritization: "AI can reschedule without human involvement"
     informHuman: "Human has to be informed about AI's rescheduling"
-    requireHumanApproval: "Human has to decide without AI support"
+    requireHumanApproval: "Human has to approve AI suggestion"
