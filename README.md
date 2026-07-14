@@ -442,7 +442,8 @@ curl --request POST \
 To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify
 the values for the `slidingDecisionInputParameters` as follows:
 
-- `timeTheRobotIsAlreadyMoving`: The time that the robot is already moving, measured in minutes (0-15 minutes); a higher time may indicate that the robot is blocked
+- `timeTheRobotIsAlreadyMoving`: The time that the robot is already moving, measured in minutes (0-15 minutes); a higher
+  time may indicate that the robot is blocked
 - `robotBatteryStatus`: The battery status of the robot, measured in percent (0%-100%)
 - `noOfHumansInTheRoom`: The number of humans currently present in the room (0-20 humans)
 
@@ -500,7 +501,8 @@ described in the following based on examples.
 
 - `value`: this is the original number provided as input in the Sliding Decision Request.
 - `membershipValues`: this shows the "fuzzy categories" into which the input value fits. Each category is assigned a
-  membership degree between 0 and 1. In the given example, the input value of `7.0` belongs to the `moderate` category with
+  membership degree between 0 and 1. In the given example, the input value of `7.0` belongs to the `moderate` category
+  with
   a membership degree of `1.0`.
 
 ### Applied Rules
