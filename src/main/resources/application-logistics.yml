@@ -3,7 +3,6 @@
 application-scenario-config:
   fclRulesFilePath: rules/TruckSchedulingSlidingDecisionRules.fcl
   decisionResultsDescription:
-    AI_AUTONOMOUSLY: "AI can reschedule without human involvement"
-    HUMAN_ON_THE_LOOP: "Human has to be informed about AI's rescheduling"
-    HUMAN_IN_THE_LOOP: "Human has to check AI's suggestion"
-    HUMAN_MANUALLY: "Human has to decide without AI support"
+    autonomousReprioritization: "AI can reschedule without human involvement"
+    informHuman: "Human has to be informed about AI's rescheduling"
+    requireHumanApproval: "Human has to decide without AI support"
