@@ -23,8 +23,10 @@ class SlidingDecisionControllerTests {
                 {
                   "decisionStatus": "Sliding Decision Request",
                   "slidingDecisionInputParameters": {
-                    "noOfTrucksInQueue": 7,
-                    "positionOfTruckToBePrioritized": 5
+                    "numberOfTrucksInQueue": 7,
+                    "positionOfTruckToBePrioritized": 5,
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                   }
                 }
                 """;
@@ -32,7 +34,7 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionRequestWithBody(slidingDecisionRequestJsonBody),
                 HttpStatus.OK,
                 "\"decisionStatus\":\"Sliding Decision Response\"",
-                "HUMAN_ON_THE_LOOP");
+                "informHuman");
     }
 
     @Test
@@ -41,8 +43,10 @@ class SlidingDecisionControllerTests {
                 {
                   "decisionStatus": "Sliding Decision Request",
                   "slidingDecisionInputParameters":
-                    "noOfTrucksInQueue": 7,
-                    "positionOfTruckToBePrioritized": 5
+                    "numberOfTrucksInQueue": 7,
+                    "positionOfTruckToBePrioritized": 5,
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                   }
                 }
                 """;
@@ -56,33 +60,39 @@ class SlidingDecisionControllerTests {
     @Test
     void testMissingParameter() {
         String slidingDecisionInputParametersJson = """
-                    "positionOfTruckToBePrioritized": 5
+                    "positionOfTruckToBePrioritized": 5,
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                 """;
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "noOfTrucksInQueue");
+                "numberOfTrucksInQueue");
     }
 
     @Test
     void testParameterNameTypo() {
         String slidingDecisionInputParametersJson = """
-                    "noOfTrucksInQueuee": 7,
-                    "positionOfTruckToBePrioritized": 5
+                    "numberOfTrucksInQueuee": 7,
+                    "positionOfTruckToBePrioritized": 5,
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                 """;
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "noOfTrucksInQueue");
+                "numberOfTrucksInQueue");
     }
 
     @Test
     void testAdditionalUnknownParameter() {
         String slidingDecisionInputParametersJson = """
-                    "noOfTrucksInQueue": 7,
+                    "numberOfTrucksInQueue": 7,
                     "positionOfTruckToBePrioritized": 5,
+                    "materialUrgency":30,
+                    "operationalWorkload":80,
                     "additionalParameter": 42
                 """;
         assertSlidingDecisionResponseStatusAndContents(
@@ -96,14 +106,16 @@ class SlidingDecisionControllerTests {
     @Test
     void testInvalidInputParameterValue() {
         String slidingDecisionInputParametersJson = """
-                    "noOfTrucksInQueue": "seven",
-                    "positionOfTruckToBePrioritized": 5
+                    "numberOfTrucksInQueue": "seven",
+                    "positionOfTruckToBePrioritized": 5,
+                    "materialUrgency":30,
+                    "operationalWorkload":80
                 """;
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "noOfTrucksInQueue");
+                "numberOfTrucksInQueue");
     }
 
     private ResponseEntity<String> postSlidingDecisionRequestWithParameters(String slidingDecisionInputParametersJson) {
