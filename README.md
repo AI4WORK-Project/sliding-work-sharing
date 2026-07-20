@@ -44,8 +44,8 @@ You can test the application using the `curl` command (or using any other HTTP/R
 
 ### Example Request
 
-Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to
-the `/sliding-decision` endpoint:
+Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the
+`/sliding-decision` endpoint:
 
 ```bash
 curl --request POST \
@@ -69,9 +69,11 @@ The application will respond with a JSON string similar to the following:
 ```json
 {
   "decisionStatus": "Sliding Decision Response",
-  "decisionResult": {
-    "slidingDecision": "informHuman",
-    "description": "Human has to be informed about AI's rescheduling"
+  "slidingDecisionOutputParameters": {
+    "suggestedApproach": {
+      "slidingDecision": "informHuman",
+      "description": "Human has to be informed about AI's rescheduling"
+    }
   },
   "decisionExplanation": {
     "...": "..."
@@ -88,7 +90,7 @@ described [here](#how-to-read-the-decisionexplanation).
 
 To apply SWS to your own application scenario, you need to do the following:
 
-- define your own input parameters, output parameter and decision rules in an `.fcl` file
+- define your own input parameters, output variable/s and decision rules in an `.fcl` file
 - create your custom `.yml` configuration file
 - download a runnable version of the software (or build it yourself)
 
@@ -98,8 +100,9 @@ To apply SWS to your own application scenario, you need to do the following:
 - our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
 - existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
-_Note_: Please note that the application right now only supports a single output parameter (defined as VAR_OUTPUT in the
-.fcl file).
+_Note_: The SWS application can return multiple output variables. In your custom `.fcl` file, you
+can define several decision outputs, and each one will appear as a separate field in the response JSON. The agriculture
+scenario ([Agriculture Scenario](#agriculture-scenario)) shows the example for this feature.
 
 ### Create your custom `.yml` configuration file
 
@@ -185,8 +188,8 @@ mvn spring-boot:run -D"spring-boot.run.profiles"=logistics
 
 ##### Example Request
 
-Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to
-the `/sliding-decision` endpoint:
+Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the
+`/sliding-decision` endpoint:
 
 ```bash
 curl --request POST \
@@ -218,9 +221,11 @@ The application will respond with a JSON string similar to the following:
 ```json
 {
   "decisionStatus": "Sliding Decision Response",
-  "decisionResult": {
-    "slidingDecision": "informHuman",
-    "description": "Human has to be informed about AI's rescheduling"
+  "slidingDecisionOutputParameters": {
+    "suggestedApproach": {
+      "slidingDecision": "informHuman",
+      "description": "Human has to be informed about AI's rescheduling"
+    }
   },
   "decisionExplanation": {
     "...": "..."
@@ -259,9 +264,9 @@ decision depends on:
 
 #### Example rules
 
-- if drone battery level is low, let supervisor decide if the drone should carry the box or not
-- if distance from the current location is low and the drone is currently not available or fatigue level of worker
-  is low, let the worker carry the box
+- if drone battery level is low or fatigue level of worker is low, let the supervisor inform about the situation
+- if distance from the current location is low and the drone is currently not available or fatigue level of worker is
+  low, let the worker carry the box
 
 To explore the example rules in detail, please refer to the FCL file
 located [here](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl).
@@ -276,8 +281,8 @@ mvn spring-boot:run -D"spring-boot.run.profiles"=agriculture
 
 ##### Example Request
 
-Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to
-the `/sliding-decision` endpoint:
+Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the
+`/sliding-decision` endpoint:
 
 ```bash
 curl --request POST \
@@ -309,9 +314,15 @@ The application will respond with a JSON string similar to the following:
 ```json
 {
   "decisionStatus": "Sliding Decision Response",
-  "decisionResult": {
-    "slidingDecision": "droneShouldCarryTheBox",
-    "description": "Let the drone carry the box"
+  "slidingDecisionOutputParameters": {
+    "suggestedApproach": {
+      "slidingDecision": "droneShouldCarryTheBox",
+      "description": "Let the drone carry the box"
+    },
+    "shouldSupervisorBeInformed": {
+      "slidingDecision": "yes",
+      "description": "Inform the supervisor"
+    }
   },
   "decisionExplanation": {
     "...": "..."
@@ -321,6 +332,9 @@ The application will respond with a JSON string similar to the following:
 
 _Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is
 described [here](#how-to-read-the-decisionexplanation).
+
+- This application scenario can be an example that return multiple output variables. In `.fcl`
+  file, several decision outputs can be defined, and each one will appear as a separate field in the response JSON.
 
 Depending on the input parameters, the SWS may decide one of the following:
 
@@ -367,8 +381,8 @@ mvn spring-boot:run -D"spring-boot.run.profiles"=construction
 
 ##### Example Request
 
-Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to
-the `/sliding-decision` endpoint:
+Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the
+`/sliding-decision` endpoint:
 
 ```bash
 curl --request POST \
@@ -387,7 +401,8 @@ curl --request POST \
 To test the implemented rules, you can pass different inputs to the application and observe the outcomes. Just modify
 the values for the `slidingDecisionInputParameters` as follows:
 
-- `timeTheRobotIsAlreadyMoving`: The time that the robot is already moving, measured in minutes (0-15 minutes); a higher time may indicate that the robot is blocked
+- `timeTheRobotIsAlreadyMoving`: The time that the robot is already moving, measured in minutes (0-15 minutes); a higher
+  time may indicate that the robot is blocked
 - `robotBatteryStatus`: The battery status of the robot, measured in percent (0%-100%)
 - `noOfHumansInTheRoom`: The number of humans currently present in the room (0-20 humans)
 
@@ -398,9 +413,11 @@ The application will respond with a JSON string similar to the following:
 ```json
 {
   "decisionStatus": "Sliding Decision Response",
-  "decisionResult": {
-    "slidingDecision": "letRobotContinue",
-    "description": "Let the robot continue trying"
+  "slidingDecisionOutputParameters": {
+    "suggestedApproach": {
+      "slidingDecision": "askForHumanHelp",
+      "description": "Ask human for help"
+    }
   },
   "decisionExplanation": {
     "...": "..."
@@ -421,8 +438,8 @@ Depending on the input, the SWS may decide one of the following:
 
 ## How to Read the `decisionExplanation`
 
-To make clear how the internal rule engine reached the "sliding decision", the response JSON contains the
-section `decisionExplanation`, subdivided into `inputVariables`, `appliedRules` and `outputVariables`. Each of those are
+To make clear how the internal rule engine reached the "sliding decision", the response JSON contains the section
+`decisionExplanation`, subdivided into `inputVariables`, `appliedRules` and `outputVariables`. Each of those are
 described in the following based on examples.
 
 ### Input Variables
@@ -445,8 +462,8 @@ described in the following based on examples.
 
 - `value`: this is the original number provided as input in the Sliding Decision Request.
 - `membershipValues`: this shows the "fuzzy categories" into which the input value fits. Each category is assigned a
-  membership degree between 0 and 1. In the given example, the input value of `7.0` belongs to the `moderate` category with
-  a membership degree of `1.0`.
+  membership degree between 0 and 1. In the given example, the input value of `7.0` belongs to the `moderate` category
+  with a membership degree of `1.0`.
 
 ### Applied Rules
 
@@ -496,5 +513,5 @@ Shows the final outcome after evaluating all the activated rules.
 - `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical
   value. In the given example, a value of approximately `1.497` is produced.
 - `membershipValues`: this final output is then associated with a fuzzy category. In our example, `1.497`
-  maps to "informHuman" with a membership degree of `1.0`. This means that, after all rules are applied, the
-  final decision is identified as that suggested work sharing approach.
+  maps to "informHuman" with a membership degree of `1.0`. This means that, after all rules are applied, the final
+  decision is identified as that suggested work sharing approach.
