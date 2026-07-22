@@ -24,9 +24,9 @@ Open a terminal in the project directory containing the `Dockerfile`, run:
 docker build -t sliding-work-sharing .
 ```
 
-### 3. Run the default scenario in the docker image
+### 3. Start the Application (using the Default Configuration for Testing)
 
-Run the following command to run docker container image:
+Run the following command to start the application using the built container image:
 
 ```bash
 docker run --rm -p 8080:8080 sliding-work-sharing
