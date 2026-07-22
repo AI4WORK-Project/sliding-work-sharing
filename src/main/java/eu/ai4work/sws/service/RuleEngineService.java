@@ -51,16 +51,15 @@ public class RuleEngineService {
      */
     private void verifySlidingDecisionInputParameters(Map<String, Object> slidingDecisionInputParameters)
             throws InvalidInputParameterException {
-        List<String> requiredParameters = requiredFuzzyInputParameters;
         Set<String> providedParameters = slidingDecisionInputParameters.keySet();
 
         // detect provided input parameters that are not required
         List<String> unknownParameters = providedParameters.stream()
-                .filter(providedParameter -> !requiredParameters.contains(providedParameter))
+                .filter(providedParameter -> !requiredFuzzyInputParameters.contains(providedParameter))
                 .toList();
 
         // detect required parameters that are missing in the provided input
-        List<String> missingParameters = requiredParameters.stream()
+        List<String> missingParameters = requiredFuzzyInputParameters.stream()
                 .filter(requiredParameter -> !providedParameters.contains(requiredParameter))
                 .toList();
 
