@@ -47,7 +47,7 @@ public class SlidingDecisionController {
      * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
     private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
-        Map<String, Object> decisionResult = new HashMap<>();
+        Map<String, ResultForOutputVariable> resultsByOutputVariables = new HashMap<>();
 
         slidingDecision.getDecisionResult().forEach((outputVariableName, resultAsLinguisticTerm) -> {
             Map<String, Object> decisionResultDetails = new HashMap<>();

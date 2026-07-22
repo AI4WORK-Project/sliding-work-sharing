@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 
 @Configuration
 @RequiredArgsConstructor
-public class InitializeFuzzyIOParameters {
+public class InitializeFuzzyIOParameterLists {
     private final FIS fuzzyInferenceSystem;
 
     @Bean
@@ -42,7 +42,7 @@ public class InitializeFuzzyIOParameters {
                 .toList();
 
         if (outputVariablesFromFIS.isEmpty()) {
-            throw new NoSuchElementException("Output variable missing in the provided FCL file. Please define the output variable.");
+            throw new NoSuchElementException("Output variable(s) missing in the provided FCL file. Please define at least one output variable.");
         }
         return outputVariablesFromFIS;
     }

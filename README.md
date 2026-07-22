@@ -90,7 +90,7 @@ described [here](#how-to-read-the-decisionexplanation).
 
 To apply SWS to your own application scenario, you need to do the following:
 
-- define your own input parameters, output variable/s and decision rules in an `.fcl` file
+- define your own input parameters, output parameter(s) and decision rules in an `.fcl` file
 - create your custom `.yml` configuration file
 - download a runnable version of the software (or build it yourself)
 
@@ -100,9 +100,9 @@ To apply SWS to your own application scenario, you need to do the following:
 - our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
 - existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
-_Note_: The SWS application can return multiple output variables. In your custom `.fcl` file, you
-can define several decision outputs, and each one will appear as a separate field in the response JSON. The agriculture
-scenario ([Agriculture Scenario](#agriculture-scenario)) shows the example for this feature.
+_Note_: The SWS application can return multiple output parameters. In your custom `.fcl` file, you
+can define several decision outputs, and each one will appear as a separate parameter in the response JSON. The agriculture
+scenario ([Agriculture Scenario](#agriculture-scenario)) includes an example for this feature.
 
 ### Create your custom `.yml` configuration file
 
@@ -264,7 +264,7 @@ decision depends on:
 
 #### Example rules
 
-- if drone battery level is low or fatigue level of worker is low, let the supervisor inform about the situation
+- if drone battery level is low or fatigue level of worker is low, inform the supervisor about the situation
 - if distance from the current location is low and the drone is currently not available or fatigue level of worker is
   low, let the worker carry the box
 
@@ -333,8 +333,8 @@ The application will respond with a JSON string similar to the following:
 _Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is
 described [here](#how-to-read-the-decisionexplanation).
 
-- This application scenario can be an example that return multiple output variables. In `.fcl`
-  file, several decision outputs can be defined, and each one will appear as a separate field in the response JSON.
+- This application scenario provides an example how the SWS can return multiple output parameters. In the `.fcl`
+  file, several decision outputs can be defined, and each one will appear as a separate parameter in the response JSON.
 
 Depending on the input parameters, the SWS may decide one of the following:
 

@@ -84,7 +84,7 @@ public class RuleEngineService {
      * to their result in linguistic term (the name of the membership function with the highest membership degree).
      */
     private Map<String, String> readAllSlidingDecisionResultsFromFIS() {
-        Map<String, String> allSlidingDecisionResults = new HashMap<>();
+        Map<String, String> resultsByOutputVariable = new HashMap<>();
         for (String outputVariableNameFromFIS : getOutputVariableNamesFromFIS) {
             allSlidingDecisionResults.put(outputVariableNameFromFIS, getLinguisticTermForOutputVariable(outputVariableNameFromFIS));
         }
