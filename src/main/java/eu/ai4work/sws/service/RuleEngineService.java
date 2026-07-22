@@ -1,6 +1,5 @@
 package eu.ai4work.sws.service;
 
-import eu.ai4work.sws.config.InitializeFuzzyIOParameters;
 import eu.ai4work.sws.model.SlidingDecisionExplanation;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.VariableExplanation;
@@ -20,8 +19,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RuleEngineService {
     private final FIS fuzzyInferenceSystem;
-    private final List<String> getRequiredInputParametersFromFIS;
-    private final List<String> getOutputVariableNamesFromFIS;
+    private final List<String> requiredFuzzyInputParameters;
+    private final List<String> outputVariableNamesFromFIS;
 
     /**
      * Evaluates the fuzzy inference rules based on the provided inputs, and it returns the sliding decision with its explanation.
@@ -52,7 +51,7 @@ public class RuleEngineService {
      */
     private void verifySlidingDecisionInputParameters(Map<String, Object> slidingDecisionInputParameters)
             throws InvalidInputParameterException {
-        List<String> requiredParameters = getRequiredInputParametersFromFIS;
+        List<String> requiredParameters = requiredFuzzyInputParameters;
         Set<String> providedParameters = slidingDecisionInputParameters.keySet();
 
         // detect provided input parameters that are not required
@@ -85,10 +84,10 @@ public class RuleEngineService {
      */
     private Map<String, String> readAllSlidingDecisionResultsFromFIS() {
         Map<String, String> resultsByOutputVariable = new HashMap<>();
-        for (String outputVariableNameFromFIS : getOutputVariableNamesFromFIS) {
-            allSlidingDecisionResults.put(outputVariableNameFromFIS, getLinguisticTermForOutputVariable(outputVariableNameFromFIS));
+        for (String outputVariableNameFromFIS : outputVariableNamesFromFIS) {
+            resultsByOutputVariable.put(outputVariableNameFromFIS, getLinguisticTermForOutputVariable(outputVariableNameFromFIS));
         }
-        return allSlidingDecisionResults;
+        return resultsByOutputVariable;
     }
 
     private String getLinguisticTermForOutputVariable(String outputVariableNameFromFIS) {

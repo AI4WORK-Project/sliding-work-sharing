@@ -1,6 +1,7 @@
 package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
+import eu.ai4work.sws.model.ResultForOutputVariable;
 import eu.ai4work.sws.model.SlidingDecisionStatus;
 import eu.ai4work.sws.model.SlidingDecision;
 import eu.ai4work.sws.model.SlidingDecisionRequest;
@@ -17,8 +18,6 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 public class SlidingDecisionController {
-    private static final String SLIDING_DECISION = "slidingDecision";
-    private static final String DESCRIPTION = "description";
     private final SlidingDecisionService slidingDecisionService;
     private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
 
@@ -50,15 +49,15 @@ public class SlidingDecisionController {
         Map<String, ResultForOutputVariable> resultsByOutputVariables = new HashMap<>();
 
         slidingDecision.getDecisionResult().forEach((outputVariableName, resultAsLinguisticTerm) -> {
-            Map<String, Object> decisionResultDetails = new HashMap<>();
-            decisionResultDetails.put(SLIDING_DECISION, resultAsLinguisticTerm);
-            decisionResultDetails.put(DESCRIPTION, applicationScenarioConfiguration.getDecisionResultsDescription().get(resultAsLinguisticTerm));
-            decisionResult.put(outputVariableName, decisionResultDetails);
+            ResultForOutputVariable resultForOutputVariable = new ResultForOutputVariable();
+            resultForOutputVariable.setSlidingDecision(resultAsLinguisticTerm);
+            resultForOutputVariable.setDescription(applicationScenarioConfiguration.getDecisionResultsDescription().get(resultAsLinguisticTerm));
+            resultsByOutputVariables.put(outputVariableName, resultForOutputVariable);
         });
 
         return SlidingDecisionResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.RESPONSE)
-                .slidingDecisionOutputParameters(decisionResult)
+                .slidingDecisionOutputParameters(resultsByOutputVariables)
                 .decisionExplanation(slidingDecision.getDecisionExplanation())
                 .build();
     }
