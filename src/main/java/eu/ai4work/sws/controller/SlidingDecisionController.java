@@ -48,7 +48,7 @@ public class SlidingDecisionController {
     private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
         Map<String, ResultForOutputVariable> resultsByOutputVariables = new HashMap<>();
 
-        slidingDecision.getDecisionResult().forEach((outputVariableName, resultAsLinguisticTerm) -> {
+        slidingDecision.getDecisionResultPerOutputParameter().forEach((outputVariableName, resultAsLinguisticTerm) -> {
             ResultForOutputVariable resultForOutputVariable = new ResultForOutputVariable();
             resultForOutputVariable.setSlidingDecision(resultAsLinguisticTerm);
             resultForOutputVariable.setDescription(applicationScenarioConfiguration.getDecisionResultsDescription().get(resultAsLinguisticTerm));

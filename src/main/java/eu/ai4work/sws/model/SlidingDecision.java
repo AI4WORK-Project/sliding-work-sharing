@@ -8,6 +8,6 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 public class SlidingDecision {
-    private Map<String, String> decisionResult;
+    private Map<String, String> decisionResultPerOutputParameter;
     private SlidingDecisionExplanation decisionExplanation;
 }

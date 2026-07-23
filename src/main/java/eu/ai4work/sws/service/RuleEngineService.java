@@ -36,11 +36,11 @@ public class RuleEngineService {
 
         fuzzyInferenceSystem.evaluate();
 
-        Map<String, String> allDecisionResult = readAllSlidingDecisionResultsFromFIS();
+        Map<String, String> decisionResultsForAllOutputParameters = readAllSlidingDecisionResultsFromFIS();
 
         SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem();
 
-        return new SlidingDecision(allDecisionResult, decisionExplanation);
+        return new SlidingDecision(decisionResultsForAllOutputParameters, decisionExplanation);
     }
 
     /**
