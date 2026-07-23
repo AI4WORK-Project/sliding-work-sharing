@@ -79,7 +79,7 @@ public class RuleEngineService {
      * Reads all sliding decision results to their corresponding linguistic terms from the fuzzy inference system.
      *
      * @return Map of sliding decision results which contains output variable names and
-     * to their result in linguistic term (the name of the membership function with the highest membership degree).
+     * maps them to their result as a linguistic term.
      */
     private Map<String, String> readAllSlidingDecisionResultsFromFIS() {
         Map<String, String> resultsByOutputVariable = new HashMap<>();
