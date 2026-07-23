@@ -253,9 +253,9 @@ This example is from the agriculture domain:
 - carrying the box can be done either by the workers themselves or by an AI-powered transport drone
 - the transport drone has limited capacity, so it cannot transport all boxes for all workers
 
-For each required transport of a harvest box, the SWS management decides in how far a human (either worker or
-supervisor) should be involved in the decision if this transport should be done by the drone or by the worker. This
-decision depends on:
+For each required transport of a harvest box, the SWS management decides if this transport should be done by the drone 
+or by the worker, and in how far a human (either worker or supervisor) should be involved/informed. This decision 
+depends on:
 
 - the drone's battery level
 - the availability of the drone
@@ -264,9 +264,10 @@ decision depends on:
 
 #### Example rules
 
-- if drone battery level is low or fatigue level of worker is low, inform the supervisor about the situation
+- if distance from the current location is high and the drone is currently available, let the drone carry the box
 - if distance from the current location is low and the drone is currently not available or fatigue level of worker is
   low, let the worker carry the box
+- if drone battery level is low or fatigue level of worker is high, inform the supervisor about the situation
 
 To explore the example rules in detail, please refer to the FCL file
 located [here](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl).
@@ -330,11 +331,11 @@ The application will respond with a JSON string similar to the following:
 }
 ```
 
-_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is
-described [here](#how-to-read-the-decisionexplanation).
-
+_Please Note_: 
 - This application scenario provides an example how the SWS can return multiple output parameters. In the `.fcl`
   file, several decision outputs can be defined, and each one will appear as a separate parameter in the response JSON.
+- The `decisionExplanation` is not shown here for the sake of brevity. An example is
+  described [here](#how-to-read-the-decisionexplanation).
 
 Depending on the input parameters, the SWS may decide one of the following:
 
