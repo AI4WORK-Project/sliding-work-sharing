@@ -115,7 +115,7 @@ scenario ([Agriculture Scenario](#agriculture-scenario)) includes an example for
 ### Download (or build) the sliding-work-sharing `.jar` file
 
 - the easiest way is to download the release `.jar` file from the following link:
-  https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v0.1.1/sliding-work-sharing-0.1.1.jar
+  https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v1.0.0/sliding-work-sharing-1.0.0.jar
 - alternatively, in case you prefer to build your own jar file, follow
   the [instructions above](#how-to-build-and-run-the-application)
 
@@ -124,14 +124,14 @@ scenario ([Agriculture Scenario](#agriculture-scenario)) includes an example for
 - place the following files in a single directory
     - your custom `.fcl` file
     - your custom `.yml` file
-    - the `.jar` file (e.g.,`sliding-work-sharing-0.1.1.jar`)
+    - the `.jar` file (e.g.,`sliding-work-sharing-1.0.0.jar`)
 
 _Note_: Ensure that the path to your `.fcl` file is correctly specified as `fclRulesFilePath` in the `.yml` file
 
 - next, open a terminal in the same directory (where all files are located) and run the following command
 
 ```bash
-java -jar sliding-work-sharing-0.1.1.jar --spring.config.location=application-{your-configuration-name}.yml
+java -jar sliding-work-sharing-1.0.0.jar --spring.config.location=application-{your-configuration-name}.yml
 ```
 
 _Please Note_: here the `{your-configuration-name}` would be the name of your custom scenario's name
