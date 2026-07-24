@@ -518,12 +518,7 @@ described in the following based on examples.
 - `value`: this is the original number provided as input in the Sliding Decision Request.
 - `membershipValues`: this shows the "fuzzy categories" into which the input value fits. Each category is assigned a
   membership degree between 0 and 1. In the given example, the input value of `7.0` belongs to the `moderate` category
-<<<<<<< HEAD
-  with
-  a membership degree of `1.0`.
-=======
   with a membership degree of `1.0`.
->>>>>>> main
 
 ### Applied Rules
 
