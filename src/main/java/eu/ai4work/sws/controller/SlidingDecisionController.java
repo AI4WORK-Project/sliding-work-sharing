@@ -1,6 +1,7 @@
 package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
+import eu.ai4work.sws.model.ResultForOutputVariable;
 import eu.ai4work.sws.model.SlidingDecisionStatus;
 import eu.ai4work.sws.model.SlidingDecision;
 import eu.ai4work.sws.model.SlidingDecisionRequest;
@@ -17,8 +18,6 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 public class SlidingDecisionController {
-    private static final String SLIDING_DECISION = "slidingDecision";
-    private static final String DESCRIPTION = "description";
     private final SlidingDecisionService slidingDecisionService;
     private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
 
@@ -47,13 +46,18 @@ public class SlidingDecisionController {
      * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
     private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
-        Map<String, Object> decisionResultDetails = new HashMap<>();
-        decisionResultDetails.put(SLIDING_DECISION, slidingDecision.getDecisionResult());
-        decisionResultDetails.put(DESCRIPTION, applicationScenarioConfiguration.getDecisionResultsDescription().get(slidingDecision.getDecisionResult()));
+        Map<String, ResultForOutputVariable> resultsByOutputVariables = new HashMap<>();
+
+        slidingDecision.getDecisionResultPerOutputParameter().forEach((outputVariableName, resultAsLinguisticTerm) -> {
+            ResultForOutputVariable resultForOutputVariable = new ResultForOutputVariable();
+            resultForOutputVariable.setSlidingDecision(resultAsLinguisticTerm);
+            resultForOutputVariable.setDescription(applicationScenarioConfiguration.getDecisionResultsDescription().get(resultAsLinguisticTerm));
+            resultsByOutputVariables.put(outputVariableName, resultForOutputVariable);
+        });
 
         return SlidingDecisionResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.RESPONSE)
-                .decisionResult(decisionResultDetails)
+                .slidingDecisionOutputParameters(resultsByOutputVariables)
                 .decisionExplanation(slidingDecision.getDecisionExplanation())
                 .build();
     }
