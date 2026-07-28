@@ -58,7 +58,7 @@ curl --request POST \
   }'
 ```
 
-### Example Response
+#### Example Response
 
 The application will respond with a JSON string similar to the following:
 
@@ -86,11 +86,14 @@ described [here](#how-to-read-the-decisionexplanation).
 
 To apply SWS to your own application scenario, you need to do the following:
 
-- define your own input parameters, output parameter(s) and decision rules in an `.fcl` file
-- create your custom `.yml` configuration file
-- prepare the configuration directory
+1. create your custom `.fcl` file, which defines your own input parameters, output parameter(s) and decision rules 
+2. create your custom `.yml` configuration file
+3. prepare the configuration directory
+4. run the software and mount your configuration directory inside the container 
 
-### Create your custom `.fcl` file
+Each step is explained in detail in the following.
+
+### 1. Create your custom `.fcl` file
 
 - `fcl` (fuzzy control language) is used to define input parameters, output parameter(s) and decision rules.
 - our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
@@ -100,45 +103,42 @@ _Note_: The SWS application can return multiple output parameters. In your custo
 can define several decision outputs, and each one will appear as a separate parameter in the response JSON. The agriculture
 scenario ([Agriculture Scenario](#agriculture-scenario)) includes an example for this feature.
 
-### Create your custom `.yml` configuration file
+### 2. Create your custom `.yml` configuration file
 
-- our suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust it:
-    - the `fclRulesFilePath` should point to the location of your `.fcl` file **inside the container** (e.g., `/config/your-scenario.fcl` as shown below)
-    - the textual description of the decision results should fit to your scenario
-    - replace `{existing-configuration}` with a name representing your custom scenario
-- existing example configuration files can be found at [src/main/resources](src/main/resources)
+Our suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust it. Existing example configuration files can be found at [src/main/resources](src/main/resources).
 
-> **Important:** In the YAML configuration, `fclRulesFilePath` must reference the path **inside the container**, not the
-> path on the host machine. The `fclRulesFilePath` should be start with `/config/` and then the name of your `.fcl`
-> file.
+Please note: 
+- the configuration parameter `fclRulesFilePath` inside the `.yml` file must point to the location of your `.fcl` **inside the Docker container**, not the path on the host machine. Therefore, it should start with the folder `/config/`, which corresponds to the directory that will be mounted inside the Docker container. For example:
+  ```yaml
+  application-scenario-config:
+    fclRulesFilePath: /config/your-scenario.fcl
+    decisionResultsDescription:
+      # Add your scenario-specific descriptions here.
+      [...]
+  ```
+  
+- the textual description of the decision results should fit to your scenario
+- replace `{existing-configuration}` with a name representing your custom scenario
 
-For example:
 
-```yaml
-application-scenario-config:
-  fclRulesFilePath: /config/your-scenario.fcl
-  decisionResultsDescription:
-  # Add your scenario-specific descriptions here.
-```
 
-The `/config` directory corresponds to the directory mounted inside the Docker container.
 
-### Prepare the configuration directory
+### 3. Prepare the configuration directory
 
 Create a directory on your host machine containing both your custom `.fcl` file and a custom `.yml` configuration file.
 
 For example:
 
 ```text
-<YOUR_CONFIG_DIRECTORY>/
+<YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>/
 ├── your-scenario.fcl
 └── application-{your-configuration-name}.yml
 ```
 
 
-## 4. Run the application with the custom configuration
+### 4. Run the application with your custom configuration
 
-### Linux or macOS
+#### Linux or macOS
 
 ```bash
 docker run --rm \
@@ -163,7 +163,7 @@ docker run --rm \
   --spring.config.location=file:/config/application-sws-scenario.yml
 ```
 
-### Windows PowerShell
+#### Windows PowerShell
 
 ```powershell
 docker run --rm `
