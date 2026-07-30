@@ -107,27 +107,24 @@ scenario includes an example for this feature, please have a look at:
 
 ### 2. Create your custom `.yml` configuration file
 
-Our suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust it. Existing example configuration files can be found at [src/main/resources](src/main/resources).
+Our suggestion would be to take an existing `application-{existing-configuration}.yml` configuration file as template and adjust it. Existing examples can be found at [src/main/resources](src/main/resources).
 
 Please note: 
-- the configuration parameter `fclRulesFilePath` inside the `.yml` file must point to the location of your `.fcl` **inside the Docker container**, not the path on the host machine. Therefore, it should start with the folder `/config/`, which corresponds to the directory that will be mounted inside the Docker container. For example:
+- the configuration parameter `fclRulesFilePath` inside the `.yml` file must point to the location of your `.fcl` **inside the Docker container**, not the path on the host machine. Therefore, it should start with the folder name `/config/`, which corresponds to the directory that will later be mounted inside the Docker container. For example:
   ```yaml
   application-scenario-config:
     fclRulesFilePath: /config/your-scenario.fcl
     decisionResultsDescription:
-      # Add your scenario-specific descriptions here.
+      # Add your scenario-specific decision result descriptions here.
       [...]
   ```
   
 - the textual description of the decision results should fit to your scenario
-- replace `{existing-configuration}` with a name representing your custom scenario
-
-
-
+- rename your file, replacing `{existing-configuration}` with a name representing your custom scenario
 
 ### 3. Prepare the configuration directory
 
-Create a directory on your host machine containing both your custom `.fcl` file and a custom `.yml` configuration file.
+Create a directory on your host machine containing both your custom `.fcl` file and your custom `.yml` configuration file.
 
 For example:
 
@@ -136,7 +133,6 @@ For example:
 ├── your-scenario.fcl
 └── application-{your-configuration-name}.yml
 ```
-
 
 ### 4. Run the application with your custom configuration
 
@@ -152,7 +148,7 @@ docker run --rm \
 
 Replace:
 
-* `<PATH_TO_YOUR_CONFIG_DIRECTORY>` with the absolute path to the directory containing your YAML and FCL files.
+* `<PATH_TO_YOUR_CONFIG_DIRECTORY>` with the *absolute* path to the directory containing your YAML and FCL files.
 * `{your-configuration}` with the name of your custom scenario.
 
 For example:
@@ -177,7 +173,7 @@ docker run --rm `
 
 Replace:
 
-* `<PATH_TO_YOUR_CONFIG_DIRECTORY>` with the absolute path to the directory containing your YAML and FCL files.
+* `<PATH_TO_YOUR_CONFIG_DIRECTORY>` with the *absolute* path to the directory containing your YAML and FCL files.
 * `{your-configuration-name}` with the name of your custom scenario.
 
 For example:
@@ -189,8 +185,6 @@ docker run --rm `
   sliding-work-sharing `
   --spring.config.location=file:/config/application-sws-scenario.yml
 ```
-
-The `readonly` option mounts the configuration directory as read-only inside the container.
 
 To test your custom scenario, follow the example in the [testing the application](#how-to-test-the-application)
 section and adjust its input parameters to fit to your own scenario.
