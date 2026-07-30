@@ -101,7 +101,9 @@ Each step is explained in detail in the following.
 
 _Note_: The SWS application can return multiple output parameters. In your custom `.fcl` file, you
 can define several decision outputs, and each one will appear as a separate parameter in the response JSON. The agriculture
-scenario ([Agriculture Scenario](#agriculture-scenario)) includes an example for this feature.
+scenario includes an example for this feature, please have a look at:
+- The ([description of the agriculture scenario](#agriculture-scenario)) 
+- The ([`.fcl` file for the agriculture scenario](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl)) 
 
 ### 2. Create your custom `.yml` configuration file
 
