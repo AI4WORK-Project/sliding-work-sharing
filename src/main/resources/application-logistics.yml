@@ -1,5 +1,4 @@
-# This file defines Logistics pilot configurations for the application.
-# To activate this profile use command 'mvn spring-boot:run -D"spring-boot.run.profiles"=logistics'
+# This is the configuration for the Logistics demonstration scenario
 application-scenario-config:
   fclRulesFilePath: rules/TruckSchedulingSlidingDecisionRules.fcl
   decisionResultsDescription:
