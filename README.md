@@ -136,7 +136,7 @@ For example:
 
 ### 4. Run the application with your custom configuration
 
-Use the following instructions to mount your config directory inside the Docker container and start the application. After startup, you can test your custom scenario, as explained in the part about [testing the application](#how-to-test-the-application). Please do not forget to adjust the input parameters to fit to your own scenario.
+Use the following instructions to mount your config directory inside the Docker container and start the application. After startup, you can test your custom scenario, as explained in the part about [testing the application](#4-how-to-test-the-application). Please do not forget to adjust the input parameters to fit to your own scenario.
 
 #### Linux or macOS
 
