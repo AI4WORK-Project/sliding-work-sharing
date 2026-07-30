@@ -102,8 +102,8 @@ Each step is explained in detail in the following.
 _Note_: The SWS application can return multiple output parameters. In your custom `.fcl` file, you
 can define several decision outputs, and each one will appear as a separate parameter in the response JSON. The agriculture
 scenario includes an example for this feature, please have a look at:
-- The ([description of the agriculture scenario](#agriculture-scenario)) 
-- The ([`.fcl` file for the agriculture scenario](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl)) 
+- The [description of the agriculture scenario](#agriculture-scenario)
+- The [`.fcl` file for the agriculture scenario](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl)
 
 ### 2. Create your custom `.yml` configuration file
 
@@ -135,6 +135,8 @@ For example:
 ```
 
 ### 4. Run the application with your custom configuration
+
+Use the following instructions to mount your config directory inside the Docker container and start the application. After startup, you can test your custom scenario, as explained in the part about [testing the application](#how-to-test-the-application). Please do not forget to adjust the input parameters to fit to your own scenario.
 
 #### Linux or macOS
 
@@ -186,8 +188,6 @@ docker run --rm `
   --spring.config.location=file:/config/application-sws-scenario.yml
 ```
 
-To test your custom scenario, follow the example in the [testing the application](#how-to-test-the-application)
-section and adjust its input parameters to fit to your own scenario.
 
 ---
 
