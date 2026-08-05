@@ -175,7 +175,7 @@ docker run --rm `
 
 Replace:
 
-* `<PATH_TO_YOUR_CONFIG_DIRECTORY>` with the *absolute* path to the directory containing your YAML and FCL files.
+* `<PATH_TO_YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>` with the *absolute* path to the directory containing your YAML and FCL files.
 * `{your-configuration-name}` with the name of your custom scenario.
 
 For example:
