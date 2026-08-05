@@ -143,7 +143,7 @@ Use the following instructions to mount your config directory inside the Docker 
 ```bash
 docker run --rm \
   -p 8080:8080 \
-  --mount type=bind,source="<PATH_TO_YOUR_CONFIG_DIRECTORY>",target=/config,readonly \
+  --mount type=bind,source="<PATH_TO_YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>",target=/config,readonly \
   sliding-work-sharing \
   --spring.config.location=file:/config/application-{your-configuration-name}.yml
 ```
