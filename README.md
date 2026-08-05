@@ -14,35 +14,31 @@ involvement, depending on the respective work situation.
 
 To build and run the Sliding Work Sharing, the following software is required:
 
-- **Java**: Version 25 or later.
-- **Apache Maven**: Version 3.9.x
+**Docker**: Docker Desktop or Docker Engine (https://www.docker.com/get-started/)
 
-### 2. Install Dependencies and Build the Application
+### 2. Build the Docker image
 
-Open a terminal in the project directory and execute the following command to clean previous build artifacts, install
-dependencies and build the application:
+Open a terminal in the project directory containing the `Dockerfile`, run:
 
 ```bash
-mvn clean install
+docker build -t sliding-work-sharing .
 ```
 
-### 3. Start the Application
+### 3. Start the Application (using the Default Configuration for Testing)
 
-Run the following command to start the application:
+Run the following command to start the application using the built container image:
 
 ```bash
-mvn spring-boot:run
+docker run --rm -p 8080:8080 sliding-work-sharing
 ```
 
 The application will start and listen on port `8080` by default.
 
----
-
-## How to Test the Application
+### 4. How to Test the Application
 
 You can test the application using the `curl` command (or using any other HTTP/REST client of your choice):
 
-### Example Request
+#### Example Request
 
 Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the
 `/sliding-decision` endpoint:
@@ -62,7 +58,7 @@ curl --request POST \
   }'
 ```
 
-### Example Response
+#### Example Response
 
 The application will respond with a JSON string similar to the following:
 
@@ -90,54 +86,108 @@ described [here](#how-to-read-the-decisionexplanation).
 
 To apply SWS to your own application scenario, you need to do the following:
 
-- define your own input parameters, output parameter(s) and decision rules in an `.fcl` file
-- create your custom `.yml` configuration file
-- download a runnable version of the software (or build it yourself)
+1. create your custom `.fcl` file, which defines your own input parameters, output parameter(s) and decision rules 
+2. create your custom `.yml` configuration file
+3. prepare the configuration directory
+4. run the software and mount your configuration directory inside the container 
 
-### Create your custom `.fcl` file
+Each step is explained in detail in the following.
 
-- `fcl` (fuzzy control language) is used to define input parameters, output parameter and decision rules.
+### 1. Create your custom `.fcl` file
+
+- `fcl` (fuzzy control language) is used to define input parameters, output parameter(s) and decision rules.
 - our suggestion would be to take one of the existing `.fcl` files as template and adjust it to your scenario
 - existing example `.fcl` files can be found at [src/main/resources/rules](src/main/resources/rules)
 
 _Note_: The SWS application can return multiple output parameters. In your custom `.fcl` file, you
 can define several decision outputs, and each one will appear as a separate parameter in the response JSON. The agriculture
-scenario ([Agriculture Scenario](#agriculture-scenario)) includes an example for this feature.
+scenario includes an example for this feature, please have a look at:
+- The [description of the agriculture scenario](#agriculture-scenario)
+- The [`.fcl` file for the agriculture scenario](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl)
 
-### Create your custom `.yml` configuration file
+### 2. Create your custom `.yml` configuration file
 
-- our suggestion would be to take an existing `application-{existing-configuration}.yml` as template and adjust it:
-    - the `fclRulesFilePath` should point to the location of your `.fcl` file
-    - the textual description of the decision results should fit to your scenario
-    - replace `{existing-configuration}` with a name representing your custom scenario
-- existing example configuration files can be found at [src/main/resources](src/main/resources)
+Our suggestion would be to take an existing `application-{existing-configuration}.yml` configuration file as template and adjust it. Existing examples can be found at [src/main/resources](src/main/resources).
 
-### Download (or build) the sliding-work-sharing `.jar` file
+Please note: 
+- the configuration parameter `fclRulesFilePath` inside the `.yml` file must point to the location of your `.fcl` **inside the Docker container**, not the path on the host machine. Therefore, it should start with the folder name `/config/`, which corresponds to the directory that will later be mounted inside the Docker container. For example:
+  ```yaml
+  application-scenario-config:
+    fclRulesFilePath: /config/your-scenario.fcl
+    decisionResultsDescription:
+      # Add your scenario-specific decision result descriptions here.
+      [...]
+  ```
+  
+- the textual description of the decision results should fit to your scenario
+- rename your file, replacing `{existing-configuration}` with a name representing your custom scenario
 
-- the easiest way is to download the release `.jar` file from the following link:
-  https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v1.0.0/sliding-work-sharing-1.0.0.jar
-- alternatively, in case you prefer to build your own jar file, follow
-  the [instructions above](#how-to-build-and-run-the-application)
+### 3. Prepare the configuration directory
 
-### Run the application using your custom configuration
+Create a directory on your host machine containing both your custom `.fcl` file and your custom `.yml` configuration file.
 
-- place the following files in a single directory
-    - your custom `.fcl` file
-    - your custom `.yml` file
-    - the `.jar` file (e.g.,`sliding-work-sharing-1.0.0.jar`)
+For example:
 
-_Note_: Ensure that the path to your `.fcl` file is correctly specified as `fclRulesFilePath` in the `.yml` file
-
-- next, open a terminal in the same directory (where all files are located) and run the following command
-
-```bash
-java -jar sliding-work-sharing-1.0.0.jar --spring.config.location=application-{your-configuration-name}.yml
+```text
+<YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>/
+├── your-scenario.fcl
+└── application-{your-configuration-name}.yml
 ```
 
-_Please Note_: here the `{your-configuration-name}` would be the name of your custom scenario's name
+### 4. Run the application with your custom configuration
 
-To test your custom scenario, follow the example in the [testing the application](#how-to-test-the-application)
-section and adjust its input parameters to fit to your own scenario.
+Use the following instructions to mount your config directory inside the Docker container and start the application. After startup, you can test your custom scenario, as explained in the part about [testing the application](#4-how-to-test-the-application). Please do not forget to adjust the input parameters to fit to your own scenario.
+
+#### Linux or macOS
+
+```bash
+docker run --rm \
+  -p 8080:8080 \
+  --mount type=bind,source="<PATH_TO_YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>",target=/config,readonly \
+  sliding-work-sharing \
+  --spring.config.location=file:/config/application-{your-configuration-name}.yml
+```
+
+Replace:
+
+* `<PATH_TO_YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>` with the *absolute* path to the directory containing your YAML and FCL files.
+* `{your-configuration}` with the name of your custom scenario.
+
+For example:
+
+```bash
+docker run --rm \
+  -p 8080:8080 \
+  --mount type=bind,source="/home/user/sws-config",target=/config,readonly \
+  sliding-work-sharing \
+  --spring.config.location=file:/config/application-sws-scenario.yml
+```
+
+#### Windows PowerShell
+
+```powershell
+docker run --rm `
+  -p 8080:8080 `
+  --mount type=bind,source="<PATH_TO_YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>",target=/config,readonly `
+  sliding-work-sharing `
+  --spring.config.location=file:/config/application-{your-configuration-name}.yml
+```
+
+Replace:
+
+* `<PATH_TO_YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>` with the *absolute* path to the directory containing your YAML and FCL files.
+* `{your-configuration-name}` with the name of your custom scenario.
+
+For example:
+
+```powershell
+docker run --rm `
+  -p 8080:8080 `
+  --mount type=bind,source="C:\Users\YourName\sws-config",target=/config,readonly `
+  sliding-work-sharing `
+  --spring.config.location=file:/config/application-sws-scenario.yml
+```
+
 
 ---
 
@@ -183,7 +233,7 @@ located [here](src/main/resources/rules/TruckSchedulingSlidingDecisionRules.fcl)
 To start the application and run the logistics scenario, use the following command:
 
 ```bash
-mvn spring-boot:run -D"spring-boot.run.profiles"=logistics
+docker run --rm -p 8080:8080 sliding-work-sharing --spring.profiles.active=logistics
 ```
 
 ##### Example Request
@@ -277,7 +327,7 @@ located [here](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRule
 To start the application and run the agriculture scenario, use the following command:
 
 ```bash
-mvn spring-boot:run -D"spring-boot.run.profiles"=agriculture
+docker run --rm -p 8080:8080 sliding-work-sharing --spring.profiles.active=agriculture
 ```
 
 ##### Example Request
@@ -377,7 +427,7 @@ located [here](src/main/resources/rules/ConstructionRobotAssistanceDecisionRules
 To start the application and run the construction scenario, use the following command:
 
 ```bash
-mvn spring-boot:run -D"spring-boot.run.profiles"=construction
+docker run --rm -p 8080:8080 sliding-work-sharing --spring.profiles.active=construction
 ```
 
 ##### Example Request

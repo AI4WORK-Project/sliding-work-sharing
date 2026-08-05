@@ -1,5 +1,4 @@
-# This file defines Logistics pilot configurations for the application.
-# To activate this profile use command 'mvn spring-boot:run -D"spring-boot.run.profiles"=construction'
+# This is the configuration for the Construction demonstration scenario
 application-scenario-config:
   fclRulesFilePath: rules/ConstructionRobotAssistanceDecisionRules.fcl
   decisionResultsDescription:
