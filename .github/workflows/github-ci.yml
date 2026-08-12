@@ -3,12 +3,10 @@ name: Java CI with Maven and Release Artifact
 on:
   push:
     branches: ["**"]
-
   pull_request:
     branches: ["**"]
-
   release:
-    types: [created]
+    types: [ created ]
 
 env:
   REGISTRY: ghcr.io
@@ -40,72 +38,37 @@ jobs:
       - name: Extract project metadata
         id: extract-metadata
         run: |
-          ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
-          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "artifactId=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> "$GITHUB_OUTPUT"
+          echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> "$GITHUB_OUTPUT"
 
-          echo "artifactId=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-          echo "Artifact ID: $ARTIFACT_ID"
-          echo "Version: $VERSION"
-
-      # Only for a GitHub Release:
-      # Make sure the release tag and pom.xml version are the same.
-      #
-      # Example:
-      # Release tag: v1.2.0
-      # pom.xml:     1.2.0
       - name: Validate release version
         if: github.event_name == 'release'
         run: |
           RELEASE_VERSION="${{ github.event.release.tag_name }}"
-          RELEASE_VERSION="${RELEASE_VERSION#v}"
-
-          POM_VERSION="${{ steps.extract-metadata.outputs.version }}"
-
-          echo "Release version: $RELEASE_VERSION"
-          echo "POM version:     $POM_VERSION"
-
-          if [ "$RELEASE_VERSION" != "$POM_VERSION" ]; then
-            echo "ERROR: Release version does not match pom.xml version."
-            exit 1
-          fi
+          [ "${RELEASE_VERSION#v}" = "${{ steps.metadata.outputs.version }}" ]
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
-      - name: Log in to GHCR
+      - name: Log in to registry
+        if: github.event_name != 'pull_request'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and push the container image
         if: github.event_name != 'pull_request'
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | \
-          docker login ${{ env.REGISTRY }} \
-            -u "${{ github.actor }}" \
-            --password-stdin
-
-      - name: Build and push Docker image
-        if: github.event_name != 'pull_request'
-        run: |
-          IMAGE_NAME="${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}"
-
-          if [ "${{ github.event_name }}" = "release" ]; then
-            IMAGE_VERSION="${{ steps.extract-metadata.outputs.version }}"
-          else
-            IMAGE_VERSION="latest"
-          fi
-
-          echo "Docker image: ${IMAGE_NAME}:${IMAGE_VERSION}"
-          echo "SWS version: ${{ steps.extract-metadata.outputs.version }}"
+          IMAGE_VERSION="${{ github.event_name == 'release' && steps.extract-metadata.outputs.version || 'latest' }}"
 
           docker buildx build \
             --push \
             --file ./Dockerfile \
             --build-arg SWS_VERSION="${{ steps.extract-metadata.outputs.version }}" \
-            --tag "${IMAGE_NAME}:${IMAGE_VERSION}" \
+            --tag "${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}:${IMAGE_VERSION}" \
             .
 
       - name: Upload JAR (Release Only)
         if: github.event_name == 'release'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-jar
           path: target/${{ steps.extract-metadata.outputs.artifactId }}-${{ steps.extract-metadata.outputs.version }}.jar
@@ -116,7 +79,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Download JAR
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: release-jar
           path: target
