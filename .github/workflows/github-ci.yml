@@ -37,14 +37,17 @@ jobs:
       - name: Build with Maven
         run: mvn -B clean verify
 
-      - name: Extract project version and artifactId (Release Only)
-        if: github.event_name == 'release'
+      - name: Extract project metadata
         id: extract-metadata
         run: |
           ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
           VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "artifactId=$ARTIFACT_ID" >> $GITHUB_OUTPUT
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          echo "artifactId=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          echo "Artifact ID: $ARTIFACT_ID"
+          echo "Version: $VERSION"
 
       # Only for a GitHub Release:
       # Make sure the release tag and pom.xml version are the same.
@@ -82,13 +85,16 @@ jobs:
       - name: Build and push Docker image
         if: github.event_name != 'pull_request'
         run: |
-          IMAGE_NAME="${{ env.REGISTRY }}/${{ github.repository }}"
+          IMAGE_NAME="${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}"
 
           if [ "${{ github.event_name }}" = "release" ]; then
             IMAGE_VERSION="${{ steps.extract-metadata.outputs.version }}"
           else
             IMAGE_VERSION="latest"
           fi
+
+          echo "Docker image: ${IMAGE_NAME}:${IMAGE_VERSION}"
+          echo "SWS version: ${{ steps.extract-metadata.outputs.version }}"
 
           docker buildx build \
             --push \
