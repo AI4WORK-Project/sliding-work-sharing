@@ -2,16 +2,20 @@ name: Java CI with Maven and Release Artifact
 
 on:
   push:
-    branches: [ "*" ]
+    branches: ["**"]
+
   pull_request:
-    branches: [ "*" ]
+    branches: ["**"]
+
   release:
-    types: [ created ]
+    types: [created]
+
+env:
+  REGISTRY: ghcr.io
 
 permissions:
   contents: write
-  actions: read
-  checks: write
+  packages: write
 
 jobs:
   build:
@@ -41,6 +45,57 @@ jobs:
           VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "artifactId=$ARTIFACT_ID" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Only for a GitHub Release:
+      # Make sure the release tag and pom.xml version are the same.
+      #
+      # Example:
+      # Release tag: v1.2.0
+      # pom.xml:     1.2.0
+      - name: Validate release version
+        if: github.event_name == 'release'
+        run: |
+          RELEASE_VERSION="${{ github.event.release.tag_name }}"
+          RELEASE_VERSION="${RELEASE_VERSION#v}"
+
+          POM_VERSION="${{ steps.extract-metadata.outputs.version }}"
+
+          echo "Release version: $RELEASE_VERSION"
+          echo "POM version:     $POM_VERSION"
+
+          if [ "$RELEASE_VERSION" != "$POM_VERSION" ]; then
+            echo "ERROR: Release version does not match pom.xml version."
+            exit 1
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | \
+          docker login ${{ env.REGISTRY }} \
+            -u "${{ github.actor }}" \
+            --password-stdin
+
+      - name: Build and push Docker image
+        if: github.event_name != 'pull_request'
+        run: |
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ github.repository }}"
+
+          if [ "${{ github.event_name }}" = "release" ]; then
+            IMAGE_VERSION="${{ steps.extract-metadata.outputs.version }}"
+          else
+            IMAGE_VERSION="latest"
+          fi
+
+          docker buildx build \
+            --push \
+            --file ./Dockerfile \
+            --build-arg SWS_VERSION="${{ steps.extract-metadata.outputs.version }}" \
+            --tag "${IMAGE_NAME}:${IMAGE_VERSION}" \
+            .
 
       - name: Upload JAR (Release Only)
         if: github.event_name == 'release'

@@ -1,20 +1,10 @@
 # syntax=docker/dockerfile:1
 
-# Version of the published Sliding Work Sharing release
-ARG SWS_VERSION=1.0.0
-
-# Download the published Sliding Work Sharing JAR from GitHub
-FROM curlimages/curl:8.21.0 AS sws-release-downloader
-
-ARG SWS_VERSION
-
-RUN curl --fail --location --silent --show-error \
-    "https://github.com/AI4WORK-Project/sliding-work-sharing/releases/download/v${SWS_VERSION}/sliding-work-sharing-${SWS_VERSION}.jar" \
-    --output /tmp/sliding-work-sharing.jar
-
 # Create the application image
 FROM eclipse-temurin:25-jre
-ARG SWS_VERSION
+
+# Version of Sliding Work Sharing
+ARG SWS_VERSION=1.0.1
 
 LABEL org.opencontainers.image.title="Sliding Work Sharing"
 LABEL org.opencontainers.image.description="Sliding Work Sharing Management Component of the AI4Work project"
@@ -23,7 +13,8 @@ LABEL org.opencontainers.image.version="${SWS_VERSION}"
 
 WORKDIR /app
 
-COPY --from=sws-release-downloader /tmp/sliding-work-sharing.jar /app/sliding-work-sharing.jar
+# Copy the JAR produced by Maven
+COPY target/sliding-work-sharing-${SWS_VERSION}.jar /app/sliding-work-sharing.jar
 
 # Create a standard directory for custom YAML configuration and FCL rule files
 # when starting the container, custom files can be mount into this directory
