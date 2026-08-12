@@ -4,7 +4,7 @@
 FROM eclipse-temurin:25-jre
 
 # Version of Sliding Work Sharing
-ARG SWS_VERSION=1.0.1
+ARG SWS_VERSION=1.0.0
 
 LABEL org.opencontainers.image.title="Sliding Work Sharing"
 LABEL org.opencontainers.image.description="Sliding Work Sharing Management Component of the AI4Work project"
