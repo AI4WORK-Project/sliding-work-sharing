@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.source="https://github.com/AI4WORK-Project/slidin
 WORKDIR /app
 
 # Copy the JAR produced by Maven
-COPY target/sliding-work-sharing.jar /app/sliding-work-sharing.jar
+COPY target/sliding-work-sharing-*.jar /app/
 
 # Create a standard directory for custom YAML configuration and FCL rule files
 # when starting the container, custom files can be mount into this directory
@@ -18,4 +18,4 @@ RUN mkdir -p /config
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/sliding-work-sharing.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar /app/sliding-work-sharing-*.jar"]

@@ -30,6 +30,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Set version from tag
+        if: github.event_name == 'release'
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+          mvn versions:set -DnewVersion="${TAG_NAME#v}" -DprocessAllModules
+
       - name: Build with Maven
         run: mvn -B clean verify
 
@@ -51,13 +57,6 @@ jobs:
             --file ./Dockerfile \
             --tag "${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}:${IMAGE_VERSION}" \
             .
-
-      - name: Release JAR
-        if: github.event_name == 'release'
-        run: |
-          VERSION="${{ github.ref_name }}"
-          VERSION="${VERSION#v}"
-          cp target/sliding-work-sharing.jar target/sliding-work-sharing-${VERSION}.jar
 
       - name: Upload release JAR
         if: github.event_name == 'release'

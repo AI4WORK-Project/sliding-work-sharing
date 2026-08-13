@@ -11,6 +11,7 @@
     <groupId>eu.ai4work</groupId>
     <artifactId>sliding-work-sharing</artifactId>
     <name>Sliding Work Sharing</name>
+    <version>1.0.0</version>
     <description>Sliding Work Sharing Management Component of the AI4Work project</description>
 
     <packaging>jar</packaging>
@@ -73,7 +74,6 @@
     </dependencies>
 
     <build>
-        <finalName>sliding-work-sharing</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
