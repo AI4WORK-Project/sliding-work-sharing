@@ -10,8 +10,8 @@
     </parent>
     <groupId>eu.ai4work</groupId>
     <artifactId>sliding-work-sharing</artifactId>
-    <name>Sliding Work Sharing</name>
     <version>1.0.0</version>
+    <name>Sliding Work Sharing</name>
     <description>Sliding Work Sharing Management Component of the AI4Work project</description>
 
     <packaging>jar</packaging>
