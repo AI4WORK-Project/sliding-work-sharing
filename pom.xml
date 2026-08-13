@@ -10,7 +10,6 @@
     </parent>
     <groupId>eu.ai4work</groupId>
     <artifactId>sliding-work-sharing</artifactId>
-    <version>1.0.0</version>
     <name>Sliding Work Sharing</name>
     <description>Sliding Work Sharing Management Component of the AI4Work project</description>
 
@@ -74,6 +73,7 @@
     </dependencies>
 
     <build>
+        <finalName>sliding-work-sharing</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
