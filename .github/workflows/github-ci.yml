@@ -34,7 +34,7 @@ jobs:
         if: github.event_name == 'release'
         run: |
           TAG_NAME="${{ github.ref_name }}"
-          mvn versions:set -DnewVersion="${TAG_NAME#v}" -DprocessAllModules
+          mvn versions:set -DnewVersion="${TAG_NAME#v}"
 
       - name: Build with Maven
         run: mvn -B clean verify
