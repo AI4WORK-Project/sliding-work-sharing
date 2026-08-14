@@ -32,7 +32,7 @@ jobs:
 
       - name: Define SWS version in GITHUB_ENV
         run: |
-          RELEASE_REF_NAME_OR_LATEST ="${{ github.event_name == 'release' && github.ref_name || 'latest' }}"
+          RELEASE_REF_NAME_OR_LATEST="${{ github.event_name == 'release' && github.ref_name || 'latest' }}"
           echo "SWS_VERSION=${RELEASE_REF_NAME_OR_LATEST#v}" >> "$GITHUB_ENV"
 
       - name: Set version for Maven build
