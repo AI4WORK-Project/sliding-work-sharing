@@ -31,9 +31,8 @@ jobs:
           cache: maven
 
       - name: Set version from tag
-        if: github.event_name == 'release'
         run: |
-          TAG_NAME="${{ github.ref_name }}"
+          TAG_NAME="${{ github.event_name == 'release' && github.ref_name || 'latest' }}"
           mvn versions:set -DnewVersion="${TAG_NAME#v}"
 
       - name: Build with Maven
