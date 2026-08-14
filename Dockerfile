@@ -4,6 +4,7 @@
 FROM eclipse-temurin:25-jre
 
 ARG SWS_VERSION
+ENV SWS_VERSION=${SWS_VERSION}
 
 LABEL org.opencontainers.image.title="Sliding Work Sharing"
 LABEL org.opencontainers.image.description="Sliding Work Sharing Management Component of the AI4Work project"
@@ -21,4 +22,4 @@ RUN mkdir -p /config
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/sliding-work-sharing-*.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -jar /app/sliding-work-sharing-${SWS_VERSION}.jar"]
