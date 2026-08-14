@@ -21,4 +21,4 @@ RUN mkdir -p /config
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java -jar /app/sliding-work-sharing-${SWS_VERSION}.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar /app/sliding-work-sharing-*.jar"]
