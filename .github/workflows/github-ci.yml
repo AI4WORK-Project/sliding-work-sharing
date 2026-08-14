@@ -55,7 +55,7 @@ jobs:
             --push \
             --file ./Dockerfile \
             --build-arg SWS_VERSION=${SWS_VERSION} \
-            --tag "${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}:${IMAGE_VERSION}" \
+            --tag "${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}:${SWS_VERSION}" \
             .
 
       - name: Upload release JAR
