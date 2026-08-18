@@ -58,4 +58,4 @@ jobs:
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v3
         with:
-          files: target/sliding-work-sharing-${SWS_VERSION}.jar
+          files: target/sliding-work-sharing-*.jar
