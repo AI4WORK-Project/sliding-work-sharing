@@ -16,12 +16,12 @@ To build and run the Sliding Work Sharing, the following software is required:
 
 **Docker**: Docker Desktop or Docker Engine (https://www.docker.com/get-started/)
 
-### 2. Build the Docker image
+### 2. Pull the SWS Docker image
 
-Open a terminal in the project directory containing the `Dockerfile`, run:
+Open a terminal and pull the Docker image using the following command:
 
 ```bash
-docker build -t sliding-work-sharing .
+docker pull ghcr.io/ai4work-project/sliding-work-sharing:1.1.0
 ```
 
 ### 3. Start the Application (using the Default Configuration for Testing)
@@ -29,7 +29,7 @@ docker build -t sliding-work-sharing .
 Run the following command to start the application using the built container image:
 
 ```bash
-docker run --rm -p 8080:8080 sliding-work-sharing
+docker run --rm -p 8080:8080 ghcr.io/ai4work-project/sliding-work-sharing:1.1.0
 ```
 
 The application will start and listen on port `8080` by default.
@@ -144,7 +144,7 @@ Use the following instructions to mount your config directory inside the Docker 
 docker run --rm \
   -p 8080:8080 \
   --mount type=bind,source="<PATH_TO_YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>",target=/config,readonly \
-  sliding-work-sharing \
+  ghcr.io/ai4work-project/sliding-work-sharing:1.1.0 \
   --spring.config.location=file:/config/application-{your-configuration-name}.yml
 ```
 
@@ -159,7 +159,7 @@ For example:
 docker run --rm \
   -p 8080:8080 \
   --mount type=bind,source="/home/user/sws-config",target=/config,readonly \
-  sliding-work-sharing \
+  ghcr.io/ai4work-project/sliding-work-sharing:1.1.0 \
   --spring.config.location=file:/config/application-sws-scenario.yml
 ```
 
@@ -169,7 +169,7 @@ docker run --rm \
 docker run --rm `
   -p 8080:8080 `
   --mount type=bind,source="<PATH_TO_YOUR_CONFIG_DIRECTORY_ON_THE_HOST_MACHINE>",target=/config,readonly `
-  sliding-work-sharing `
+  ghcr.io/ai4work-project/sliding-work-sharing:1.1.0 `
   --spring.config.location=file:/config/application-{your-configuration-name}.yml
 ```
 
@@ -184,7 +184,7 @@ For example:
 docker run --rm `
   -p 8080:8080 `
   --mount type=bind,source="C:\Users\YourName\sws-config",target=/config,readonly `
-  sliding-work-sharing `
+  ghcr.io/ai4work-project/sliding-work-sharing:1.1.0 `
   --spring.config.location=file:/config/application-sws-scenario.yml
 ```
 
@@ -233,7 +233,7 @@ located [here](src/main/resources/rules/TruckSchedulingSlidingDecisionRules.fcl)
 To start the application and run the logistics scenario, use the following command:
 
 ```bash
-docker run --rm -p 8080:8080 sliding-work-sharing --spring.profiles.active=logistics
+docker run --rm -p 8080:8080 ghcr.io/ai4work-project/sliding-work-sharing:1.1.0 --spring.profiles.active=logistics
 ```
 
 ##### Example Request
@@ -327,7 +327,7 @@ located [here](src/main/resources/rules/AgricultureSchedulingSlidingDecisionRule
 To start the application and run the agriculture scenario, use the following command:
 
 ```bash
-docker run --rm -p 8080:8080 sliding-work-sharing --spring.profiles.active=agriculture
+docker run --rm -p 8080:8080 ghcr.io/ai4work-project/sliding-work-sharing:1.1.0 --spring.profiles.active=agriculture
 ```
 
 ##### Example Request
@@ -427,7 +427,7 @@ located [here](src/main/resources/rules/ConstructionRobotAssistanceDecisionRules
 To start the application and run the construction scenario, use the following command:
 
 ```bash
-docker run --rm -p 8080:8080 sliding-work-sharing --spring.profiles.active=construction
+docker run --rm -p 8080:8080 ghcr.io/ai4work-project/sliding-work-sharing:1.1.0 --spring.profiles.active=construction
 ```
 
 ##### Example Request
