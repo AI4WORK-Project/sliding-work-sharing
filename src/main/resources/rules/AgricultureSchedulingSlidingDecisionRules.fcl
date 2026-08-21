@@ -45,7 +45,7 @@ DEFUZZIFY shouldSupervisorBeInformed
 	TERM yes := 1;  // supervisor should be informed
 
 	METHOD : COGS;
-	DEFAULT := 0;
+	DEFAULT := 1;		// Default value is 1 (yes, supervisor should be informed if no rule activates defuzzifier)
 END_DEFUZZIFY
 
 RULEBLOCK No1
