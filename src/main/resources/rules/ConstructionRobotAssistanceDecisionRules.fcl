@@ -11,27 +11,27 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY timeTheRobotIsAlreadyMoving     // in minutes (0 to 15 minutes)
-    TERM short := (0, 1) (4, 1) (6, 0);
+    TERM short := (4, 1) (6, 0);
     TERM moderate := (4, 0) (6, 1) (9, 1) (11, 0);
-    TERM long := (9, 0) (11, 1) (15, 1);
+    TERM long := (9, 0) (11, 1);
 END_FUZZIFY
 
 FUZZIFY robotBatteryStatus    // in percent (0 to 100 percent)
-    TERM low := (0, 1) (20, 1) (30, 0);   // low battery from 0 to 20 percent, then gradually decreasing up to 30 percent
+    TERM low := (20, 1) (30, 0);   // low battery from 0 to 20 percent, then gradually decreasing up to 30 percent
 END_FUZZIFY
 
 FUZZIFY noOfHumansInTheRoom   // 0 to 20 humans in the room
     TERM none := 0;      // 0 means no human
-    TERM some := (0,0) (1,1) (20, 1);      // 1 to 20 humans
+    TERM some := (0,0) (1,1) ;      // 1 to any humans
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
-    TERM askForHumanHelp := (0, 1) (1, 1) (1, 0);   // Ask human for help
-    TERM informHumanAboutSituation := (1, 0) (1, 1) (2, 1) (2, 0);         // Inform human about the situation
-    TERM letRobotContinue := (2, 0) (2, 1) (3, 1);   // Let the robot continue trying
+    TERM askForHumanHelp := 1;   // Ask human for help
+    TERM informHumanAboutSituation := 2;         // Inform human about the situation
+    TERM letRobotContinue := 3;   // Let the robot continue trying
 
-    METHOD : COG;        // Use 'Center Of Gravity' defuzzification method
-    DEFAULT := 0;        // Default value is 0 (askForHumanHelp if no rule activates defuzzifier)
+    METHOD : COGS;       // Center of Gravity for Singletons (weighted average calculation)
+    DEFAULT := 1;        // Default value is 1 (askForHumanHelp if no rule activates defuzzifier)
 END_DEFUZZIFY
 
 RULEBLOCK No1

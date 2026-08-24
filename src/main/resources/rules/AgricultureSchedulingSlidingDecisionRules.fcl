@@ -28,7 +28,7 @@ FUZZIFY isDroneCurrentlyAvailable // Boolean value: 0 = false, 1 = true
 END_FUZZIFY
 
 FUZZIFY droneBatteryLevel
-	  TERM low := (0, 1) (20, 1) (30, 0);   // low battery 0 to 20 percent, gradually decreasing to 30 percent
+	  TERM low := (20, 1) (30, 0);   // low battery 0 to 20 percent, gradually decreasing to 30 percent
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
@@ -44,7 +44,7 @@ DEFUZZIFY shouldSupervisorBeInformed
 	TERM no := 0;         // supervisor should not be informed
 	TERM yes := 1;  // supervisor should be informed
 
-	METHOD : COGS;
+	METHOD : COGS;      // Center of Gravity for Singletons (weighted average calculation)
 	DEFAULT := 1;		// Default value is 1 (yes, supervisor should be informed if no rule activates defuzzifier)
 END_DEFUZZIFY
 
