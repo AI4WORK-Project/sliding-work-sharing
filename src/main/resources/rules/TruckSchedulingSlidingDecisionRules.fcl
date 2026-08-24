@@ -12,31 +12,31 @@ VAR_OUTPUT				// Define output variable
 END_VAR
 
 FUZZIFY numberOfTrucksInQueue // 0 to 20 trucks
-	TERM moderate := (0, 1) (7, 1) (9, 0);
-	TERM high := (7, 0) (9, 1) (20, 1);
+	TERM moderate := (7, 1) (9, 0);
+	TERM high := (7, 0) (9, 1);
 END_FUZZIFY
 
 FUZZIFY positionOfTruckToBePrioritized // 0 to 20 trucks
-	TERM nearFrontOfTheQueue := (0, 1) (8, 1) (12, 0);
-	TERM nearEndOfTheQueue := (8, 0) (12, 1) (20, 1);
+	TERM nearFrontOfTheQueue := (8, 1) (12, 0);
+	TERM nearEndOfTheQueue := (8, 0) (12, 1);
 END_FUZZIFY
 
 FUZZIFY materialUrgency // in percentage (0 to 100 percent)
-    TERM moderate := (0, 1) (50, 1) (80,0); // moderate from 0 to 50, gradually decreases from 50 to 80
-    TERM critical := (50, 0) (80, 1) (100, 1); // high from 80 to 100, gradually increases from 50 to 80
+    TERM moderate := (50, 1) (80,0); // moderate from 0 to 50, gradually decreases from 50 to 80
+    TERM critical := (50, 0) (80, 1); // high from 80 to 100, gradually increases from 50 to 80
 END_FUZZIFY
 
 FUZZIFY operationalWorkload // in percentage (0 to 100 percent)
-    TERM moderate := (0, 1) (50, 1) (80,0); // moderate from 0 to 50, gradually decreases from 50 to 80
-    TERM high     := (50, 0) (80, 1) (100, 1); // high from 80 to 100, gradually increases from 50 to 80
+    TERM moderate := (50, 1) (80,0); // moderate from 0 to 50, gradually decreases from 50 to 80
+    TERM high     := (50, 0) (80, 1); // high from 80 to 100, gradually increases from 50 to 80
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
-	TERM autonomousReprioritization := (0, 1) (1, 1) (1, 0); // 0 = autonomous reprioritization
-	TERM informHuman := (1, 0) (1, 1) (2, 1) (2, 0);         // 1 = inform human
-	TERM requireHumanApproval := (2, 0) (2, 1) (3, 1);       // 2 = require human approval
+	TERM autonomousReprioritization := 1; // 1 = autonomous reprioritization
+	TERM informHuman := 2;         // 2 = inform human
+	TERM requireHumanApproval := 3;       // 3 = require human approval
 
-	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	METHOD : COGS;		// Center of Gravity for Singletons (weighted average calculation)
 	DEFAULT := 3;		// Default value IS 3 (requireHumanApproval if no rule activates defuzzifier)
 END_DEFUZZIFY
 
