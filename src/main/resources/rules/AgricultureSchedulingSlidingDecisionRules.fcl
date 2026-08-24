@@ -37,7 +37,7 @@ DEFUZZIFY suggestedApproach
 	TERM letTheWorkerDecide := 3;  // let the worker decide
 
 	METHOD : COGS;		// Use 'Center Of Gravity' defuzzification method
-	DEFAULT := 3;		// Default value is 3 (letTheWorkerDecide if no rule activates defuzzifier)
+	DEFAULT := 1;		// Default value is 1 (humanShouldCarryTheBox if no rule activates defuzzifier)
 END_DEFUZZIFY
 
 DEFUZZIFY shouldSupervisorBeInformed
