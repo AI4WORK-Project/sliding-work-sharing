@@ -466,8 +466,8 @@ The application will respond with a JSON string similar to the following:
   "decisionStatus": "Sliding Decision Response",
   "slidingDecisionOutputParameters": {
     "suggestedApproach": {
-      "slidingDecision": "askForHumanHelp",
-      "description": "Ask human for help"
+      "slidingDecision": "informHumanAboutSituation",
+      "description": "Inform human about the situation"
     }
   },
   "decisionExplanation": {
@@ -551,10 +551,10 @@ Shows the final outcome after evaluating all the activated rules.
 ```json
 {
   "outputVariables": {
-    "suggestedWorkSharingApproach": {
-      "value": 1.4977511244377752,
+    "suggestedApproach": {
+      "value": 1.0,
       "membershipValues": {
-        "informHuman": 1.0
+        "autonomousReprioritization": 1.0
       }
     }
   }
@@ -562,7 +562,7 @@ Shows the final outcome after evaluating all the activated rules.
 ```
 
 - `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical
-  value. In the given example, a value of approximately `1.497` is produced.
-- `membershipValues`: this final output is then associated with a fuzzy category. In our example, `1.497`
-  maps to "informHuman" with a membership degree of `1.0`. This means that, after all rules are applied, the final
+  value. In the given example, a resulting value `1.0` is produced.
+- `membershipValues`: this final output value is then associated with a fuzzy category. In our example, `1.0`
+  maps to `autonomousReprioritization` with a membership degree of `1.0`. This means that, after all rules are applied, the final
   decision is identified as that suggested work sharing approach.
