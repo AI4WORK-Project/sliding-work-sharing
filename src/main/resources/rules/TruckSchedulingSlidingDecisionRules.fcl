@@ -11,9 +11,9 @@ VAR_OUTPUT				// Define output variable
 	suggestedApproach : REAL;
 END_VAR
 
-FUZZIFY numberOfTrucksInQueue // 0 to 20 trucks
-	TERM moderate := (7, 1) (9, 0);
-	TERM high := (7, 0) (9, 1);
+FUZZIFY numberOfTrucksInQueue
+	TERM moderate := (6, 1) (12, 0);
+	TERM high := (6, 0) (12, 1);
 END_FUZZIFY
 
 FUZZIFY positionOfTruckToBePrioritized // position in the queue
@@ -32,7 +32,7 @@ FUZZIFY operationalWorkload // in percentage (0 to 100 percent)
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
-	TERM autonomousReprioritization := 1; // the truck can be reprioritized without the need for a human decision
+	TERM autonomousReprioritization := 1; // 1 = the truck can be reprioritized without the need for a human decision
 	TERM informHuman := 2;         // 2 = inform human about reprioritization, so they may intervene
 	TERM requireHumanApproval := 3;       // 3 = ask human to approve the reprioritization
 
