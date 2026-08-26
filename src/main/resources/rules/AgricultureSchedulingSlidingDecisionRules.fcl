@@ -12,7 +12,7 @@ VAR_OUTPUT				// Define output variables
 	shouldSupervisorBeInformed : REAL;
 END_VAR
 
-FUZZIFY distanceToCentralCollectionPoint // in meters (0 to 300 meters)
+FUZZIFY distanceToCentralCollectionPoint // in meters 
     TERM low := (90, 1) (210, 0);
     TERM high := (90, 0) (210, 1);
 END_FUZZIFY
@@ -36,7 +36,7 @@ DEFUZZIFY suggestedApproach
 	TERM droneShouldCarryTheBox := 2;    // let the drone carry the box
 	TERM letTheWorkerDecide := 3;  // let the worker decide
 
-	METHOD : COGS;		// Use 'Center Of Gravity' defuzzification method
+	METHOD : COGS;		// Use 'Center Of Gravity for Singletons' defuzzification method
 	DEFAULT := 1;		// Default value is 1 (humanShouldCarryTheBox if no rule activates defuzzifier)
 END_DEFUZZIFY
 

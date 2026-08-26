@@ -16,7 +16,7 @@ FUZZIFY numberOfTrucksInQueue // 0 to 20 trucks
 	TERM high := (7, 0) (9, 1);
 END_FUZZIFY
 
-FUZZIFY positionOfTruckToBePrioritized // 0 to 20 trucks
+FUZZIFY positionOfTruckToBePrioritized // position in the queue
 	TERM nearFrontOfTheQueue := (8, 1) (12, 0);
 	TERM nearEndOfTheQueue := (8, 0) (12, 1);
 END_FUZZIFY
@@ -32,9 +32,9 @@ FUZZIFY operationalWorkload // in percentage (0 to 100 percent)
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
-	TERM autonomousReprioritization := 1; // 1 = autonomous reprioritization
-	TERM informHuman := 2;         // 2 = inform human
-	TERM requireHumanApproval := 3;       // 3 = require human approval
+	TERM autonomousReprioritization := 1; // the truck can be reprioritized without the need for a human decision
+	TERM informHuman := 2;         // 2 = inform human about reprioritization, so they may intervene
+	TERM requireHumanApproval := 3;       // 3 = ask human to approve the reprioritization
 
 	METHOD : COGS;		// Center of Gravity for Singletons (weighted average calculation)
 	DEFAULT := 3;		// Default value IS 3 (requireHumanApproval if no rule activates defuzzifier)
