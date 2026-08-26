@@ -444,7 +444,7 @@ curl --request POST \
     "slidingDecisionInputParameters": {
       "timeTheRobotIsAlreadyMoving": 4,
       "robotBatteryStatus": 65,
-      "noOfHumansInTheRoom": 10
+      "areHumansInTheRoom": 1
     }
   }'
 ```
@@ -455,7 +455,7 @@ the values for the `slidingDecisionInputParameters` as follows:
 - `timeTheRobotIsAlreadyMoving`: The time that the robot is already moving, measured in minutes (0-15 minutes); a higher
   time may indicate that the robot is blocked
 - `robotBatteryStatus`: The battery status of the robot, measured in percent (0%-100%)
-- `noOfHumansInTheRoom`: The number of humans currently present in the room (0-20 humans)
+- `areHumansInTheRoom`: Whether the human are currently available in the room (1 = yes, 0 = no)
 
 ##### Example Response
 
@@ -466,8 +466,8 @@ The application will respond with a JSON string similar to the following:
   "decisionStatus": "Sliding Decision Response",
   "slidingDecisionOutputParameters": {
     "suggestedApproach": {
-      "slidingDecision": "informHumanAboutSituation",
-      "description": "Inform human about the situation"
+      "slidingDecision": "letRobotContinue",
+      "description": "Let the robot continue trying"
     }
   },
   "decisionExplanation": {

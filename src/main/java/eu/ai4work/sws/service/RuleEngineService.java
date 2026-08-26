@@ -98,7 +98,7 @@ public class RuleEngineService {
                         linguisticTermWithMembershipDegree.getKey(),
                         // The value is membership degree for the latest defuzzified value
                         linguisticTermWithMembershipDegree.getValue().getMembershipFunction()
-                                .membership(resultAsFuzzyVariable.getLatestDefuzzifiedValue())
+                                .membership(Math.round(resultAsFuzzyVariable.getLatestDefuzzifiedValue()))
                 ))
                 // Identify the linguistic term with the highest membership degree
                 .max(Map.Entry.comparingByValue())

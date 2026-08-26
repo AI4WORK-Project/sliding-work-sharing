@@ -3,7 +3,7 @@ application-scenario-config:
   fclRulesFilePath: rules/AgricultureSchedulingSlidingDecisionRules.fcl
   decisionResultsDescription:
     droneShouldCarryTheBox: "Let the drone carry the box"
-    letTheWorkerDecide: "Let the worker decide"
+    letHumanDecide : "Let the worker decide"
     humanShouldCarryTheBox: "Let the worker carry the box"
     # Quote is used because YAML parsers can interpret these values as booleans rather than text keys
     "yes": "Inform the supervisor"
