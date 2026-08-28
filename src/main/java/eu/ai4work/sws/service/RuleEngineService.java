@@ -111,14 +111,16 @@ public class RuleEngineService {
                 .get().getKey();
     }
 
-    private double getMembershipDegree(Variable resultAsFuzzyVariable, MembershipFunction membershipFunction) {
-
+    private double getMembershipDegree(Variable resultAsFuzzyVariable, MembershipFunction membershipFunction) { 
         // For discrete defuzzifiers such as COGS with singleton outputs
         if (resultAsFuzzyVariable.getDefuzzifier().isDiscrete()) {
-            // the activation degree is read directly from the discrete output position
-            return ((DefuzzifierDiscrete) resultAsFuzzyVariable.getDefuzzifier()).getDiscreteValue(
-                    ((MembershipFunctionDiscrete) membershipFunction).valueX(0)
-            );
+            // After evaluating the rules, each singleton output term will have the activation degree
+            // getDiscreteValue(...) gives the activation degree of the singleton output term. e.g. 0.0, 0.5, 0.8, etc.
+            return ((DefuzzifierDiscrete) resultAsFuzzyVariable.getDefuzzifier())
+                    .getDiscreteValue(
+                            // valueX(...) returns the position of the singleton (the membership function). e.g. 1.0, 2.0, 3.0, etc.
+                            ((MembershipFunctionDiscrete) membershipFunction).valueX(0)
+                    );
         }
 
         // For continuous defuzzifiers such as COG, the membership degree is
