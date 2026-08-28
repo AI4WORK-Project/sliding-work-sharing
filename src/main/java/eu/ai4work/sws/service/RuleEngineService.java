@@ -8,6 +8,9 @@ import eu.ai4work.sws.model.SlidingDecision;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
+import net.sourceforge.jFuzzyLogic.defuzzifier.DefuzzifierDiscrete;
+import net.sourceforge.jFuzzyLogic.membership.MembershipFunction;
+import net.sourceforge.jFuzzyLogic.membership.MembershipFunctionDiscrete;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
 import org.springframework.stereotype.Service;
 
@@ -96,14 +99,33 @@ public class RuleEngineService {
                 .map(linguisticTermWithMembershipDegree -> Map.entry(
                         // The key is the linguistic term name
                         linguisticTermWithMembershipDegree.getKey(),
-                        // The value is membership degree for the latest defuzzified value
-                        linguisticTermWithMembershipDegree.getValue().getMembershipFunction()
-                                .membership(Math.round(resultAsFuzzyVariable.getLatestDefuzzifiedValue()))
+                        // The value is the activation/membership degree of the term
+                        getMembershipDegree(
+                                resultAsFuzzyVariable,
+                                linguisticTermWithMembershipDegree.getValue().getMembershipFunction()
+                        )
                 ))
                 // Identify the linguistic term with the highest membership degree
                 .max(Map.Entry.comparingByValue())
                 // Retrieve the linguistic term name
                 .get().getKey();
+    }
+
+    private double getMembershipDegree(Variable resultAsFuzzyVariable, MembershipFunction membershipFunction) {
+
+        // For discrete defuzzifiers such as COGS with singleton outputs
+        if (resultAsFuzzyVariable.getDefuzzifier().isDiscrete()) {
+            // the activation degree is read directly from the discrete output position
+            return ((DefuzzifierDiscrete) resultAsFuzzyVariable.getDefuzzifier()).getDiscreteValue(
+                    ((MembershipFunctionDiscrete) membershipFunction).valueX(0)
+            );
+        }
+
+        // For continuous defuzzifiers such as COG, the membership degree is
+        // calculated using the final defuzzified value
+        return membershipFunction.membership(
+                resultAsFuzzyVariable.getLatestDefuzzifiedValue()
+        );
     }
 
     /**
