@@ -455,7 +455,7 @@ the values for the `slidingDecisionInputParameters` as follows:
 - `timeTheRobotIsAlreadyMoving`: The time that the robot is already moving, measured in minutes (0-15 minutes); a higher
   time may indicate that the robot is blocked
 - `robotBatteryStatus`: The battery status of the robot, measured in percent (0%-100%)
-- `areHumansInTheRoom`: Whether the human are currently available in the room (1 = yes, 0 = no)
+- `areHumansInTheRoom`: Whether any humans are currently in the room (1 = yes, 0 = no)
 
 ##### Example Response
 

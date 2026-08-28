@@ -22,7 +22,7 @@ END_FUZZIFY
 
 FUZZIFY areHumansInTheRoom
     TERM no := 0;      // 0 means no human
-    TERM yes := 1;      // 1 there are some humans in the room
+    TERM yes := 1;      // 1 there is at least one human in the room
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
