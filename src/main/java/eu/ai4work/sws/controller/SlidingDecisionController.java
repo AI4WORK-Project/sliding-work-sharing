@@ -6,6 +6,8 @@ import eu.ai4work.sws.model.SlidingDecisionStatus;
 import eu.ai4work.sws.model.SlidingDecision;
 import eu.ai4work.sws.model.SlidingDecisionRequest;
 import eu.ai4work.sws.model.SlidingDecisionResponse;
+import eu.ai4work.sws.model.SlidingDecisionMultiRequest;
+import eu.ai4work.sws.model.SlidingDecisionMultiResponse;
 import eu.ai4work.sws.service.SlidingDecisionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +41,12 @@ public class SlidingDecisionController {
         return createResponse(slidingDecision);
     }
 
+    @PostMapping("/sliding-decision-multi-request")
+    public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest request) {
+        //todo: insert processing of requests
+        return createMultiResponse();
+    }
+
     /**
      * Creates a response based on the sliding decision
      *
@@ -59,6 +67,12 @@ public class SlidingDecisionController {
                 .decisionStatus(SlidingDecisionStatus.RESPONSE)
                 .slidingDecisionOutputParameters(resultsByOutputVariables)
                 .decisionExplanation(slidingDecision.getDecisionExplanation())
+                .build();
+    }
+
+    private SlidingDecisionMultiResponse createMultiResponse() {
+        return SlidingDecisionMultiResponse.builder()
+                //todo: insert data
                 .build();
     }
 
