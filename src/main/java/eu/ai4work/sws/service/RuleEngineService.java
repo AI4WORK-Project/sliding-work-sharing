@@ -112,22 +112,22 @@ public class RuleEngineService {
     }
 
     private double getMembershipDegree(Variable resultAsFuzzyVariable, MembershipFunction membershipFunction) { 
-        // For discrete defuzzifiers such as COGS with singleton outputs
         if (resultAsFuzzyVariable.getDefuzzifier().isDiscrete()) {
-            // After evaluating the rules, each singleton output term will have the activation degree
-            // getDiscreteValue(...) gives the activation degree of the singleton output term. e.g. 0.0, 0.5, 0.8, etc.
+            // For discrete defuzzifiers such as COGS with singleton outputs
+            // first get the X axis position of the singleton membership function (
+            double xAxisPosition = ((MembershipFunctionDiscrete) membershipFunction)
+                    // parameter "0" indicates the first X axis value (i.e. the only existing value in case of a singleton)
+                    .valueX(0);
+            // then return the activation degree for the given X axis position, i.e. the given singleton membership function
             return ((DefuzzifierDiscrete) resultAsFuzzyVariable.getDefuzzifier())
-                    .getDiscreteValue(
-                            // valueX(...) returns the position of the singleton (the membership function). e.g. 1.0, 2.0, 3.0, etc.
-                            ((MembershipFunctionDiscrete) membershipFunction).valueX(0)
-                    );
+                    .getDiscreteValue(xAxisPosition);
+        } else {
+            // For continuous defuzzifiers such as COG
+            return membershipFunction.membership(
+                    // get the membership degree based on the final defuzzified value
+                    resultAsFuzzyVariable.getLatestDefuzzifiedValue()
+            );
         }
-
-        // For continuous defuzzifiers such as COG, the membership degree is
-        // calculated using the final defuzzified value
-        return membershipFunction.membership(
-                resultAsFuzzyVariable.getLatestDefuzzifiedValue()
-        );
     }
 
     /**
