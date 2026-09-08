@@ -114,7 +114,7 @@ public class RuleEngineService {
     private double getMembershipDegree(Variable resultAsFuzzyVariable, MembershipFunction membershipFunction) { 
         if (resultAsFuzzyVariable.getDefuzzifier().isDiscrete()) {
             // For discrete defuzzifiers such as COGS with singleton outputs
-            // first get the X axis position of the singleton membership function (
+            // first get the X axis position of the singleton membership function
             double xAxisPosition = ((MembershipFunctionDiscrete) membershipFunction)
                     // parameter "0" indicates the first X axis value (i.e. the only existing value in case of a singleton)
                     .valueX(0);
