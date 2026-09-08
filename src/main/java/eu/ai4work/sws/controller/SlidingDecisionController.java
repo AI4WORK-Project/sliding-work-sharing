@@ -1,14 +1,7 @@
 package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
-import eu.ai4work.sws.model.ResultForOutputVariable;
-import eu.ai4work.sws.model.SlidingDecisionStatus;
-import eu.ai4work.sws.model.SlidingDecision;
-import eu.ai4work.sws.model.SlidingDecisionRequest;
-import eu.ai4work.sws.model.SlidingDecisionResponse;
-import eu.ai4work.sws.model.SlidingDecisionAtomicRequest;
-import eu.ai4work.sws.model.SlidingDecisionMultiRequest;
-import eu.ai4work.sws.model.SlidingDecisionMultiResponse;
+import eu.ai4work.sws.model.*;
 import eu.ai4work.sws.service.SlidingDecisionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,12 +41,13 @@ public class SlidingDecisionController {
     /**
      * Processes multiple sliding decision requests by validating the input parameters from each sliding decision request,
      * calling for each request the decision logic and returns the decisions in one response.
+     *
      * @param multiRequest The request body containing the input parameters for multiple decision requests
      * @return SlidingDecisionMultiResponse containing decision status and a list decisions (containing decision details and explanations)
      */
     @PostMapping("/sliding-decision-multi-request")
     public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest multiRequest) {
-        List<Map.Entry<String, SlidingDecision>> slidingDecisions = new ArrayList<>();
+        List<Map.Entry<String, SlidingDecision>> slidingDecisionList = new ArrayList<>();
 
         List<SlidingDecisionAtomicRequest> requests = multiRequest.getRequests();
         for (SlidingDecisionAtomicRequest request : requests) {
@@ -61,10 +55,10 @@ public class SlidingDecisionController {
 
             String id =  request.getId();
             SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
-            slidingDecisions.add(new AbstractMap.SimpleEntry<>(id, slidingDecision));
+            slidingDecisionList.add(new AbstractMap.SimpleEntry<>(id, slidingDecision));
         }
 
-        return createMultiResponse(slidingDecisions);
+        return createMultiResponse(slidingDecisionList);
     }
 
     /**
@@ -90,10 +84,34 @@ public class SlidingDecisionController {
                 .build();
     }
 
-    private SlidingDecisionMultiResponse createMultiResponse(List<Map.Entry<String, SlidingDecision>> slidingDecisions) {
+    private SlidingDecisionMultiResponse createMultiResponse(List<Map.Entry<String, SlidingDecision>> slidingDecisionList) {
+        List<SlidingDecisionAtomicResponse> decisions = new ArrayList<>();
+
+        for (Map.Entry<String, SlidingDecision> slidingDecisionEntry : slidingDecisionList) {
+            Map<String, ResultForOutputVariable> resultsByOutputVariables = new HashMap<>();
+
+            String id  = slidingDecisionEntry.getKey();
+            SlidingDecision slidingDecision = slidingDecisionEntry.getValue();
+
+            slidingDecision.getDecisionResultPerOutputParameter().forEach((outputVariableName, resultAsLinguisticTerm) -> {
+                ResultForOutputVariable resultForOutputVariable = new ResultForOutputVariable();
+                resultForOutputVariable.setSlidingDecision(resultAsLinguisticTerm);
+                resultForOutputVariable.setDescription(applicationScenarioConfiguration.getDecisionResultsDescription().get(resultAsLinguisticTerm));
+                resultsByOutputVariables.put(outputVariableName, resultForOutputVariable);
+            });
+
+            SlidingDecisionAtomicResponse slidingDecisionAtomicResponse = SlidingDecisionAtomicResponse.builder()
+                .id(id)
+                .slidingDecisionOutputParameters(resultsByOutputVariables)
+                .decisionExplanation(slidingDecision.getDecisionExplanation())
+                .build();
+
+            decisions.add(slidingDecisionAtomicResponse);
+        }
+
         return SlidingDecisionMultiResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.MULTI_RESPONSE)
-                //todo: insert data
+                .decisions(decisions)
                 .build();
     }
 
