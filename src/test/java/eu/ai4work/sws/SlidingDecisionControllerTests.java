@@ -6,6 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -18,7 +21,7 @@ class SlidingDecisionControllerTests {
     private TestRestTemplate testSlidingDecisionRestTemplate;
 
     @Test
-    void testHappyFlowOfSlidingDecision() {
+    void testHappyFlowOfSlidingDecisionRequest() {
         String slidingDecisionRequestJsonBody = """
                 {
                   "decisionStatus": "Sliding Decision Request",
@@ -38,7 +41,7 @@ class SlidingDecisionControllerTests {
     }
 
     @Test
-    void testInvalidJson() {
+    void testInvalidJsonSlidingDecisionRequest() {
         String slidingDecisionRequestInvalidJsonBody = """
                 {
                   "decisionStatus": "Sliding Decision Request",
@@ -58,7 +61,7 @@ class SlidingDecisionControllerTests {
     }
 
     @Test
-    void testMissingParameter() {
+    void testMissingParameterSlidingDecisionRequest() {
         String slidingDecisionInputParametersJson = """
                     "positionOfTruckToBePrioritized": 5,
                     "materialUrgency":30,
@@ -72,7 +75,7 @@ class SlidingDecisionControllerTests {
     }
 
     @Test
-    void testParameterNameTypo() {
+    void testParameterNameTypoSlidingDecisionRequest() {
         String slidingDecisionInputParametersJson = """
                     "numberOfTrucksInQueuee": 7,
                     "positionOfTruckToBePrioritized": 5,
@@ -87,7 +90,7 @@ class SlidingDecisionControllerTests {
     }
 
     @Test
-    void testAdditionalUnknownParameter() {
+    void testAdditionalUnknownParameterSlidingDecisionRequest() {
         String slidingDecisionInputParametersJson = """
                     "numberOfTrucksInQueue": 7,
                     "positionOfTruckToBePrioritized": 5,
@@ -104,7 +107,7 @@ class SlidingDecisionControllerTests {
 
 
     @Test
-    void testInvalidInputParameterValue() {
+    void testInvalidInputParameterValueSlidingDecisionRequest() {
         String slidingDecisionInputParametersJson = """
                     "numberOfTrucksInQueue": "seven",
                     "positionOfTruckToBePrioritized": 5,
@@ -120,15 +123,15 @@ class SlidingDecisionControllerTests {
 
     private ResponseEntity<String> postSlidingDecisionRequestWithParameters(String slidingDecisionInputParametersJson) {
         return postSlidingDecisionRequestWithBody(
-                String.format("""
-                {
-                  "decisionStatus": "Sliding Decision Request",
-                  "slidingDecisionInputParameters": {
-                    %s
-                  }
+            String.format("""
+            {
+                "decisionStatus": "Sliding Decision Request",
+                "slidingDecisionInputParameters": {
+                %s
                 }
-                """,
-                slidingDecisionInputParametersJson));
+            }
+            """, slidingDecisionInputParametersJson)
+        );
     }
 
     private ResponseEntity<String> postSlidingDecisionRequestWithBody(String jsonEntityBody) {
@@ -144,4 +147,60 @@ class SlidingDecisionControllerTests {
             assertThat(slidingDecisionResponse.getBody()).contains(expectedResponse);
         }
     }
+
+    @Test
+    void testHappyFlowOfSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 3,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+            postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+            HttpStatus.OK,
+            "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
+            "informHuman",
+            "autonomousReprioritization"
+        );
+    }
+
+    private ResponseEntity<String> postSlidingDecisionMultiRequestWithParameters(List<String> slidingDecisionRequests) {
+        return  postSlidingDecisionMultiRequestWithBody(
+                String.format("""
+                {
+                  "decisionStatus": "Sliding Decision Multi-Request",
+                  "requests": %s
+                }
+                """, slidingDecisionRequests)
+        );
+    }
+
+    private ResponseEntity<String> postSlidingDecisionMultiRequestWithBody(String jsonEntityBody) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(APPLICATION_JSON);
+        HttpEntity<String> slidingDecisionRequestHttpEntity = new HttpEntity<>(jsonEntityBody, httpHeaders);
+        return testSlidingDecisionRestTemplate.postForEntity("/sliding-decision-multi-request", slidingDecisionRequestHttpEntity, String.class);
+    }
+
 }
