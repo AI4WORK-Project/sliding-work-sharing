@@ -149,7 +149,7 @@ class SlidingDecisionControllerTests {
     }
 
     @Test
-    void testHappyFlowOfSlidingDecisionMultiRequest() {
+    void testSuccessfulSlidingDecisionMultiRequest() {
         List<String> slidingDecisionMultiRequests = new ArrayList<>();
         String slidingDecisionAtomicRequest1 = """
                 {
@@ -182,6 +182,188 @@ class SlidingDecisionControllerTests {
             "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
             "informHuman",
             "autonomousReprioritization"
+        );
+    }
+
+    @Test
+    void testInvalidJsonSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 3,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50
+                        "operationalWorkload":20
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                DECISION_STATUS_ERROR_STRING,
+                "JSON parse error",
+                "Unexpected character"
+        );
+    }
+
+    @Test
+    void testMissingParameterSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 3,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                HttpStatus.BAD_REQUEST,
+                DECISION_STATUS_ERROR_STRING,
+                "positionOfTruckToBePrioritized"
+        );
+    }
+
+
+    @Test
+    void testParameterTypoSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgenzy":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 3,
+                        "positionOfTruckToBePrioriticed": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        // typo in "positionOfTruckToBePrioriticed" is not recognized because evaluation stops after the first typo
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                HttpStatus.BAD_REQUEST,
+                DECISION_STATUS_ERROR_STRING,
+                "materialUrgenzy"
+        );
+    }
+
+    @Test
+    void testAdditionalUnknownParameterSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 3,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20,
+                        "additionalUnknownParameter":3
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                HttpStatus.BAD_REQUEST,
+                DECISION_STATUS_ERROR_STRING,
+                "additionalUnknownParameter"
+        );
+    }
+
+    @Test
+    void testInvalidInputParameterValueSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 3,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":"invalidValue"
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                HttpStatus.BAD_REQUEST,
+                DECISION_STATUS_ERROR_STRING,
+                "operationalWorkload"
         );
     }
 
