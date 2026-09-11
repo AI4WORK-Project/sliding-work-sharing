@@ -444,7 +444,7 @@ curl --request POST \
     "slidingDecisionInputParameters": {
       "timeTheRobotIsAlreadyMoving": 4,
       "robotBatteryStatus": 65,
-      "noOfHumansInTheRoom": 10
+      "areHumansInTheRoom": 1
     }
   }'
 ```
@@ -455,7 +455,7 @@ the values for the `slidingDecisionInputParameters` as follows:
 - `timeTheRobotIsAlreadyMoving`: The time that the robot is already moving, measured in minutes (0-15 minutes); a higher
   time may indicate that the robot is blocked
 - `robotBatteryStatus`: The battery status of the robot, measured in percent (0%-100%)
-- `noOfHumansInTheRoom`: The number of humans currently present in the room (0-20 humans)
+- `areHumansInTheRoom`: Whether any humans are currently in the room (1 = yes, 0 = no)
 
 ##### Example Response
 
@@ -466,8 +466,8 @@ The application will respond with a JSON string similar to the following:
   "decisionStatus": "Sliding Decision Response",
   "slidingDecisionOutputParameters": {
     "suggestedApproach": {
-      "slidingDecision": "askForHumanHelp",
-      "description": "Ask human for help"
+      "slidingDecision": "letRobotContinue",
+      "description": "Let the robot continue trying"
     }
   },
   "decisionExplanation": {
@@ -551,10 +551,10 @@ Shows the final outcome after evaluating all the activated rules.
 ```json
 {
   "outputVariables": {
-    "suggestedWorkSharingApproach": {
-      "value": 1.4977511244377752,
+    "suggestedApproach": {
+      "value": 1.0,
       "membershipValues": {
-        "informHuman": 1.0
+        "autonomousReprioritization": 1.0
       }
     }
   }
@@ -562,7 +562,7 @@ Shows the final outcome after evaluating all the activated rules.
 ```
 
 - `value`: after combining all contributions from the fired rules, the fuzzy inference process computes a numerical
-  value. In the given example, a value of approximately `1.497` is produced.
-- `membershipValues`: this final output is then associated with a fuzzy category. In our example, `1.497`
-  maps to "informHuman" with a membership degree of `1.0`. This means that, after all rules are applied, the final
+  value. In the given example, a resulting value `1.0` is produced.
+- `membershipValues`: this final output value is then associated with a fuzzy category. In our example, `1.0`
+  maps to `autonomousReprioritization` with a membership degree of `1.0`. This means that, after all rules are applied, the final
   decision is identified as that suggested work sharing approach.
