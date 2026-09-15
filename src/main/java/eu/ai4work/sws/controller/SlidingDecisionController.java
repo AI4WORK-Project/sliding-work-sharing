@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -47,27 +46,31 @@ public class SlidingDecisionController {
      */
     @PostMapping("/sliding-decision-multi-request")
     public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest multiRequest) {
-        List<Map.Entry<String, SlidingDecision>> slidingDecisionList = new ArrayList<>();
+        List<SlidingDecisionEachMultiResponse> decisions = new ArrayList<>();
 
-        List<SlidingDecisionAtomicRequest> requests = multiRequest.getRequests();
-        for (SlidingDecisionAtomicRequest request : requests) {
+        // process every sliding-decision request
+        for (SlidingDecisionEachMultiRequest request : multiRequest.getRequests()) {
             assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
 
-            String id =  request.getId();
             SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
-            slidingDecisionList.add(new AbstractMap.SimpleEntry<>(id, slidingDecision));
+            decisions.add(createEachMultiResponse(request.getId(), slidingDecision));
         }
 
-        return createMultiResponse(slidingDecisionList);
+        // wrap all individual decisions into one multi response
+        return SlidingDecisionMultiResponse.builder()
+                .decisionStatus(SlidingDecisionStatus.MULTI_RESPONSE)
+                .decisions(decisions)
+                .build();
     }
 
     /**
-     * Creates a response based on the sliding decision
+     * build the results grouped by output-variable name,
+     * where each output variable contains the result in linguistic term and human-readable description of the result
      *
-     * @param slidingDecision Evaluated sliding decision after applying the decision rules
-     * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
+     * @param slidingDecision calculated sliding decision
+     * @return results grouped by output-variable name
      */
-    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
+    private Map<String, ResultForOutputVariable> buildResultsByOutputVariables(SlidingDecision slidingDecision) {
         Map<String, ResultForOutputVariable> resultsByOutputVariables = new HashMap<>();
 
         slidingDecision.getDecisionResultPerOutputParameter().forEach((outputVariableName, resultAsLinguisticTerm) -> {
@@ -77,41 +80,37 @@ public class SlidingDecisionController {
             resultsByOutputVariables.put(outputVariableName, resultForOutputVariable);
         });
 
+        return resultsByOutputVariables;
+    }
+
+    /**
+     * Creates a response based on the sliding decision
+     *
+     * @param slidingDecision Evaluated sliding decision after applying the decision rules
+     * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
+     */
+    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
+
         return SlidingDecisionResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.RESPONSE)
-                .slidingDecisionOutputParameters(resultsByOutputVariables)
+                .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
                 .decisionExplanation(slidingDecision.getDecisionExplanation())
                 .build();
     }
 
-    private SlidingDecisionMultiResponse createMultiResponse(List<Map.Entry<String, SlidingDecision>> slidingDecisionList) {
-        List<SlidingDecisionAtomicResponse> decisions = new ArrayList<>();
+    /**
+     * Creates the response for one individual sliding-decision request.
+     *
+     * @param id              ID of the original request
+     * @param slidingDecision Evaluated sliding decision after applying the decision rules
+     * @return response containing the id, decision results and explanation
+     */
+    private SlidingDecisionEachMultiResponse createEachMultiResponse(String id, SlidingDecision slidingDecision) {
 
-        for (Map.Entry<String, SlidingDecision> slidingDecisionEntry : slidingDecisionList) {
-            Map<String, ResultForOutputVariable> resultsByOutputVariables = new HashMap<>();
-
-            String id  = slidingDecisionEntry.getKey();
-            SlidingDecision slidingDecision = slidingDecisionEntry.getValue();
-
-            slidingDecision.getDecisionResultPerOutputParameter().forEach((outputVariableName, resultAsLinguisticTerm) -> {
-                ResultForOutputVariable resultForOutputVariable = new ResultForOutputVariable();
-                resultForOutputVariable.setSlidingDecision(resultAsLinguisticTerm);
-                resultForOutputVariable.setDescription(applicationScenarioConfiguration.getDecisionResultsDescription().get(resultAsLinguisticTerm));
-                resultsByOutputVariables.put(outputVariableName, resultForOutputVariable);
-            });
-
-            SlidingDecisionAtomicResponse slidingDecisionAtomicResponse = SlidingDecisionAtomicResponse.builder()
+        return SlidingDecisionEachMultiResponse.builder()
                 .id(id)
-                .slidingDecisionOutputParameters(resultsByOutputVariables)
+                .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
                 .decisionExplanation(slidingDecision.getDecisionExplanation())
-                .build();
-
-            decisions.add(slidingDecisionAtomicResponse);
-        }
-
-        return SlidingDecisionMultiResponse.builder()
-                .decisionStatus(SlidingDecisionStatus.MULTI_RESPONSE)
-                .decisions(decisions)
                 .build();
     }
 

@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class SlidingDecisionMultiRequest {
-    private List<SlidingDecisionAtomicRequest> requests;
+    private List<SlidingDecisionEachMultiRequest> requests;
 }
