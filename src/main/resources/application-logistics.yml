@@ -1,7 +1,8 @@
 # This is the configuration for the Logistics demonstration scenario
 application-scenario-config:
-  fclRulesFilePath: rules/TruckSchedulingSlidingDecisionRules.fcl
+  fclRulesFilePath: src/main/resources/rules/TruckSchedulingSlidingDecisionRules.fcl
   decisionResultsDescription:
     autonomousReprioritization: "AI can reschedule without human involvement"
     informHuman: "Human has to be informed about AI's rescheduling"
     requireHumanApproval: "Human has to decide without AI support"
+  reload-fcl-at-runtime: false
