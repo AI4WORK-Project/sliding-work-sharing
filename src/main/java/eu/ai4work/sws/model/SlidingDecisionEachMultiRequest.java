@@ -4,7 +4,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class SlidingDecisionAtomicRequest {
+public class SlidingDecisionEachMultiRequest {
     private String id;
     private Map<String, Object> slidingDecisionInputParameters;
 }
