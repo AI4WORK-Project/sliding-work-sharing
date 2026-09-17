@@ -1,6 +1,7 @@
 package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
+import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.*;
 import eu.ai4work.sws.service.SlidingDecisionService;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,13 @@ public class SlidingDecisionController {
         for (SlidingDecisionEachMultiRequest request : multiRequest.getRequests()) {
             assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
 
-            SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
+            String id =  request.getId();
+            SlidingDecision slidingDecision;
+            try {
+                slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
+            } catch (InvalidInputParameterException exception) {
+                throw new InvalidInputParameterException("Error in request with following ID '"+id+"': "+exception.getMessage());
+            }
             decisions.add(createEachMultiResponse(request.getId(), slidingDecision));
         }
 
