@@ -3,6 +3,7 @@ package eu.ai4work.sws.service;
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
 import eu.ai4work.sws.config.FuzzyInferenceSystemInitializer;
 import eu.ai4work.sws.config.InitializeFuzzyIOParameterLists;
+import eu.ai4work.sws.exception.InvalidFclFileException;
 import eu.ai4work.sws.model.SlidingDecisionExplanation;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.VariableExplanation;
@@ -38,14 +39,14 @@ public class RuleEngineService {
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
      * @return SlidingDecision containing the result and the explanation of the sliding decision.
      */
-    public SlidingDecision applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) throws FileNotFoundException {
+    public SlidingDecision applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) {
 
         FIS fuzzyInferenceSystem = this.fuzzyInferenceSystem;
         List<String> requiredFuzzyInputParameters = this.requiredFuzzyInputParameters;
         List<String> outputVariableNamesFromFIS = this.outputVariableNamesFromFIS;
 
         if (applicationScenarioConfiguration.isReloadFclAtRuntime()) {
-            fuzzyInferenceSystem = fuzzyInferenceSystemInitializer.loadFuzzyInferenceSystem();
+            fuzzyInferenceSystem = reloadFuzzyInferenceSystem();
             requiredFuzzyInputParameters = initializeFuzzyIOParameterLists.getRequiredInputParametersFromFIS(fuzzyInferenceSystem);
             outputVariableNamesFromFIS = initializeFuzzyIOParameterLists.getOutputVariableNamesFromFIS(fuzzyInferenceSystem);
         }
@@ -61,6 +62,14 @@ public class RuleEngineService {
         SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem(fuzzyInferenceSystem);
 
         return new SlidingDecision(decisionResultsForAllOutputParameters, decisionExplanation);
+    }
+
+    private FIS reloadFuzzyInferenceSystem() {
+        try {
+            return fuzzyInferenceSystemInitializer.loadFuzzyInferenceSystem();
+        } catch (FileNotFoundException exception) {
+            throw new InvalidFclFileException("Failed to reload Fuzzy Control Language (FCL) file: ", exception);
+        }
     }
 
     /**
