@@ -1,6 +1,6 @@
 # This is the configuration for the Construction demonstration scenario
 application-scenario-config:
-  fclRulesFilePath: src/main/resources/rules/ConstructionRobotAssistanceDecisionRules.fcl
+  fclRulesFilePath: rules/ConstructionRobotAssistanceDecisionRules.fcl
   decisionResultsDescription:
     letRobotContinue: "Let the robot continue trying"
     informHumanAboutSituation: "Inform human about the situation"

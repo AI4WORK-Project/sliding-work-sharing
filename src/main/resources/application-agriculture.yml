@@ -1,6 +1,6 @@
 # This is the configuration for the Agriculture demonstration scenario
 application-scenario-config:
-  fclRulesFilePath: src/main/resources/rules/AgricultureSchedulingSlidingDecisionRules.fcl
+  fclRulesFilePath: rules/AgricultureSchedulingSlidingDecisionRules.fcl
   decisionResultsDescription:
     droneShouldCarryTheBox: "Let the drone carry the box"
     letHumanDecide : "Let the worker decide"
