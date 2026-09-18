@@ -18,6 +18,10 @@ public class InitializeFuzzyIOParameterLists {
     @Bean("requiredFuzzyInputParameters")
     @DependsOn("fuzzyInferenceSystem")
     public List<String> getRequiredInputParametersFromFIS() {
+        return getRequiredInputParametersFromFIS(fuzzyInferenceSystem);
+    }
+
+    public List<String> getRequiredInputParametersFromFIS(FIS fuzzyInferenceSystem) {
         return fuzzyInferenceSystem.getFunctionBlock(null)  // Get default function block
                 .getVariables().values().stream()
                 .filter(Variable::isInput)
@@ -28,6 +32,10 @@ public class InitializeFuzzyIOParameterLists {
     @Bean("outputVariableNamesFromFIS")
     @DependsOn("fuzzyInferenceSystem")
     public List<String> getOutputVariableNamesFromFIS() {
+        return getOutputVariableNamesFromFIS(fuzzyInferenceSystem);
+    }
+
+    public List<String> getOutputVariableNamesFromFIS(FIS fuzzyInferenceSystem) {
         List<String> outputVariablesFromFIS = fuzzyInferenceSystem.getFunctionBlock(null)
                 .getVariables().values().stream()
                 .filter(Variable::isOutput)

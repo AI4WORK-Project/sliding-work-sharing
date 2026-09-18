@@ -30,6 +30,14 @@ public class FuzzyInferenceSystemInitializer {
      */
     @Bean(name = "fuzzyInferenceSystem")
     public FIS initializeFuzzyInferenceSystem() throws FileNotFoundException, InvalidFclFileException {
+        return loadFuzzyInferenceSystem();
+    }
+
+    /**
+     * Loads and parses the configured FCL file at startup
+     * or before a sliding decision.
+     */
+    public FIS loadFuzzyInferenceSystem() throws FileNotFoundException, InvalidFclFileException {
         String fclRulesFilePath = applicationScenarioConfiguration.getFclRulesFilePath();
         logger.info("Initializing a Fuzzy Inference System (FIS) from FCL file: " + fclRulesFilePath);
 

@@ -1,5 +1,9 @@
 package eu.ai4work.sws.service;
 
+import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
+import eu.ai4work.sws.config.FuzzyInferenceSystemInitializer;
+import eu.ai4work.sws.config.InitializeFuzzyIOParameterLists;
+import eu.ai4work.sws.exception.InvalidFclFileException;
 import eu.ai4work.sws.model.SlidingDecisionExplanation;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.VariableExplanation;
@@ -14,6 +18,7 @@ import net.sourceforge.jFuzzyLogic.membership.MembershipFunctionDiscrete;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -24,6 +29,9 @@ public class RuleEngineService {
     private final FIS fuzzyInferenceSystem;
     private final List<String> requiredFuzzyInputParameters;
     private final List<String> outputVariableNamesFromFIS;
+    private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
+    private final FuzzyInferenceSystemInitializer fuzzyInferenceSystemInitializer;
+    private final InitializeFuzzyIOParameterLists initializeFuzzyIOParameterLists;
 
     /**
      * Evaluates the fuzzy inference rules based on the provided inputs, and it returns the sliding decision with its explanation.
@@ -33,26 +41,45 @@ public class RuleEngineService {
      */
     public SlidingDecision applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) {
 
-        verifySlidingDecisionInputParameters(slidingDecisionInputParameters);
+        FIS fuzzyInferenceSystem = this.fuzzyInferenceSystem;
+        List<String> requiredFuzzyInputParameters = this.requiredFuzzyInputParameters;
+        List<String> outputVariableNamesFromFIS = this.outputVariableNamesFromFIS;
 
-        setInputParametersToFuzzyInferenceSystem(slidingDecisionInputParameters);
+        if (applicationScenarioConfiguration.isReloadFclAtRuntime()) {
+            fuzzyInferenceSystem = reloadFuzzyInferenceSystem();
+            requiredFuzzyInputParameters = initializeFuzzyIOParameterLists.getRequiredInputParametersFromFIS(fuzzyInferenceSystem);
+            outputVariableNamesFromFIS = initializeFuzzyIOParameterLists.getOutputVariableNamesFromFIS(fuzzyInferenceSystem);
+        }
+
+        verifySlidingDecisionInputParameters(slidingDecisionInputParameters, requiredFuzzyInputParameters);
+
+        setInputParametersToFuzzyInferenceSystem(slidingDecisionInputParameters, fuzzyInferenceSystem);
 
         fuzzyInferenceSystem.evaluate();
 
-        Map<String, String> decisionResultsForAllOutputParameters = readAllSlidingDecisionResultsFromFIS();
+        Map<String, String> decisionResultsForAllOutputParameters = readAllSlidingDecisionResultsFromFIS(fuzzyInferenceSystem, outputVariableNamesFromFIS);
 
-        SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem();
+        SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem(fuzzyInferenceSystem);
 
         return new SlidingDecision(decisionResultsForAllOutputParameters, decisionExplanation);
+    }
+
+    private FIS reloadFuzzyInferenceSystem() {
+        try {
+            return fuzzyInferenceSystemInitializer.loadFuzzyInferenceSystem();
+        } catch (FileNotFoundException exception) {
+            throw new InvalidFclFileException("Failed to reload Fuzzy Control Language (FCL) file: ", exception);
+        }
     }
 
     /**
      * Checks if any required sliding decision input parameters are unknown or missing.
      *
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
+     * @param requiredFuzzyInputParameters The input parameter names from the current fuzzy inference system.
      * @throws InvalidInputParameterException if one or more input parameters are unknown or missing.
      */
-    private void verifySlidingDecisionInputParameters(Map<String, Object> slidingDecisionInputParameters)
+    private void verifySlidingDecisionInputParameters(Map<String, Object> slidingDecisionInputParameters, List<String> requiredFuzzyInputParameters)
             throws InvalidInputParameterException {
         Set<String> providedParameters = slidingDecisionInputParameters.keySet();
 
@@ -81,18 +108,20 @@ public class RuleEngineService {
     /**
      * Reads all sliding decision results to their corresponding linguistic terms from the fuzzy inference system.
      *
+     * @param fuzzyInferenceSystem The fuzzy inference system used for this decision.
+     * @param outputVariableNamesFromFIS The output variable names from the current fuzzy inference system.
      * @return Map of sliding decision results which contains output variable names and
      * maps them to their result as a linguistic term.
      */
-    private Map<String, String> readAllSlidingDecisionResultsFromFIS() {
+    private Map<String, String> readAllSlidingDecisionResultsFromFIS(FIS fuzzyInferenceSystem, List<String> outputVariableNamesFromFIS) {
         Map<String, String> resultsByOutputVariable = new HashMap<>();
         for (String outputVariableNameFromFIS : outputVariableNamesFromFIS) {
-            resultsByOutputVariable.put(outputVariableNameFromFIS, getLinguisticTermForOutputVariable(outputVariableNameFromFIS));
+            resultsByOutputVariable.put(outputVariableNameFromFIS, getLinguisticTermForOutputVariable(outputVariableNameFromFIS, fuzzyInferenceSystem));
         }
         return resultsByOutputVariable;
     }
 
-    private String getLinguisticTermForOutputVariable(String outputVariableNameFromFIS) {
+    private String getLinguisticTermForOutputVariable(String outputVariableNameFromFIS, FIS fuzzyInferenceSystem) {
         Variable resultAsFuzzyVariable = fuzzyInferenceSystem.getVariable(outputVariableNameFromFIS);
         return resultAsFuzzyVariable.getLinguisticTerms().entrySet().stream()
                 // Map each linguistic term to its corresponding membership degree
@@ -111,7 +140,7 @@ public class RuleEngineService {
                 .get().getKey();
     }
 
-    private double getMembershipDegree(Variable resultAsFuzzyVariable, MembershipFunction membershipFunction) { 
+    private double getMembershipDegree(Variable resultAsFuzzyVariable, MembershipFunction membershipFunction) {
         if (resultAsFuzzyVariable.getDefuzzifier().isDiscrete()) {
             // For discrete defuzzifiers such as COGS with singleton outputs
             // first get the X axis position of the singleton membership function
@@ -134,8 +163,9 @@ public class RuleEngineService {
      * Sets input parameters to the Fuzzy Inference System (FIS).
      *
      * @param slidingDecisionInputParameters The input parameters from the sliding decision request.
+     * @param fuzzyInferenceSystem The fuzzy inference system used for this decision.
      */
-    private void setInputParametersToFuzzyInferenceSystem(Map<String, Object> slidingDecisionInputParameters) {
+    private void setInputParametersToFuzzyInferenceSystem(Map<String, Object> slidingDecisionInputParameters, FIS fuzzyInferenceSystem) {
         slidingDecisionInputParameters.forEach((parameterName, parameterValue) -> {
             if (parameterValue instanceof Number parameterValueAsNumber) {
                 fuzzyInferenceSystem.getVariable(parameterName).setValue(parameterValueAsNumber.doubleValue());
@@ -150,9 +180,10 @@ public class RuleEngineService {
     /**
      * Reads the explanation for the sliding decision.
      *
+     * @param fuzzyInferenceSystem The fuzzy inference system used for this decision.
      * @return SlidingDecisionExplanation containing explanation of the input variables, applied rules and output variables.
      */
-    private SlidingDecisionExplanation readSlidingDecisionExplanationFromFuzzyInferenceSystem() {
+    private SlidingDecisionExplanation readSlidingDecisionExplanationFromFuzzyInferenceSystem(FIS fuzzyInferenceSystem) {
         var functionBlock = fuzzyInferenceSystem.getFunctionBlock(null); // selects the default function block
         return new SlidingDecisionExplanation(extractFuzzyVariableExplanation(functionBlock, Variable::isInput),
                 getAppliedRules(functionBlock),
