@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,19 +48,25 @@ public class SlidingDecisionController {
      */
     @PostMapping("/sliding-decision-multi-request")
     public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest multiRequest) {
-        List<SlidingDecisionEachMultiResponse> decisions = new ArrayList<>();
+        assureIdsAreValid(multiRequest);
 
         // process every sliding-decision request
+        List<SlidingDecisionEachMultiResponse> decisions = new ArrayList<>();
         for (SlidingDecisionEachMultiRequest request : multiRequest.getRequests()) {
-            assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
-
             String id =  request.getId();
             SlidingDecision slidingDecision;
+
+            try {
+                assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
+            } catch (IllegalArgumentException exception) {
+                throw new IllegalArgumentException("Error in request with following ID '"+id+"': "+exception.getMessage());
+            }
             try {
                 slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
             } catch (InvalidInputParameterException exception) {
                 throw new InvalidInputParameterException("Error in request with following ID '"+id+"': "+exception.getMessage());
             }
+            // todo: if possible find where JsonParseException is being thrown and add catch block for JSON parse error
             decisions.add(createEachMultiResponse(request.getId(), slidingDecision));
         }
 
@@ -124,6 +131,19 @@ public class SlidingDecisionController {
     private void assureInputParametersAreNotEmpty(Map<String, Object> slidingDecisionInputParameters) {
         if (slidingDecisionInputParameters == null || slidingDecisionInputParameters.isEmpty()) {
             throw new IllegalArgumentException("The sliding decision input parameters must not be null or empty.");
+        }
+    }
+
+    private void assureIdsAreValid(SlidingDecisionMultiRequest multiRequest) {
+        List<String> ids = multiRequest.getRequests()
+                .stream().map(SlidingDecisionEachMultiRequest::getId).toList();
+        for (String id : ids) {
+            if (id == null || id.isBlank()) {
+                throw new InvalidInputParameterException("The request ID must not be empty.");
+            }
+            if (Collections.frequency(ids, id)>1) {
+                throw new InvalidInputParameterException("The request IDs must be unique for each response.");
+            }
         }
     }
 }
