@@ -218,6 +218,7 @@ class SlidingDecisionControllerTests {
                 DECISION_STATUS_ERROR_STRING,
                 "JSON parse error",
                 "Unexpected character"
+                // todo: add id malformed json request if possible# ,"abc-456"
         );
     }
 
@@ -252,7 +253,8 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "positionOfTruckToBePrioritized"
+                "positionOfTruckToBePrioritized",
+                "abc-123"
         );
     }
 
@@ -290,7 +292,8 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "materialUrgenzy"
+                "materialUrgenzy",
+                "abc-123"
         );
     }
 
@@ -327,7 +330,8 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "additionalUnknownParameter"
+                "additionalUnknownParameter",
+                "abc-456"
         );
     }
 
@@ -363,7 +367,117 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "operationalWorkload"
+                "operationalWorkload",
+                "abc-456"
+        );
+    }
+
+    @Test
+    void testEmptyInputParameterValueSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": null,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                HttpStatus.BAD_REQUEST,
+                DECISION_STATUS_ERROR_STRING,
+                "numberOfTrucksInQueue",
+                "abc-456"
+        );
+    }
+
+    @Test
+    void testEmptyIdSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": null,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                HttpStatus.BAD_REQUEST,
+                DECISION_STATUS_ERROR_STRING,
+                "ID must not be empty"
+        );
+    }
+
+    @Test
+    void testDuplicatedIdsSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": null,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                HttpStatus.BAD_REQUEST,
+                DECISION_STATUS_ERROR_STRING,
+                "IDs must be unique for each response"
         );
     }
 
