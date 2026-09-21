@@ -66,7 +66,6 @@ public class SlidingDecisionController {
             } catch (InvalidInputParameterException exception) {
                 throw new InvalidInputParameterException("Error in request with following ID '"+id+"': "+exception.getMessage());
             }
-            // todo: if possible find where JsonParseException is being thrown and add catch block for JSON parse error
             decisions.add(createEachMultiResponse(request.getId(), slidingDecision));
         }
 

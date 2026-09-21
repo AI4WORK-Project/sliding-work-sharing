@@ -218,7 +218,6 @@ class SlidingDecisionControllerTests {
                 DECISION_STATUS_ERROR_STRING,
                 "JSON parse error",
                 "Unexpected character"
-                // todo: add id malformed json request if possible# ,"abc-456"
         );
     }
 
