@@ -80,6 +80,71 @@ The application will respond with a JSON string similar to the following:
 _Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is
 described [here](#how-to-read-the-decisionexplanation).
 
+#### Example Multi Request
+Execute the following `curl` command in your terminal to make multiple "sliding decision" requests at once via a POST request to the `/sliding-decision-multi-request` endpoint:
+```bash
+curl --request POST \
+  --url http://localhost:8080/sliding-decision-multi-request \
+  --header "Content-Type: application/json" \
+  --data '{
+    "decisionStatus": "Sliding Decision Multi-Request",
+    "requests": [
+      {
+        "id": "abc-123",
+        "slidingDecisionInputParameters": {
+          "numberOfTrucksInQueue": 7,
+          "positionOfTruckToBePrioritized": 5,
+          "materialUrgency":30,
+          "operationalWorkload":80
+        }
+      },
+      {
+        "id": "abc-456",
+        "slidingDecisionInputParameters": {
+          "numberOfTrucksInQueue": 3,
+          "positionOfTruckToBePrioritized": 5,
+          "materialUrgency": 50,
+          "operationalWorkload": 20
+        }
+      }
+    ]
+  }'
+```
+
+#### Example Multi Response
+The application will respond with a JSON string similar to the following:
+```json
+{
+  "decisionStatus":"Sliding Decision Multi-Response",
+  "decisions": [
+    {
+      "id":"abc-123",
+      "slidingDecisionOutputParameters": {
+        "suggestedApproach": {
+          "slidingDecision":"requireHumanApproval",
+          "description":"Human has to decide without AI support"
+        }
+      },
+      "decisionExplanation": {
+        "...": "..."
+      }
+    },
+    {
+      "id":"abc-456",
+      "slidingDecisionOutputParameters": {
+        "suggestedApproach": {
+          "slidingDecision":"autonomousReprioritization",
+          "description":"AI can reschedule without human involvement"
+        }
+      },
+      "decisionExplanation": {
+        "...": "..."
+      }
+    }
+  ]
+}
+```
+
 ---
 
 ## How to apply the SWS to your own application scenario
