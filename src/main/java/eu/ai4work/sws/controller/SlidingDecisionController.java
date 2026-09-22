@@ -5,6 +5,7 @@ import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.*;
 import eu.ai4work.sws.service.SlidingDecisionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,9 @@ import java.util.Collections;
 public class SlidingDecisionController {
     private final SlidingDecisionService slidingDecisionService;
     private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
+
+    @Value("${app.includeDecisionExplanationsInResponse}")
+    private boolean includeDecisionExplanationsInResponse;
 
     /**
      * Processes a sliding decision request by validating the input parameters from the sliding decision request,
@@ -103,12 +107,18 @@ public class SlidingDecisionController {
      * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
     private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
-
-        return SlidingDecisionResponse.builder()
-                .decisionStatus(SlidingDecisionStatus.RESPONSE)
-                .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
-                .decisionExplanation(slidingDecision.getDecisionExplanation())
-                .build();
+        if(includeDecisionExplanationsInResponse) {
+            return SlidingDecisionResponse.builder()
+                    .decisionStatus(SlidingDecisionStatus.RESPONSE)
+                    .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
+                    .decisionExplanation(slidingDecision.getDecisionExplanation())
+                    .build();
+        } else {
+            return SlidingDecisionResponse.builder()
+                    .decisionStatus(SlidingDecisionStatus.RESPONSE)
+                    .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
+                    .build();
+        }
     }
 
     /**
@@ -119,12 +129,18 @@ public class SlidingDecisionController {
      * @return response containing the id, decision results and explanation
      */
     private SlidingDecisionEachMultiResponse createEachMultiResponse(String id, SlidingDecision slidingDecision) {
-
-        return SlidingDecisionEachMultiResponse.builder()
-                .id(id)
-                .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
-                .decisionExplanation(slidingDecision.getDecisionExplanation())
-                .build();
+        if (includeDecisionExplanationsInResponse) {
+            return SlidingDecisionEachMultiResponse.builder()
+                    .id(id)
+                    .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
+                    .decisionExplanation(slidingDecision.getDecisionExplanation())
+                    .build();
+        } else {
+            return SlidingDecisionEachMultiResponse.builder()
+                    .id(id)
+                    .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
+                    .build();
+        }
     }
 
     private void assureInputParametersAreNotEmpty(Map<String, Object> slidingDecisionInputParameters) {

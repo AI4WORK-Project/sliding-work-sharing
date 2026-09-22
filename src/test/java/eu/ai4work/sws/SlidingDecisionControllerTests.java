@@ -37,7 +37,7 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionRequestWithBody(slidingDecisionRequestJsonBody),
                 HttpStatus.OK,
                 "\"decisionStatus\":\"Sliding Decision Response\"",
-                "informHuman");
+                "requireHumanApproval");
     }
 
     @Test
@@ -180,7 +180,7 @@ class SlidingDecisionControllerTests {
             postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
             HttpStatus.OK,
             "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
-            "informHuman",
+            "requireHumanApproval",
             "autonomousReprioritization"
         );
     }
