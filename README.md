@@ -36,9 +36,10 @@ The application will start and listen on port `8080` by default.
 
 ### 4. How to Test the Application
 
+The SWS application supports the single sliding decision request and list of sliding decision requests on the same call. 
 You can test the application using the `curl` command (or using any other HTTP/REST client of your choice):
 
-#### Example Request
+#### Example of single sliding decision request 
 
 Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the
 `/sliding-decision` endpoint:
@@ -58,7 +59,7 @@ curl --request POST \
   }'
 ```
 
-#### Example Response
+#### Example of single sliding decision response
 
 The application will respond with a JSON string similar to the following:
 
@@ -74,6 +75,71 @@ The application will respond with a JSON string similar to the following:
   "decisionExplanation": {
     "...": "..."
   }
+}
+```
+
+#### Example for to send list of sliding decision Request
+Execute the following `curl` command in your terminal to make multiple "sliding decision" requests at once via a POST request to the `/sliding-decision-multi-request` endpoint:
+```bash
+curl --request POST \
+  --url http://localhost:8080/sliding-decision-multi-request \
+  --header "Content-Type: application/json" \
+  --data '{
+    "decisionStatus": "Sliding Decision Multi-Request",
+    "requests": [
+      {
+        "id": "abc-123",
+        "slidingDecisionInputParameters": {
+          "numberOfTrucksInQueue": 7,
+          "positionOfTruckToBePrioritized": 5,
+          "materialUrgency":30,
+          "operationalWorkload":80
+        }
+      },
+      {
+        "id": "abc-456",
+        "slidingDecisionInputParameters": {
+          "numberOfTrucksInQueue": 3,
+          "positionOfTruckToBePrioritized": 5,
+          "materialUrgency": 50,
+          "operationalWorkload": 20
+        }
+      }
+    ]
+  }'
+```
+
+#### Example for list of sliding decision Response
+The application will respond with a JSON string similar to the following:
+```json
+{
+  "decisionStatus":"Sliding Decision Multi-Response",
+  "decisions": [
+    {
+      "id":"abc-123",
+      "slidingDecisionOutputParameters": {
+        "suggestedApproach": {
+          "slidingDecision":"requireHumanApproval",
+          "description":"Human has to decide without AI support"
+        }
+      },
+      "decisionExplanation": {
+        "...": "..."
+      }
+    },
+    {
+      "id":"abc-456",
+      "slidingDecisionOutputParameters": {
+        "suggestedApproach": {
+          "slidingDecision":"autonomousReprioritization",
+          "description":"AI can reschedule without human involvement"
+        }
+      },
+      "decisionExplanation": {
+        "...": "..."
+      }
+    }
+  ]
 }
 ```
 
