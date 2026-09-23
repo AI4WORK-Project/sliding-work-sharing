@@ -8,5 +8,6 @@ import java.util.Map;
 @Builder
 public class SlidingDecisionRequest {
     private Map<String, Object> slidingDecisionInputParameters;
+    @Builder.Default
     private boolean includeDecisionExplanationsInResponse = false;
 }

@@ -9,5 +9,6 @@ import java.util.List;
 @Builder
 public class SlidingDecisionMultiRequest {
     private List<SlidingDecisionEachMultiRequest> requests;
+    @Builder.Default
     private boolean includeDecisionExplanationsInResponse = false;
 }
