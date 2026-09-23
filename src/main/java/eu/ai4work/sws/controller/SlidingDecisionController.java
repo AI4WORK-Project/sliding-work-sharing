@@ -5,7 +5,6 @@ import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.*;
 import eu.ai4work.sws.service.SlidingDecisionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,9 +21,6 @@ public class SlidingDecisionController {
     private final SlidingDecisionService slidingDecisionService;
     private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
 
-    @Value("${app.includeDecisionExplanationsInResponse}")
-    private boolean includeDecisionExplanationsInResponse;
-
     /**
      * Processes a sliding decision request by validating the input parameters from the sliding decision request,
      * calling the decision logic and returns a decision response.
@@ -37,10 +33,11 @@ public class SlidingDecisionController {
     @PostMapping("/sliding-decision")
     public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) {
         assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
+        boolean includeDecisionExplanationsInResponse = request.isIncludeDecisionExplanationsInResponse();
 
         SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
 
-        return createResponse(slidingDecision);
+        return createResponse(slidingDecision, includeDecisionExplanationsInResponse);
     }
 
     /**
@@ -53,6 +50,7 @@ public class SlidingDecisionController {
     @PostMapping("/sliding-decision-multi-request")
     public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest multiRequest) {
         assureIdsAreValid(multiRequest);
+        boolean includeDecisionExplanationsInResponse = multiRequest.isIncludeDecisionExplanationsInResponse();
 
         // process every sliding-decision request
         List<SlidingDecisionEachMultiResponse> decisions = new ArrayList<>();
@@ -70,7 +68,7 @@ public class SlidingDecisionController {
             } catch (InvalidInputParameterException exception) {
                 throw new InvalidInputParameterException("Error in request with following ID '"+id+"': "+exception.getMessage());
             }
-            decisions.add(createEachMultiResponse(request.getId(), slidingDecision));
+            decisions.add(createEachMultiResponse(request.getId(), slidingDecision, includeDecisionExplanationsInResponse));
         }
 
         // wrap all individual decisions into one multi response
@@ -106,7 +104,7 @@ public class SlidingDecisionController {
      * @param slidingDecision Evaluated sliding decision after applying the decision rules
      * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
-    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
+    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision, boolean includeDecisionExplanationsInResponse) {
         if(includeDecisionExplanationsInResponse) {
             return SlidingDecisionResponse.builder()
                     .decisionStatus(SlidingDecisionStatus.RESPONSE)
@@ -128,7 +126,7 @@ public class SlidingDecisionController {
      * @param slidingDecision Evaluated sliding decision after applying the decision rules
      * @return response containing the id, decision results and explanation
      */
-    private SlidingDecisionEachMultiResponse createEachMultiResponse(String id, SlidingDecision slidingDecision) {
+    private SlidingDecisionEachMultiResponse createEachMultiResponse(String id, SlidingDecision slidingDecision, boolean includeDecisionExplanationsInResponse) {
         if (includeDecisionExplanationsInResponse) {
             return SlidingDecisionEachMultiResponse.builder()
                     .id(id)
@@ -157,7 +155,7 @@ public class SlidingDecisionController {
                 throw new InvalidInputParameterException("The request ID must not be empty.");
             }
             if (Collections.frequency(ids, id)>1) {
-                throw new InvalidInputParameterException("The request IDs must be unique for each response.");
+                throw new InvalidInputParameterException("The request IDs must be unique for each request.");
             }
         }
     }
