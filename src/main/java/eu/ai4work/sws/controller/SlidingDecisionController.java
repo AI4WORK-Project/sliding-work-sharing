@@ -29,10 +29,11 @@ public class SlidingDecisionController {
     @PostMapping("/sliding-decision")
     public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) {
         assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
+        boolean includeDecisionExplanationsInResponse = request.isIncludeDecisionExplanationsInResponse();
 
         SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
 
-        return createResponse(slidingDecision);
+        return createResponse(slidingDecision, includeDecisionExplanationsInResponse);
     }
 
     /**
@@ -45,11 +46,12 @@ public class SlidingDecisionController {
     @PostMapping("/sliding-decision-multi-request")
     public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest multiRequest) {
         assureIdsAreValid(multiRequest);
+        boolean includeDecisionExplanationsInResponse = multiRequest.isIncludeDecisionExplanationsInResponse();
 
         // make a list all decisions
         List<SlidingDecisionEachMultiResponse> decisions = multiRequest.getRequests()
                 .stream()
-                .map(this::processEachMultiRequest)
+                .map(req -> processEachMultiRequest(req, includeDecisionExplanationsInResponse))
                 .toList();
 
         // wrap all decisions into one multi response
@@ -59,7 +61,7 @@ public class SlidingDecisionController {
                 .build();
     }
 
-    private SlidingDecisionEachMultiResponse processEachMultiRequest(SlidingDecisionEachMultiRequest request) {
+    private SlidingDecisionEachMultiResponse processEachMultiRequest(SlidingDecisionEachMultiRequest request, boolean includeDecisionExplanationInResponse) {
         String id = request.getId();
 
         try {
@@ -70,7 +72,7 @@ public class SlidingDecisionController {
 
         try {
             SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
-            return createEachMultiResponse(id, slidingDecision);
+            return createEachMultiResponse(id, slidingDecision, includeDecisionExplanationInResponse);
         } catch (InvalidInputParameterException exception) {
             throw new InvalidInputParameterException("Error in request with ID '" + id + "': " + exception.getMessage());
         }
@@ -102,13 +104,19 @@ public class SlidingDecisionController {
      * @param slidingDecision Evaluated sliding decision after applying the decision rules
      * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
-    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
-
-        return SlidingDecisionResponse.builder()
-                .decisionStatus(SlidingDecisionStatus.RESPONSE)
-                .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
-                .decisionExplanation(slidingDecision.getDecisionExplanation())
-                .build();
+    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision, boolean includeDecisionExplanationsInResponse) {
+        if(includeDecisionExplanationsInResponse) {
+            return SlidingDecisionResponse.builder()
+                    .decisionStatus(SlidingDecisionStatus.RESPONSE)
+                    .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
+                    .decisionExplanation(slidingDecision.getDecisionExplanation())
+                    .build();
+        } else {
+            return SlidingDecisionResponse.builder()
+                    .decisionStatus(SlidingDecisionStatus.RESPONSE)
+                    .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
+                    .build();
+        }
     }
 
     /**
@@ -118,13 +126,19 @@ public class SlidingDecisionController {
      * @param slidingDecision Evaluated sliding decision after applying the decision rules
      * @return response containing the id, decision results and explanation
      */
-    private SlidingDecisionEachMultiResponse createEachMultiResponse(String id, SlidingDecision slidingDecision) {
-
-        return SlidingDecisionEachMultiResponse.builder()
-                .id(id)
-                .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
-                .decisionExplanation(slidingDecision.getDecisionExplanation())
-                .build();
+    private SlidingDecisionEachMultiResponse createEachMultiResponse(String id, SlidingDecision slidingDecision, boolean includeDecisionExplanationsInResponse) {
+        if (includeDecisionExplanationsInResponse) {
+            return SlidingDecisionEachMultiResponse.builder()
+                    .id(id)
+                    .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
+                    .decisionExplanation(slidingDecision.getDecisionExplanation())
+                    .build();
+        } else {
+            return SlidingDecisionEachMultiResponse.builder()
+                    .id(id)
+                    .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
+                    .build();
+        }
     }
 
     private void assureInputParametersAreNotEmpty(Map<String, Object> slidingDecisionInputParameters) {

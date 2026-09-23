@@ -21,7 +21,7 @@ class SlidingDecisionControllerTests {
     private TestRestTemplate testSlidingDecisionRestTemplate;
 
     @Test
-    void testHappyFlowOfSlidingDecisionRequest() {
+    void testSuccessfulSlidingDecisionRequest() {
         String slidingDecisionRequestJsonBody = """
                 {
                   "decisionStatus": "Sliding Decision Request",
@@ -37,7 +37,32 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionRequestWithBody(slidingDecisionRequestJsonBody),
                 HttpStatus.OK,
                 "\"decisionStatus\":\"Sliding Decision Response\"",
-                "informHuman");
+                "requireHumanApproval",
+                "\"decisionExplanation\":null"
+        );
+    }
+
+    @Test
+    void testIncludeExplanationSlidingDecisionRequest() {
+        String slidingDecisionRequestJsonBody = """
+                {
+                  "decisionStatus": "Sliding Decision Request",
+                  "slidingDecisionInputParameters": {
+                    "numberOfTrucksInQueue": 7,
+                    "positionOfTruckToBePrioritized": 5,
+                    "materialUrgency": 30,
+                    "operationalWorkload": 80
+                  },
+                  "includeDecisionExplanationsInResponse": true
+                }
+                """;
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionRequestWithBody(slidingDecisionRequestJsonBody),
+                HttpStatus.OK,
+                "\"decisionStatus\":\"Sliding Decision Response\"",
+                "requireHumanApproval",
+                "appliedRules"
+        );
     }
 
     @Test
@@ -177,11 +202,50 @@ class SlidingDecisionControllerTests {
         slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-            postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+            postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
             HttpStatus.OK,
             "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
-            "informHuman",
-            "autonomousReprioritization"
+            "requireHumanApproval",
+            "autonomousReprioritization",
+            "\"decisionExplanation\":null"
+        );
+    }
+
+    @Test
+    void testIncludeExplanationSlidingDecisionMultiRequest() {
+        List<String> slidingDecisionMultiRequests = new ArrayList<>();
+        String slidingDecisionAtomicRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+        String slidingDecisionAtomicRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 3,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20
+                    }
+                }
+                """;
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
+        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, true),
+                HttpStatus.OK,
+                "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
+                "requireHumanApproval",
+                "autonomousReprioritization",
+                "appliedRules"
         );
     }
 
@@ -213,7 +277,7 @@ class SlidingDecisionControllerTests {
         slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 DECISION_STATUS_ERROR_STRING,
                 "JSON parse error",
@@ -249,7 +313,7 @@ class SlidingDecisionControllerTests {
         slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "positionOfTruckToBePrioritized",
@@ -288,7 +352,7 @@ class SlidingDecisionControllerTests {
 
         // typo in "positionOfTruckToBePrioriticed" is not recognized because evaluation stops after the first typo
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "materialUrgenzy",
@@ -326,7 +390,7 @@ class SlidingDecisionControllerTests {
         slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "additionalUnknownParameter",
@@ -363,7 +427,7 @@ class SlidingDecisionControllerTests {
         slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "operationalWorkload",
@@ -400,7 +464,7 @@ class SlidingDecisionControllerTests {
         slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "numberOfTrucksInQueue",
@@ -437,7 +501,7 @@ class SlidingDecisionControllerTests {
         slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "The ID in sliding decision request must not be empty"
@@ -473,21 +537,22 @@ class SlidingDecisionControllerTests {
         slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests),
+                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "The IDs in sliding decision request must be unique"
         );
     }
 
-    private ResponseEntity<String> postSlidingDecisionMultiRequestWithParameters(List<String> slidingDecisionRequests) {
+    private ResponseEntity<String> postSlidingDecisionMultiRequestWithParameters(List<String> slidingDecisionRequests, boolean includeDecisionExplanationsInResponse) {
         return  postSlidingDecisionMultiRequestWithBody(
                 String.format("""
                 {
                   "decisionStatus": "Sliding Decision Multi-Request",
-                  "requests": %s
+                  "requests": %s,
+                  "includeDecisionExplanationsInResponse": %b
                 }
-                """, slidingDecisionRequests)
+                """, slidingDecisionRequests, includeDecisionExplanationsInResponse)
         );
     }
 
