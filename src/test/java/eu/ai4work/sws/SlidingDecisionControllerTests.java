@@ -540,7 +540,7 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "IDs must be unique for each response"
+                "IDs must be unique for each request"
         );
     }
 
