@@ -51,7 +51,7 @@ public class SlidingDecisionController {
         // make a list all decisions
         List<SlidingDecisionEachMultiResponse> decisions = multiRequest.getRequests()
                 .stream()
-                .map(this::processEachMultiRequest)
+                .map(req -> processEachMultiRequest(req, includeDecisionExplanationsInResponse))
                 .toList();
 
         // wrap all decisions into one multi response
@@ -61,7 +61,7 @@ public class SlidingDecisionController {
                 .build();
     }
 
-    private SlidingDecisionEachMultiResponse processEachMultiRequest(SlidingDecisionEachMultiRequest request) {
+    private SlidingDecisionEachMultiResponse processEachMultiRequest(SlidingDecisionEachMultiRequest request, boolean includeDecisionExplanationInResponse) {
         String id = request.getId();
 
         try {
@@ -72,7 +72,7 @@ public class SlidingDecisionController {
 
         try {
             SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
-            return createEachMultiResponse(id, slidingDecision, includeDecisionExplanationInRepsonse);
+            return createEachMultiResponse(id, slidingDecision, includeDecisionExplanationInResponse);
         } catch (InvalidInputParameterException exception) {
             throw new InvalidInputParameterException("Error in request with ID '" + id + "': " + exception.getMessage());
         }
