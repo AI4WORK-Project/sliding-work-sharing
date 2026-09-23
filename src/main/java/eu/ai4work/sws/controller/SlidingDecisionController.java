@@ -9,11 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,30 +48,34 @@ public class SlidingDecisionController {
         assureIdsAreValid(multiRequest);
         boolean includeDecisionExplanationsInResponse = multiRequest.isIncludeDecisionExplanationsInResponse();
 
-        // process every sliding-decision request
-        List<SlidingDecisionEachMultiResponse> decisions = new ArrayList<>();
-        for (SlidingDecisionEachMultiRequest request : multiRequest.getRequests()) {
-            String id =  request.getId();
-            SlidingDecision slidingDecision;
+        // make a list all decisions
+        List<SlidingDecisionEachMultiResponse> decisions = multiRequest.getRequests()
+                .stream()
+                .map(this::processEachMultiRequest)
+                .toList();
 
-            try {
-                assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
-            } catch (IllegalArgumentException exception) {
-                throw new IllegalArgumentException("Error in request with following ID '"+id+"': "+exception.getMessage());
-            }
-            try {
-                slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
-            } catch (InvalidInputParameterException exception) {
-                throw new InvalidInputParameterException("Error in request with following ID '"+id+"': "+exception.getMessage());
-            }
-            decisions.add(createEachMultiResponse(request.getId(), slidingDecision, includeDecisionExplanationsInResponse));
-        }
-
-        // wrap all individual decisions into one multi response
+        // wrap all decisions into one multi response
         return SlidingDecisionMultiResponse.builder()
                 .decisionStatus(SlidingDecisionStatus.MULTI_RESPONSE)
                 .decisions(decisions)
                 .build();
+    }
+
+    private SlidingDecisionEachMultiResponse processEachMultiRequest(SlidingDecisionEachMultiRequest request) {
+        String id = request.getId();
+
+        try {
+            assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("Error in request with ID '" + id + "': " + exception.getMessage());
+        }
+
+        try {
+            SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
+            return createEachMultiResponse(id, slidingDecision, includeDecisionExplanationInRepsonse);
+        } catch (InvalidInputParameterException exception) {
+            throw new InvalidInputParameterException("Error in request with ID '" + id + "': " + exception.getMessage());
+        }
     }
 
     /**
@@ -148,14 +148,17 @@ public class SlidingDecisionController {
     }
 
     private void assureIdsAreValid(SlidingDecisionMultiRequest multiRequest) {
-        List<String> ids = multiRequest.getRequests()
-                .stream().map(SlidingDecisionEachMultiRequest::getId).toList();
-        for (String id : ids) {
+        Set<String> setOfIds = new HashSet<>();
+
+        for (SlidingDecisionEachMultiRequest request : multiRequest.getRequests()) {
+            String id = request.getId();
+
             if (id == null || id.isBlank()) {
-                throw new InvalidInputParameterException("The request ID must not be empty.");
+                throw new InvalidInputParameterException("The ID in sliding decision request must not be empty.");
             }
-            if (Collections.frequency(ids, id)>1) {
-                throw new InvalidInputParameterException("The request IDs must be unique for each request.");
+            // it returns false, if ID is already present
+            if (!setOfIds.add(id)) {
+                throw new InvalidInputParameterException("The IDs in sliding decision request must be unique. Duplicate ID: '" + id + "'");
             }
         }
     }

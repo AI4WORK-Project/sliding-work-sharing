@@ -504,7 +504,7 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "ID must not be empty"
+                "The ID in sliding decision request must not be empty"
         );
     }
 
@@ -540,7 +540,7 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "IDs must be unique for each request"
+                "The IDs in sliding decision request must be unique"
         );
     }
 
