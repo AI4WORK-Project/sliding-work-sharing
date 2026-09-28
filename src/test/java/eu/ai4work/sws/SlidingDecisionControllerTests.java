@@ -36,9 +36,8 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithBody(slidingDecisionRequestJsonBody),
                 HttpStatus.OK,
-                "\"decisionStatus\":\"Sliding Decision Response\"",
-                "requireHumanApproval",
-                "\"decisionExplanation\":null"
+                List.of("\"decisionStatus\":\"Sliding Decision Response\"", "requireHumanApproval"),
+                List.of("\"decisionExplanation\"")
         );
     }
 
@@ -59,9 +58,9 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithBody(slidingDecisionRequestJsonBody),
                 HttpStatus.OK,
-                "\"decisionStatus\":\"Sliding Decision Response\"",
-                "requireHumanApproval",
-                "appliedRules"
+                List.of("\"decisionStatus\":\"Sliding Decision Response\"",
+                        "requireHumanApproval",
+                        "appliedRules")
         );
     }
 
@@ -81,8 +80,8 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithBody(slidingDecisionRequestInvalidJsonBody),
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                DECISION_STATUS_ERROR_STRING,
-                "JSON parse error");
+                List.of(DECISION_STATUS_ERROR_STRING, "JSON parse error")
+        );
     }
 
     @Test
@@ -95,8 +94,8 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "numberOfTrucksInQueue");
+                List.of(DECISION_STATUS_ERROR_STRING, "numberOfTrucksInQueue")
+        );
     }
 
     @Test
@@ -110,8 +109,8 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "numberOfTrucksInQueue");
+                List.of(DECISION_STATUS_ERROR_STRING, "numberOfTrucksInQueue")
+        );
     }
 
     @Test
@@ -126,8 +125,8 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "additionalParameter");
+                List.of(DECISION_STATUS_ERROR_STRING, "additionalParameter")
+        );
     }
 
 
@@ -142,8 +141,8 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionRequestWithParameters(slidingDecisionInputParametersJson),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "numberOfTrucksInQueue");
+                List.of(DECISION_STATUS_ERROR_STRING, "numberOfTrucksInQueue")
+        );
     }
 
     private ResponseEntity<String> postSlidingDecisionRequestWithParameters(String slidingDecisionInputParametersJson) {
@@ -166,11 +165,18 @@ class SlidingDecisionControllerTests {
         return testSlidingDecisionRestTemplate.postForEntity("/sliding-decision", slidingDecisionRequestHttpEntity, String.class);
     }
 
-    private void assertSlidingDecisionResponseStatusAndContents(ResponseEntity<String> slidingDecisionResponse, HttpStatus expectedResponseStatus, String... expectedResponseContains) {
+    private void assertSlidingDecisionResponseStatusAndContents(ResponseEntity<String> slidingDecisionResponse, HttpStatus expectedResponseStatus, List<String> expectedResponseContains, List<String> unexpectedResponseContains) {
         assertThat(slidingDecisionResponse.getStatusCode()).isEqualTo(expectedResponseStatus);
         for (String expectedResponse : expectedResponseContains) {
             assertThat(slidingDecisionResponse.getBody()).contains(expectedResponse);
         }
+        for (String unexpectedResponse : unexpectedResponseContains) {
+            assertThat(slidingDecisionResponse.getBody()).doesNotContain(unexpectedResponse);
+        }
+    }
+
+    private void assertSlidingDecisionResponseStatusAndContents(ResponseEntity<String> slidingDecisionResponse, HttpStatus expectedResponseStatus, List<String> expectedResponseContains) {
+        assertSlidingDecisionResponseStatusAndContents(slidingDecisionResponse, expectedResponseStatus, expectedResponseContains, List.of());
     }
 
     @Test
@@ -204,10 +210,10 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
             postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
             HttpStatus.OK,
-            "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
-            "requireHumanApproval",
-            "autonomousReprioritization",
-            "\"decisionExplanation\":null"
+            List.of("\"decisionStatus\":\"Sliding Decision Multi-Response\"",
+                    "requireHumanApproval",
+                    "autonomousReprioritization"),
+            List.of("\"decisionExplanation\"")
         );
     }
 
@@ -242,10 +248,10 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, true),
                 HttpStatus.OK,
-                "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
-                "requireHumanApproval",
-                "autonomousReprioritization",
-                "appliedRules"
+                List.of("\"decisionStatus\":\"Sliding Decision Multi-Response\"",
+                        "requireHumanApproval",
+                        "autonomousReprioritization",
+                        "\"decisionExplanation\"")
         );
     }
 
@@ -279,9 +285,9 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                DECISION_STATUS_ERROR_STRING,
-                "JSON parse error",
-                "Unexpected character"
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "JSON parse error",
+                        "Unexpected character")
         );
     }
 
@@ -315,9 +321,9 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "positionOfTruckToBePrioritized",
-                "abc-123"
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "positionOfTruckToBePrioritized",
+                        "abc-123")
         );
     }
 
@@ -354,9 +360,9 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "materialUrgenzy",
-                "abc-123"
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "materialUrgenzy",
+                        "abc-123")
         );
     }
 
@@ -392,9 +398,9 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "additionalUnknownParameter",
-                "abc-456"
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "additionalUnknownParameter",
+                        "abc-456")
         );
     }
 
@@ -429,9 +435,9 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "operationalWorkload",
-                "abc-456"
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "operationalWorkload",
+                        "abc-456")
         );
     }
 
@@ -466,9 +472,9 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "numberOfTrucksInQueue",
-                "abc-456"
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "numberOfTrucksInQueue",
+                        "abc-456")
         );
     }
 
@@ -503,8 +509,7 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "The ID in sliding decision request must not be empty"
+                List.of(DECISION_STATUS_ERROR_STRING, "The ID in sliding decision request must not be empty")
         );
     }
 
@@ -539,8 +544,7 @@ class SlidingDecisionControllerTests {
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
                 HttpStatus.BAD_REQUEST,
-                DECISION_STATUS_ERROR_STRING,
-                "The IDs in sliding decision request must be unique"
+                List.of(DECISION_STATUS_ERROR_STRING, "The IDs in sliding decision request must be unique")
         );
     }
 
