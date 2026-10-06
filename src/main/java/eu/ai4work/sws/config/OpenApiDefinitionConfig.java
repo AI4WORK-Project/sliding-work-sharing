@@ -1,12 +1,15 @@
 package eu.ai4work.sws.config;
 
 import eu.ai4work.sws.model.SlidingDecisionStatus;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +20,8 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 public class OpenApiDefinitionConfig {
+
+    private final static Logger logger = LogManager.getLogger(OpenApiDefinitionConfig.class);
 
     private final FIS fuzzyInferenceSystem;
 
@@ -60,12 +65,17 @@ public class OpenApiDefinitionConfig {
 
                 Map<String, Schema> outputParams = new LinkedHashMap<>();
 
+                ComposedSchema outputParamComposition = new ComposedSchema();
+                outputParamComposition.addProperty("slidingDecision", new StringSchema());
+                outputParamComposition.addProperty("description", new StringSchema());
+
                 outputParamSchema.additionalProperties(Boolean.FALSE);
                 fuzzyInferenceSystem.getFunctionBlock(null).getVariables().values().stream().filter(Variable::isOutput).forEach(
-                        fuzzyVariable -> outputParams.put(fuzzyVariable.getName(), new NumberSchema())
+                        fuzzyVariable -> outputParams.put(fuzzyVariable.getName(), outputParamComposition)
                 );
                 outputParamSchema.setProperties(outputParams);
             }
+
         };
     }
 }
