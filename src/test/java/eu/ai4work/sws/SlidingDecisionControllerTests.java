@@ -422,6 +422,31 @@ class SlidingDecisionControllerTests {
         );
     }
 
+    @Test
+    void testOmittedIdSlidingDecisionMultiRequest() {
+        List<String> multiRequestSubRequests = new ArrayList<>();
+        String slidingDecisionSubRequest1 = """
+                {
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+
+        multiRequestSubRequests.add(slidingDecisionSubRequest1);
+        multiRequestSubRequests.add(validSlidingDecisionSubRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                HttpStatus.BAD_REQUEST,
+                DECISION_STATUS_ERROR_STRING,
+                "The ID in sliding decision request must not be empty"
+        );
+    }
+
     private ResponseEntity<String> postSlidingDecisionMultiRequestWithParameters(List<String> slidingDecisionRequests) {
         return  postSlidingDecisionMultiRequestWithBody(
                 String.format("""
