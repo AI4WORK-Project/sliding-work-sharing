@@ -46,7 +46,7 @@ public class SlidingDecisionController {
      */
     @PostMapping("/sliding-decision-multi-request")
     public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest multiRequest) {
-        assureIdsAreValid(multiRequest);
+        assureSubRequestIdsAreValid(multiRequest);
 
         // make a list all decisions
         List<SlidingDecisionEachMultiResponse> decisions = multiRequest.getRequests()
@@ -131,7 +131,7 @@ public class SlidingDecisionController {
         }
     }
 
-    private void assureIdsAreValid(SlidingDecisionMultiRequest multiRequest) {
+    private void assureSubRequestIdsAreValid(SlidingDecisionMultiRequest multiRequest) {
         Set<String> setOfIds = new HashSet<>();
 
         for (SlidingDecisionEachMultiRequest request : multiRequest.getRequests()) {
