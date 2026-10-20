@@ -28,11 +28,13 @@ public class SlidingDecisionController {
      */
     @PostMapping("/sliding-decision")
     public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) {
-        assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
-
-        SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
-
+        SlidingDecision slidingDecision = getSingleSlidingDecision(request.getSlidingDecisionInputParameters());
         return createResponse(slidingDecision);
+    }
+
+    private SlidingDecision getSingleSlidingDecision(Map<String, Object> slidingDecisionInputParameters) {
+        assureInputParametersAreNotEmpty(slidingDecisionInputParameters);
+        return slidingDecisionService.getSlidingDecision(slidingDecisionInputParameters);
     }
 
     /**
@@ -63,14 +65,10 @@ public class SlidingDecisionController {
         String id = request.getId();
 
         try {
-            assureInputParametersAreNotEmpty(request.getSlidingDecisionInputParameters());
+            SlidingDecision slidingDecision = getSingleSlidingDecision(request.getSlidingDecisionInputParameters());
+            return createEachMultiResponse(id, slidingDecision);
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Error in request with ID '" + id + "': " + exception.getMessage());
-        }
-
-        try {
-            SlidingDecision slidingDecision = slidingDecisionService.getSlidingDecision(request.getSlidingDecisionInputParameters());
-            return createEachMultiResponse(id, slidingDecision);
         } catch (InvalidInputParameterException exception) {
             throw new InvalidInputParameterException("Error in request with ID '" + id + "': " + exception.getMessage());
         }
