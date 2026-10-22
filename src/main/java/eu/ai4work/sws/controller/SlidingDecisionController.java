@@ -32,11 +32,6 @@ public class SlidingDecisionController {
         return createResponse(slidingDecision);
     }
 
-    private SlidingDecision getSingleSlidingDecision(Map<String, Object> slidingDecisionInputParameters) {
-        assureInputParametersAreNotEmpty(slidingDecisionInputParameters);
-        return slidingDecisionService.getSlidingDecision(slidingDecisionInputParameters);
-    }
-
     /**
      * Processes multiple sliding decision requests by validating the input parameters from each sliding decision request,
      * calling for each request the decision logic and returns the decisions in one response.
@@ -72,6 +67,14 @@ public class SlidingDecisionController {
         } catch (InvalidInputParameterException exception) {
             throw new InvalidInputParameterException("Error in request with ID '" + id + "': " + exception.getMessage());
         }
+    }
+
+    /**
+     * Gets a single sliding decision, provided that the given sliding decision input parameters are valid.
+     */
+    private SlidingDecision getSingleSlidingDecision(Map<String, Object> slidingDecisionInputParameters) {
+        assureInputParametersAreNotEmpty(slidingDecisionInputParameters);
+        return slidingDecisionService.getSlidingDecision(slidingDecisionInputParameters);
     }
 
     /**
