@@ -196,7 +196,7 @@ class SlidingDecisionControllerTests {
     void testInvalidJsonSlidingDecisionMultiRequest() {
         List<String> multiRequestsSubRequests = new ArrayList<>();
 
-        String slidingDecisionSubRequest2 = """
+        String slidingDecisionSubRequestWithInvalidJson = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -208,7 +208,7 @@ class SlidingDecisionControllerTests {
                 """;
 
         multiRequestsSubRequests.add(validSlidingDecisionSubRequest1);
-        multiRequestsSubRequests.add(slidingDecisionSubRequest2);
+        multiRequestsSubRequests.add(slidingDecisionSubRequestWithInvalidJson);
 
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(multiRequestsSubRequests),
@@ -223,7 +223,7 @@ class SlidingDecisionControllerTests {
     void testMissingParameterSlidingDecisionMultiRequest() {
         List<String> multiRequestElements = new ArrayList<>();
 
-        String slidingDecisionSubRequest1 = """
+        String slidingDecisionSubRequestWithMissingParameter = """
                 {
                     "id": "abc-123",
                     "slidingDecisionInputParameters": {
@@ -234,7 +234,7 @@ class SlidingDecisionControllerTests {
                 }
                 """;
 
-        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequestWithMissingParameter);
         multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
@@ -251,7 +251,7 @@ class SlidingDecisionControllerTests {
     void testParameterTypoSlidingDecisionMultiRequest() {
         List<String> multiRequestElements = new ArrayList<>();
 
-        String slidingDecisionSubRequest1 = """
+        String slidingDecisionSubRequest1WithTypo = """
                 {
                     "id": "abc-123",
                     "slidingDecisionInputParameters": {
@@ -263,7 +263,7 @@ class SlidingDecisionControllerTests {
                 }
                 """;
 
-        String slidingDecisionSubRequest2 = """
+        String slidingDecisionSubRequest2WithTypo = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -275,8 +275,8 @@ class SlidingDecisionControllerTests {
                 }
                 """;
 
-        multiRequestElements.add(slidingDecisionSubRequest1);
-        multiRequestElements.add(slidingDecisionSubRequest2);
+        multiRequestElements.add(slidingDecisionSubRequest1WithTypo);
+        multiRequestElements.add(slidingDecisionSubRequest2WithTypo);
 
         // typo in "positionOfTruckToBePrioriticed" is not recognized because evaluation stops after the first typo
         assertSlidingDecisionResponseStatusAndContents(
@@ -284,6 +284,7 @@ class SlidingDecisionControllerTests {
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "materialUrgenzy",
+                "materialUrgency",
                 "abc-123"
         );
     }
@@ -292,7 +293,7 @@ class SlidingDecisionControllerTests {
     void testAdditionalUnknownParameterSlidingDecisionMultiRequest() {
         List<String> multiRequestElements = new ArrayList<>();
 
-        String slidingDecisionSubRequest2 = """
+        String slidingDecisionSubRequestWithUnknownParameter = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -306,7 +307,7 @@ class SlidingDecisionControllerTests {
                 """;
 
         multiRequestElements.add(validSlidingDecisionSubRequest1);
-        multiRequestElements.add(slidingDecisionSubRequest2);
+        multiRequestElements.add(slidingDecisionSubRequestWithUnknownParameter);
 
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
@@ -321,7 +322,7 @@ class SlidingDecisionControllerTests {
     void testInvalidInputParameterValueSlidingDecisionMultiRequest() {
         List<String> multiRequestElements = new ArrayList<>();
 
-        String slidingDecisionSubRequest2 = """
+        String slidingDecisionSubRequestWithInvalidParameterValue = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -334,7 +335,7 @@ class SlidingDecisionControllerTests {
                 """;
 
         multiRequestElements.add(validSlidingDecisionSubRequest1);
-        multiRequestElements.add(slidingDecisionSubRequest2);
+        multiRequestElements.add(slidingDecisionSubRequestWithInvalidParameterValue);
 
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
@@ -349,7 +350,7 @@ class SlidingDecisionControllerTests {
     void testEmptyInputParameterValueSlidingDecisionMultiRequest() {
         List<String> multiRequestElements = new ArrayList<>();
 
-        String slidingDecisionSubRequest2 = """
+        String slidingDecisionSubRequestWithParameterValueNull = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -362,7 +363,7 @@ class SlidingDecisionControllerTests {
                 """;
 
         multiRequestElements.add(validSlidingDecisionSubRequest1);
-        multiRequestElements.add(slidingDecisionSubRequest2);
+        multiRequestElements.add(slidingDecisionSubRequestWithParameterValueNull);
 
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
@@ -377,7 +378,7 @@ class SlidingDecisionControllerTests {
     void testEmptyIdSlidingDecisionMultiRequest() {
         List<String> multiRequestElements = new ArrayList<>();
 
-        String slidingDecisionSubRequest1 = """
+        String slidingDecisionSubRequestWithEmptyId = """
                 {
                     "id": "",
                     "slidingDecisionInputParameters": {
@@ -389,7 +390,7 @@ class SlidingDecisionControllerTests {
                 }
                 """;
 
-        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequestWithEmptyId);
         multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
@@ -420,7 +421,7 @@ class SlidingDecisionControllerTests {
                 {
                     "id": "abc-123",
                     "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": null,
+                        "numberOfTrucksInQueue": 7,
                         "positionOfTruckToBePrioritized": 5,
                         "materialUrgency":50,
                         "operationalWorkload":20
@@ -442,8 +443,8 @@ class SlidingDecisionControllerTests {
     @Test
     void testOmittedIdSlidingDecisionMultiRequest() {
         List<String> multiRequestElements = new ArrayList<>();
-        
-        String slidingDecisionSubRequest1 = """
+
+        String slidingDecisionSubRequestWithoutID = """
                 {
                     "slidingDecisionInputParameters": {
                         "numberOfTrucksInQueue": 7,
@@ -454,7 +455,7 @@ class SlidingDecisionControllerTests {
                 }
                 """;
 
-        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequestWithoutID);
         multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
