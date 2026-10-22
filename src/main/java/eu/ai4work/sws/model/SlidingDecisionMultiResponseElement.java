@@ -6,7 +6,7 @@ import java.util.Map;
 
 @Builder
 @Data
-public class SlidingDecisionEachMultiResponse {
+public class SlidingDecisionMultiResponseElement {
     private String id;
     private Map<String, ResultForOutputVariable> slidingDecisionOutputParameters;
     private SlidingDecisionExplanation decisionExplanation;

@@ -174,13 +174,13 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testSuccessfulSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
 
-        multiRequestSubRequests.add(validSlidingDecisionSubRequest1);
-        multiRequestSubRequests.add(validSlidingDecisionSubRequest2);
+        multiRequestElements.add(validSlidingDecisionSubRequest1);
+        multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-            postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+            postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
             HttpStatus.OK,
             "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
             "informHuman",
@@ -202,6 +202,7 @@ class SlidingDecisionControllerTests {
                         "operationalWorkload":20
                 }
                 """;
+
         multiRequestsSubRequests.add(validSlidingDecisionSubRequest1);
         multiRequestsSubRequests.add(slidingDecisionSubRequest2);
 
@@ -216,7 +217,8 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testMissingParameterSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
+
         String slidingDecisionSubRequest1 = """
                 {
                     "id": "abc-123",
@@ -227,11 +229,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        multiRequestSubRequests.add(slidingDecisionSubRequest1);
-        multiRequestSubRequests.add(validSlidingDecisionSubRequest2);
+
+        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "positionOfTruckToBePrioritized",
@@ -242,7 +245,8 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testParameterTypoSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
+
         String slidingDecisionSubRequest1 = """
                 {
                     "id": "abc-123",
@@ -254,6 +258,7 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
+
         String slidingDecisionSubRequest2 = """
                 {
                     "id": "abc-456",
@@ -265,12 +270,13 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        multiRequestSubRequests.add(slidingDecisionSubRequest1);
-        multiRequestSubRequests.add(slidingDecisionSubRequest2);
+
+        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequest2);
 
         // typo in "positionOfTruckToBePrioriticed" is not recognized because evaluation stops after the first typo
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "materialUrgenzy",
@@ -280,7 +286,7 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testAdditionalUnknownParameterSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
 
         String slidingDecisionSubRequest2 = """
                 {
@@ -294,11 +300,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        multiRequestSubRequests.add(validSlidingDecisionSubRequest1);
-        multiRequestSubRequests.add(slidingDecisionSubRequest2);
+
+        multiRequestElements.add(validSlidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "additionalUnknownParameter",
@@ -308,7 +315,7 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testInvalidInputParameterValueSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
 
         String slidingDecisionSubRequest2 = """
                 {
@@ -321,11 +328,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        multiRequestSubRequests.add(validSlidingDecisionSubRequest1);
-        multiRequestSubRequests.add(slidingDecisionSubRequest2);
+
+        multiRequestElements.add(validSlidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "operationalWorkload",
@@ -335,7 +343,7 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testEmptyInputParameterValueSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
 
         String slidingDecisionSubRequest2 = """
                 {
@@ -348,11 +356,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        multiRequestSubRequests.add(validSlidingDecisionSubRequest1);
-        multiRequestSubRequests.add(slidingDecisionSubRequest2);
+
+        multiRequestElements.add(validSlidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "numberOfTrucksInQueue",
@@ -362,7 +371,8 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testEmptyIdSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
+
         String slidingDecisionSubRequest1 = """
                 {
                     "id": "",
@@ -375,11 +385,11 @@ class SlidingDecisionControllerTests {
                 }
                 """;
 
-        multiRequestSubRequests.add(slidingDecisionSubRequest1);
-        multiRequestSubRequests.add(validSlidingDecisionSubRequest2);
+        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "The ID in sliding decision request must not be empty"
@@ -388,7 +398,8 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testDuplicatedIdsSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
+
         String slidingDecisionSubRequest1 = """
                 {
                     "id": "abc-123",
@@ -400,6 +411,7 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
+
         String slidingDecisionSubRequest2 = """
                 {
                     "id": "abc-123",
@@ -411,11 +423,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        multiRequestSubRequests.add(slidingDecisionSubRequest1);
-        multiRequestSubRequests.add(slidingDecisionSubRequest2);
+
+        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "The IDs in sliding decision request must be unique"
@@ -424,7 +437,8 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testOmittedIdSlidingDecisionMultiRequest() {
-        List<String> multiRequestSubRequests = new ArrayList<>();
+        List<String> multiRequestElements = new ArrayList<>();
+        
         String slidingDecisionSubRequest1 = """
                 {
                     "slidingDecisionInputParameters": {
@@ -436,11 +450,11 @@ class SlidingDecisionControllerTests {
                 }
                 """;
 
-        multiRequestSubRequests.add(slidingDecisionSubRequest1);
-        multiRequestSubRequests.add(validSlidingDecisionSubRequest2);
+        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestSubRequests),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
                 "The ID in sliding decision request must not be empty"

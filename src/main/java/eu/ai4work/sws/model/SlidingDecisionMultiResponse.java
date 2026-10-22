@@ -9,5 +9,5 @@ import java.util.List;
 @Data
 public class SlidingDecisionMultiResponse {
     private SlidingDecisionStatus decisionStatus;
-    private List<SlidingDecisionEachMultiResponse> decisions;
+    private List<SlidingDecisionMultiResponseElement> decisions;
 }

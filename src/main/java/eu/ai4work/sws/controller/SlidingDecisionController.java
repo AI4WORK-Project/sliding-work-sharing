@@ -49,7 +49,7 @@ public class SlidingDecisionController {
         assureSubRequestIdsAreValid(multiRequest);
 
         // make a list all decisions
-        List<SlidingDecisionEachMultiResponse> decisions = multiRequest.getRequests()
+        List<SlidingDecisionMultiResponseElement> decisions = multiRequest.getRequests()
                 .stream()
                 .map(this::processEachMultiRequest)
                 .toList();
@@ -61,7 +61,7 @@ public class SlidingDecisionController {
                 .build();
     }
 
-    private SlidingDecisionEachMultiResponse processEachMultiRequest(SlidingDecisionEachMultiRequest request) {
+    private SlidingDecisionMultiResponseElement processEachMultiRequest(SlidingDecisionMultiRequestElement request) {
         String id = request.getId();
 
         try {
@@ -116,9 +116,9 @@ public class SlidingDecisionController {
      * @param slidingDecision Evaluated sliding decision after applying the decision rules
      * @return response containing the id, decision results and explanation
      */
-    private SlidingDecisionEachMultiResponse createEachMultiResponse(String id, SlidingDecision slidingDecision) {
+    private SlidingDecisionMultiResponseElement createEachMultiResponse(String id, SlidingDecision slidingDecision) {
 
-        return SlidingDecisionEachMultiResponse.builder()
+        return SlidingDecisionMultiResponseElement.builder()
                 .id(id)
                 .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
                 .decisionExplanation(slidingDecision.getDecisionExplanation())
@@ -134,7 +134,7 @@ public class SlidingDecisionController {
     private void assureSubRequestIdsAreValid(SlidingDecisionMultiRequest multiRequest) {
         Set<String> setOfIds = new HashSet<>();
 
-        for (SlidingDecisionEachMultiRequest request : multiRequest.getRequests()) {
+        for (SlidingDecisionMultiRequestElement request : multiRequest.getRequests()) {
             String id = request.getId();
 
             if (id == null || id.isBlank()) {
