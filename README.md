@@ -36,7 +36,6 @@ The application will start and listen on port `8080` by default.
 
 ### 4. How to Test the Application
 
-The SWS application supports the single sliding decision request and list of sliding decision requests on the same call. 
 You can test the application using the `curl` command (or using any other HTTP/REST client of your choice):
 
 #### Example Request 
@@ -490,10 +489,10 @@ Depending on the input, the SWS may decide one of the following:
 
 ## Sliding Decision Multi-Request
 
-The SWS application also supports to make several Sliding Decision Requests in one HTTP call via the ``abc`` endpoint.
+The SWS application also supports sending several Sliding Decision Requests in one HTTP call. This requires each sub-request to have a unique `id` to avoid ambiguity when mapping sub-requests to sub-responses.
 
 ### Example of a Sliding Decision Multi-Request
-Execute the following `curl` command in your terminal to make multiple "sliding decision" requests at once via a POST request to the `/sliding-decision-multi-request` endpoint:
+Execute the following `curl` command in your terminal to send multiple requests at once via a POST request to the `/sliding-decision-multi-request` endpoint:
 ```bash
 curl --request POST \
   --url http://localhost:8080/sliding-decision-multi-request \
@@ -520,7 +519,7 @@ curl --request POST \
         }
       }
     ]
-  }' | jq
+  }' 
 ```
 
 ### Example of a Sliding Decision Multi-Response
