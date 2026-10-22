@@ -520,7 +520,7 @@ curl --request POST \
         }
       }
     ]
-  }'
+  }' | jq
 ```
 
 ### Example of a Sliding Decision Multi-Response

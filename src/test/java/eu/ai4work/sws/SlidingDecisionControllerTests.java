@@ -183,8 +183,12 @@ class SlidingDecisionControllerTests {
             postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
             HttpStatus.OK,
             "\"decisionStatus\":\"Sliding Decision Multi-Response\"",
-            "informHuman",
-            "autonomousReprioritization"
+            // assert that the request ids are included in the response
+            "\"id\":\"abc-123\"",
+            "\"id\":\"abc-456\"",
+            // assert that the expected decisions for the two sub-requests are included
+            "\"slidingDecision\":\"requireHumanApproval\"",
+            "\"slidingDecision\":\"autonomousReprioritization\""
         );
     }
 
