@@ -1,9 +1,5 @@
 package eu.ai4work.sws.service;
 
-import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
-import eu.ai4work.sws.config.FuzzyInferenceSystemInitializer;
-import eu.ai4work.sws.config.InitializeFuzzyIOParameterLists;
-import eu.ai4work.sws.exception.InvalidFclFileException;
 import eu.ai4work.sws.model.SlidingDecisionExplanation;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
 import eu.ai4work.sws.model.VariableExplanation;
@@ -18,7 +14,6 @@ import net.sourceforge.jFuzzyLogic.membership.MembershipFunctionDiscrete;
 import net.sourceforge.jFuzzyLogic.rule.Variable;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -26,12 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RuleEngineService {
-    private final FIS fuzzyInferenceSystem;
-    private final List<String> requiredFuzzyInputParameters;
-    private final List<String> outputVariableNamesFromFIS;
-    private final ApplicationScenarioConfiguration applicationScenarioConfiguration;
-    private final FuzzyInferenceSystemInitializer fuzzyInferenceSystemInitializer;
-    private final InitializeFuzzyIOParameterLists initializeFuzzyIOParameterLists;
+    private final FISService fisService;
 
     /**
      * Evaluates the fuzzy inference rules based on the provided inputs, and it returns the sliding decision with its explanation.
@@ -41,35 +31,20 @@ public class RuleEngineService {
      */
     public SlidingDecision applySlidingDecisionRules(Map<String, Object> slidingDecisionInputParameters) {
 
-        FIS fuzzyInferenceSystem = this.fuzzyInferenceSystem;
-        List<String> requiredFuzzyInputParameters = this.requiredFuzzyInputParameters;
-        List<String> outputVariableNamesFromFIS = this.outputVariableNamesFromFIS;
+        FISService.FISRecord fisRecord = fisService.getFISRecord();
+        FIS fuzzyInferenceSystem = fisRecord.fuzzyInferenceSystem();
 
-        if (applicationScenarioConfiguration.isReloadFclAtRuntime()) {
-            fuzzyInferenceSystem = reloadFuzzyInferenceSystem();
-            requiredFuzzyInputParameters = initializeFuzzyIOParameterLists.getRequiredInputParametersFromFIS(fuzzyInferenceSystem);
-            outputVariableNamesFromFIS = initializeFuzzyIOParameterLists.getOutputVariableNamesFromFIS(fuzzyInferenceSystem);
-        }
-
-        verifySlidingDecisionInputParameters(slidingDecisionInputParameters, requiredFuzzyInputParameters);
+        verifySlidingDecisionInputParameters(slidingDecisionInputParameters, fisRecord.requiredFuzzyInputParameters());
 
         setInputParametersToFuzzyInferenceSystem(slidingDecisionInputParameters, fuzzyInferenceSystem);
 
         fuzzyInferenceSystem.evaluate();
 
-        Map<String, String> decisionResultsForAllOutputParameters = readAllSlidingDecisionResultsFromFIS(fuzzyInferenceSystem, outputVariableNamesFromFIS);
+        Map<String, String> decisionResultsForAllOutputParameters = readAllSlidingDecisionResultsFromFIS(fuzzyInferenceSystem, fisRecord.outputVariableNamesFromFIS());
 
         SlidingDecisionExplanation decisionExplanation = readSlidingDecisionExplanationFromFuzzyInferenceSystem(fuzzyInferenceSystem);
 
         return new SlidingDecision(decisionResultsForAllOutputParameters, decisionExplanation);
-    }
-
-    private FIS reloadFuzzyInferenceSystem() {
-        try {
-            return fuzzyInferenceSystemInitializer.loadFuzzyInferenceSystem();
-        } catch (FileNotFoundException exception) {
-            throw new InvalidFclFileException("Failed to reload Fuzzy Control Language (FCL) file: ", exception);
-        }
     }
 
     /**
