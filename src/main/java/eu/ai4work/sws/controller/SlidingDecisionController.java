@@ -2,6 +2,7 @@ package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
+import eu.ai4work.sws.exception.InvalidRequestIdentifierException;
 import eu.ai4work.sws.model.*;
 import eu.ai4work.sws.service.SlidingDecisionService;
 import lombok.RequiredArgsConstructor;
@@ -141,11 +142,11 @@ public class SlidingDecisionController {
             String id = request.getId();
 
             if (id == null || id.isBlank()) {
-                throw new InvalidInputParameterException("The ID in sliding decision request must not be empty.");
+                throw new InvalidRequestIdentifierException("Found a sliding decision request with an empty or missing ID. Each request requires a non-empty ID.");
             }
             // it returns false, if ID is already present
             if (!setOfIds.add(id)) {
-                throw new InvalidInputParameterException("The IDs in sliding decision request must be unique. Duplicate ID: '" + id + "'");
+                throw new InvalidRequestIdentifierException("The IDs of sliding decision requests must be unique. Found a duplicate ID: '" + id + "'");
             }
         }
     }

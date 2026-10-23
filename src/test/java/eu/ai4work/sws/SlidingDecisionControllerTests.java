@@ -397,7 +397,7 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "The ID in sliding decision request must not be empty"
+                "Found a sliding decision request with an empty or missing ID."
         );
     }
 
@@ -436,7 +436,7 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "The IDs in sliding decision request must be unique"
+                "The IDs of sliding decision requests must be unique. Found a duplicate ID: 'abc-123'"
         );
     }
 
@@ -462,7 +462,7 @@ class SlidingDecisionControllerTests {
                 postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
                 DECISION_STATUS_ERROR_STRING,
-                "The ID in sliding decision request must not be empty"
+                "Found a sliding decision request with an empty or missing ID."
         );
     }
 
