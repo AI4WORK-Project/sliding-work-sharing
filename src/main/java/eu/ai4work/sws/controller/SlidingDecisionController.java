@@ -2,6 +2,7 @@ package eu.ai4work.sws.controller;
 
 import eu.ai4work.sws.config.ApplicationScenarioConfiguration;
 import eu.ai4work.sws.exception.InvalidInputParameterException;
+import eu.ai4work.sws.exception.InvalidRequestIdentifierException;
 import eu.ai4work.sws.model.*;
 import eu.ai4work.sws.service.SlidingDecisionService;
 import lombok.RequiredArgsConstructor;
@@ -32,17 +33,12 @@ public class SlidingDecisionController {
         return createResponse(slidingDecision);
     }
 
-    private SlidingDecision getSingleSlidingDecision(Map<String, Object> slidingDecisionInputParameters) {
-        assureInputParametersAreNotEmpty(slidingDecisionInputParameters);
-        return slidingDecisionService.getSlidingDecision(slidingDecisionInputParameters);
-    }
-
     /**
-     * Processes multiple sliding decision requests by validating the input parameters from each sliding decision request,
-     * calling for each request the decision logic and returns the decisions in one response.
+     * Processes multiple sliding decision requests by validating the input parameters of each individual request,
+     * calling the decision logic for each request and returning the decisions in one response.
      *
-     * @param multiRequest The request body containing the input parameters for multiple decision requests
-     * @return SlidingDecisionMultiResponse containing decision status and a list decisions (containing decision details and explanations)
+     * @param multiRequest The request body containing the input parameters for multiple decision requests plus an id for each request
+     * @return SlidingDecisionMultiResponse containing decision status and a list of decisions (each containing id, decision details and explanations)
      */
     @PostMapping("/sliding-decision-multi-request")
     public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest multiRequest) {
@@ -51,7 +47,7 @@ public class SlidingDecisionController {
         // make a list all decisions
         List<SlidingDecisionMultiResponseElement> decisions = multiRequest.getRequests()
                 .stream()
-                .map(this::processEachMultiRequest)
+                .map(this::processMultiRequestSubElement)
                 .toList();
 
         // wrap all decisions into one multi response
@@ -61,17 +57,25 @@ public class SlidingDecisionController {
                 .build();
     }
 
-    private SlidingDecisionMultiResponseElement processEachMultiRequest(SlidingDecisionMultiRequestElement request) {
+    private SlidingDecisionMultiResponseElement processMultiRequestSubElement(SlidingDecisionMultiRequestElement request) {
         String id = request.getId();
 
         try {
             SlidingDecision slidingDecision = getSingleSlidingDecision(request.getSlidingDecisionInputParameters());
-            return createEachMultiResponse(id, slidingDecision);
+            return createMultiResponseSubElementForOneDecision(id, slidingDecision);
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Error in request with ID '" + id + "': " + exception.getMessage());
         } catch (InvalidInputParameterException exception) {
             throw new InvalidInputParameterException("Error in request with ID '" + id + "': " + exception.getMessage());
         }
+    }
+
+    /**
+     * Gets a single sliding decision, provided that the given sliding decision input parameters are valid.
+     */
+    private SlidingDecision getSingleSlidingDecision(Map<String, Object> slidingDecisionInputParameters) {
+        assureInputParametersAreNotEmpty(slidingDecisionInputParameters);
+        return slidingDecisionService.getSlidingDecision(slidingDecisionInputParameters);
     }
 
     /**
@@ -116,7 +120,7 @@ public class SlidingDecisionController {
      * @param slidingDecision Evaluated sliding decision after applying the decision rules
      * @return response containing the id, decision results and explanation
      */
-    private SlidingDecisionMultiResponseElement createEachMultiResponse(String id, SlidingDecision slidingDecision) {
+    private SlidingDecisionMultiResponseElement createMultiResponseSubElementForOneDecision(String id, SlidingDecision slidingDecision) {
 
         return SlidingDecisionMultiResponseElement.builder()
                 .id(id)
@@ -138,11 +142,11 @@ public class SlidingDecisionController {
             String id = request.getId();
 
             if (id == null || id.isBlank()) {
-                throw new InvalidInputParameterException("The ID in sliding decision request must not be empty.");
+                throw new InvalidRequestIdentifierException("Found a sliding decision request with an empty or missing ID. Each request requires a non-empty ID.");
             }
             // it returns false, if ID is already present
             if (!setOfIds.add(id)) {
-                throw new InvalidInputParameterException("The IDs in sliding decision request must be unique. Duplicate ID: '" + id + "'");
+                throw new InvalidRequestIdentifierException("The IDs of sliding decision requests must be unique. Found a duplicate ID: '" + id + "'");
             }
         }
     }
