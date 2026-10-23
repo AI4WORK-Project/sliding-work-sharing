@@ -6,7 +6,6 @@ import net.sourceforge.jFuzzyLogic.FIS;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
@@ -28,7 +27,6 @@ public class FuzzyInferenceSystemInitializer {
      * @throws FileNotFoundException   if the FCL file cannot be found at the specified path.
      * @throws InvalidFclFileException if the FCL file cannot be parsed.
      */
-    @Bean(name = "fuzzyInferenceSystem")
     public FIS initializeFuzzyInferenceSystem() throws FileNotFoundException, InvalidFclFileException {
         String fclRulesFilePath = applicationScenarioConfiguration.getFclRulesFilePath();
         logger.info("Initializing a Fuzzy Inference System (FIS) from FCL file: " + fclRulesFilePath);

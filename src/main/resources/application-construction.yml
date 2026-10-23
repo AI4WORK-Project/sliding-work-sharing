@@ -5,3 +5,4 @@ application-scenario-config:
     letRobotContinue: "Let the robot continue trying"
     informHumanAboutSituation: "Inform human about the situation"
     askForHumanHelp: "Ask human for help"
+  reload-fcl-at-runtime: false
