@@ -487,9 +487,9 @@ Depending on the input, the SWS may decide one of the following:
 
 ---
 
-## Sliding Decision Multi-Request
+## How to send several Sliding Decision Requests at once
 
-The SWS application also supports sending several Sliding Decision Requests in one HTTP call. This requires each sub-request to have a unique `id` to avoid ambiguity when mapping sub-requests to sub-responses.
+The SWS application also supports sending several Sliding Decision Requests in one HTTP call. Each individual requests is processed as if it was sent separately, however: if one sub-request fails due to invalid input parameters, then the whole multi-request fails. Besides, each sub-request must have a unique `id` to avoid ambiguity when mapping sub-requests to sub-responses. 
 
 ### Example of a Sliding Decision Multi-Request
 Execute the following `curl` command in your terminal to send multiple requests at once via a POST request to the `/sliding-decision-multi-request` endpoint:
