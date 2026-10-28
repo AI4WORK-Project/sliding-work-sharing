@@ -5,3 +5,5 @@ spring:
 logging:
   level:
     eu.ai4work.sws: debug
+application-scenario-config:
+  reload-fcl-at-runtime: true
