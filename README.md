@@ -582,6 +582,8 @@ application-scenario-config:
 `false` (Default) : FCL file is loaded and parsed once at application startup.  
 `true`: before every processing of a sliding decision request, the system reloads and reparses the FCL file and extracts the current input/output variables. This way, one can swap different FCL versions and immediately see the effects.
 
+**note:** Docker — test the default scenarios are not affected by this configuration, because the default scenarios are using the pre-built FCL rules inside the Docker image.
+
 ### Runtime testing with example FCL files from the source folder
 
 **Please note**: modifying the FCL at runtime will not work for the [example FCL files in the source folder](src/main/resources/rules/). If you want to do debug testing using one of those files, please create a copy of the FCL file and store it outside the source directory, then update the `application.yml` to point to that file.
@@ -610,6 +612,3 @@ application-scenario-config:
 ```
 
 After setting this configuration run the docker container as mentioned steps above (see [Run the application with your custom configuration](#4-run-the-application-with-your-custom-configuration)).
-
-**Note:** Docker — test the default scenarios are not affected by this configuration, because the default scenarios are using the pre-built FCL rules inside the Docker image.
-
