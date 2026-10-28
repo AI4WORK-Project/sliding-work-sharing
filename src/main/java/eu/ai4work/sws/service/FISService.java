@@ -5,6 +5,7 @@ import eu.ai4work.sws.config.FuzzyInferenceSystemInitializer;
 import eu.ai4work.sws.config.InitializeFuzzyIOParameterLists;
 import eu.ai4work.sws.exception.InvalidFclFileException;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.jFuzzyLogic.FIS;
 import org.springframework.stereotype.Service;
@@ -19,39 +20,35 @@ public class FISService {
     private final FuzzyInferenceSystemInitializer fuzzyInferenceSystemInitializer;
     private final InitializeFuzzyIOParameterLists initializeFuzzyIOParameterLists;
 
-    private FISRecord currentFISRecord;
+    @Getter
+    private FIS fuzzyInferenceSystem;
+    @Getter
+    private List<String> requiredInputParameters;
+    @Getter
+    private List<String> outputVariableNames;
 
-    // this record encapsulates the Fuzzy Inference System (FIS) and its associated input/output parameters.
-    public record FISRecord(
-            FIS fuzzyInferenceSystem,
-            List<String> requiredFuzzyInputParameters,
-            List<String> outputVariableNamesFromFIS) {
-    }
-
+    // This method is called once during the application startup to load the FIS record.
     @PostConstruct
-    public void initializeFuzzyInferenceSystem() {
-        currentFISRecord = loadFISRecord();
+    public void initializeFISonApplicationStartup() {
+        loadFuzzyInferenceSystem();
     }
 
     /**
      * Returns a consistent set of FIS for one sliding decision.
      * Runtime reload keeps the singleton FISService and replaces its record.
      */
-    public FISRecord getFISRecord() {
+    public void initializeFIS() {
         if (applicationScenarioConfiguration.isReloadFclAtRuntime()) {
-            FISRecord reloadedRecord = loadFISRecord();
-            currentFISRecord = reloadedRecord;
-            return reloadedRecord;
+            loadFuzzyInferenceSystem();
         }
-        return currentFISRecord;
     }
 
-    private FISRecord loadFISRecord() {
+    private void loadFuzzyInferenceSystem() {
         try {
-            FIS fuzzyInferenceSystem = fuzzyInferenceSystemInitializer.initializeFuzzyInferenceSystem();
-            return new FISRecord(fuzzyInferenceSystem,
-                    initializeFuzzyIOParameterLists.getRequiredInputParametersFromFIS(fuzzyInferenceSystem),
-                    initializeFuzzyIOParameterLists.getOutputVariableNamesFromFIS(fuzzyInferenceSystem));
+            FIS initializeFuzzyInferenceSystem = fuzzyInferenceSystemInitializer.initializeFuzzyInferenceSystem();
+            fuzzyInferenceSystem = initializeFuzzyInferenceSystem;
+            requiredInputParameters = initializeFuzzyIOParameterLists.getRequiredInputParametersFromFIS(initializeFuzzyInferenceSystem);
+            outputVariableNames = initializeFuzzyIOParameterLists.getOutputVariableNamesFromFIS(initializeFuzzyInferenceSystem);;
         } catch (FileNotFoundException exception) {
             throw new InvalidFclFileException("Failed to load Fuzzy Control Language (FCL) file: ", exception);
         }
