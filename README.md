@@ -121,7 +121,7 @@ Please note:
   
 - the textual description of the decision results should fit to your scenario
 - rename your file, replacing `{existing-configuration}` with a name representing your custom scenario
-- for the purpose of debugging and fine-tuning your FCL rules, you can set the `reload-fcl-at-runtime` parameter to `true` in your `.yml` configuration file. More details can be found in the section [Custom scenario with editable FCL rules for Docker](#custom-scenario-with-editable-fcl-rules-for-docker).
+- for the purpose of debugging and fine-tuning your FCL rules, you can enable reloading the FCL at runtime on every request, see [this explanation](#runtime-running-and-testing-fcl-rules).
 
 ### 3. Prepare the configuration directory
 
@@ -580,7 +580,7 @@ application-scenario-config:
 ```
 
 `false` (Default) : FCL file is loaded and parsed once at application startup.  
-`true`: before every sliding decision request, the system reloads and reparses the FCL file and extracts the current input/output variable. Here, one can swap different FCL version and can see the immediate effect.
+`true`: before every processing of a sliding decision request, the system reloads and reparses the FCL file and extracts the current input/output variables. This way, one can swap different FCL versions and immediately see the effects.
 
 ### Local development (debug and fine tune FCL rules from source project)
 
