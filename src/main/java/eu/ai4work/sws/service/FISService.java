@@ -27,16 +27,12 @@ public class FISService {
     @Getter
     private List<String> outputVariableNames;
 
-    // This method is called once during the application startup to load the FIS record.
+    // During the application startup time it to loads the FIS.
     @PostConstruct
     public void initializeFISonApplicationStartup() {
         loadFuzzyInferenceSystem();
     }
 
-    /**
-     * Returns a consistent set of FIS for one sliding decision.
-     * Runtime reload keeps the singleton FISService and replaces its record.
-     */
     public void initializeFIS() {
         if (applicationScenarioConfiguration.isReloadFclAtRuntime()) {
             loadFuzzyInferenceSystem();
