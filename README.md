@@ -582,19 +582,17 @@ application-scenario-config:
 `false` (Default) : FCL file is loaded and parsed once at application startup.  
 `true`: before every processing of a sliding decision request, the system reloads and reparses the FCL file and extracts the current input/output variables. This way, one can swap different FCL versions and immediately see the effects.
 
-### Local development (debug and fine tune FCL rules from source project)
+### Runtime testing with example FCL files from the source folder
 
-Update the `fclRulesFilePath` with the "source path" and `reload-fcl-at-runtime` to `true` in the `application-{scenario}.yml` file. 
+**Please note**: modifying the FCL at runtime will not work for the [example FCL files in the source folder](src/main/resources/rules/). If you want to do debug testing using one of those files, please create a copy of the FCL file and store it outside the source directory, then update the `application.yml` to point to that file.
 
-For example, if you want to test the logistics scenario, update the `fclRulesFilePath` in `application-logistics.yml` to point to `src/main/resources/rules/TruckSchedulingSlidingDecisionRules.fcl`. Set `reload-fcl-at-runtime` to `true` to enable reloading of the FCL rules at runtime.
+Example of a `application.yml` that points to an FCL file outside the source folder and enables runtime reloading:
 
 ```yaml
 application-scenario-config:
-  fclRulesFilePath: src/main/resources/rules/TruckSchedulingSlidingDecisionRules.fcl
+  fclRulesFilePath: <PATH_TO_YOUR_FCL_FILE>
   reload-fcl-at-runtime: true
 ```
-
-Path such as `rules/{scenario}.fcl` may load the FCL rules from the `resources` folder, but it will not reload the FCL rules at runtime. So "source path" is recommended for local development and debugging.
 
 ### Custom scenario with editable FCL rules for Docker
 
