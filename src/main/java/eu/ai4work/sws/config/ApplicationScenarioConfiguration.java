@@ -11,5 +11,6 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "application-scenario-config")
 public class ApplicationScenarioConfiguration {
     private String fclRulesFilePath;
+    private boolean reloadFclAtRuntime;
     private Map<String, String> decisionResultsDescription;
 }

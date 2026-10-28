@@ -121,6 +121,7 @@ Please note:
   
 - the textual description of the decision results should fit to your scenario
 - rename your file, replacing `{existing-configuration}` with a name representing your custom scenario
+- for the purpose of debugging and fine-tuning your FCL rules, you can enable reloading the FCL at runtime on every request, see [this explanation](#runtime-running-and-testing-fcl-rules).
 
 ### 3. Prepare the configuration directory
 
@@ -635,3 +636,48 @@ Shows the final outcome after evaluating all the activated rules.
 - `membershipValues`: this final output value is then associated with a fuzzy category. In our example, `1.0`
   maps to `autonomousReprioritization` with a membership degree of `1.0`. This means that, after all rules are applied, the final
   decision is identified as that suggested work sharing approach.
+
+## Runtime Running and Testing FCL Rules
+
+To support iterative debugging and fine-tuning of fuzzy rule sets, the system can reload the FCL file at runtime. This allows the same decision logic to be tested repeatedly against different FCL versions (e.g., comparing COG vs. COGS defuzzification strategies or tuning membership functions for specific scenarios) without restarting the application.
+
+Configuration is done in the `application-scenario-config` in the file `application-{scenario}.yml`. 
+
+```yaml
+application-scenario-config:
+  reload-fcl-at-runtime: true
+```
+
+`false` (Default) : FCL file is loaded and parsed once at application startup.  
+`true`: before every processing of a sliding decision request, the system reloads and reparses the FCL file and extracts the current input/output variables. This way, one can swap different FCL versions and immediately see the effects.
+
+**note:** Docker — test the default scenarios are not affected by this configuration, because the default scenarios are using the pre-built FCL rules inside the Docker image.
+
+### Runtime testing with example FCL files from the source folder
+
+**Please note**: modifying the FCL at runtime will not work for the [example FCL files in the source folder](src/main/resources/rules/). If you want to do debug testing using one of those files, please create a copy of the FCL file and store it outside the source directory, then update the `application.yml` to point to that file.
+
+Example of a `application.yml` that points to an FCL file outside the source folder and enables runtime reloading:
+
+```yaml
+application-scenario-config:
+  fclRulesFilePath: <PATH_TO_YOUR_FCL_FILE>
+  reload-fcl-at-runtime: true
+```
+
+### Custom scenario with editable FCL rules for Docker
+
+Configuration directory containing your YAML and FCL files was prepared in the previous steps (see [Prepare the configuration directory](#3-prepare-the-configuration-directory)).
+
+From this configuration directory, set `reload-fcl-at-runtime` to `true` in your custom `.yml` configuration file. 
+
+```yaml
+application-scenario-config:
+  fclRulesFilePath: /config/your-scenario.fcl
+  reload-fcl-at-runtime: true
+  decisionResultsDescription:
+    # Add your scenario-specific decision result descriptions here.
+    [...]
+```
+
+After setting this configuration run the docker container as mentioned steps above (see [Run the application with your custom configuration](#4-run-the-application-with-your-custom-configuration)).
