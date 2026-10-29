@@ -482,7 +482,7 @@ class SlidingDecisionControllerTests {
         multiRequestElements.add(slidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
                 HttpStatus.BAD_REQUEST,
                 List.of(DECISION_STATUS_ERROR_STRING,
                         "The IDs of sliding decision requests must be unique. Found a duplicate ID: 'abc-123'")
