@@ -36,10 +36,9 @@ The application will start and listen on port `8080` by default.
 
 ### 4. How to Test the Application
 
-The SWS application supports the single sliding decision request and list of sliding decision requests on the same call. 
 You can test the application using the `curl` command (or using any other HTTP/REST client of your choice):
 
-#### Example of single sliding decision request 
+#### Example Request 
 
 Execute the following `curl` command in your terminal to request a "sliding decision" via a POST request to the
 `/sliding-decision` endpoint:
@@ -59,7 +58,7 @@ curl --request POST \
   }'
 ```
 
-#### Example of single sliding decision response
+#### Example Response
 
 The application will respond with a JSON string similar to the following:
 
@@ -72,65 +71,6 @@ The application will respond with a JSON string similar to the following:
       "description": "Human has to be informed about AI's rescheduling"
     }
   }
-}
-```
-
-#### Example for to send list of sliding decision Request
-Execute the following `curl` command in your terminal to make multiple "sliding decision" requests at once via a POST request to the `/sliding-decision-multi-request` endpoint:
-```bash
-curl --request POST \
-  --url http://localhost:8080/sliding-decision-multi-request \
-  --header "Content-Type: application/json" \
-  --data '{
-    "decisionStatus": "Sliding Decision Multi-Request",
-    "requests": [
-      {
-        "id": "abc-123",
-        "slidingDecisionInputParameters": {
-          "numberOfTrucksInQueue": 7,
-          "positionOfTruckToBePrioritized": 5,
-          "materialUrgency":30,
-          "operationalWorkload":80
-        }
-      },
-      {
-        "id": "abc-456",
-        "slidingDecisionInputParameters": {
-          "numberOfTrucksInQueue": 3,
-          "positionOfTruckToBePrioritized": 5,
-          "materialUrgency": 50,
-          "operationalWorkload": 20
-        }
-      }
-    ]
-  }'
-```
-
-#### Example for list of sliding decision Response
-The application will respond with a JSON string similar to the following:
-```json
-{
-  "decisionStatus":"Sliding Decision Multi-Response",
-  "decisions": [
-    {
-      "id":"abc-123",
-      "slidingDecisionOutputParameters": {
-        "suggestedApproach": {
-          "slidingDecision":"requireHumanApproval",
-          "description":"Human has to decide without AI support"
-        }
-      }
-    },
-    {
-      "id":"abc-456",
-      "slidingDecisionOutputParameters": {
-        "suggestedApproach": {
-          "slidingDecision":"autonomousReprioritization",
-          "description":"AI can reschedule without human involvement"
-        }
-      }
-    }
-  ]
 }
 ```
 
@@ -565,6 +505,75 @@ Depending on the input, the SWS may decide one of the following:
 - `askForHumanHelp`: "Ask human for help"
 
 ---
+
+## How to send several Sliding Decision Requests at once
+
+The SWS application also supports sending several Sliding Decision Requests in one HTTP call. Each individual requests is processed as if it was sent separately, however: if one sub-request fails due to invalid input parameters, then the whole multi-request fails. Besides, each sub-request must have a unique `id` to avoid ambiguity when mapping sub-requests to sub-responses. 
+
+### Example of a Sliding Decision Multi-Request
+Execute the following `curl` command in your terminal to send multiple requests at once via a POST request to the `/sliding-decision-multi-request` endpoint:
+```bash
+curl --request POST \
+  --url http://localhost:8080/sliding-decision-multi-request \
+  --header "Content-Type: application/json" \
+  --data '{
+    "decisionStatus": "Sliding Decision Multi-Request",
+    "requests": [
+      {
+        "id": "abc-123",
+        "slidingDecisionInputParameters": {
+          "numberOfTrucksInQueue": 7,
+          "positionOfTruckToBePrioritized": 5,
+          "materialUrgency":30,
+          "operationalWorkload":80
+        }
+      },
+      {
+        "id": "abc-456",
+        "slidingDecisionInputParameters": {
+          "numberOfTrucksInQueue": 3,
+          "positionOfTruckToBePrioritized": 5,
+          "materialUrgency": 50,
+          "operationalWorkload": 20
+        }
+      }
+    ]
+  }' 
+```
+
+### Example of a Sliding Decision Multi-Response
+The application will respond with a JSON string similar to the following:
+```json
+{
+  "decisionStatus":"Sliding Decision Multi-Response",
+  "decisions": [
+    {
+      "id":"abc-123",
+      "slidingDecisionOutputParameters": {
+        "suggestedApproach": {
+          "slidingDecision":"requireHumanApproval",
+          "description":"Human has to decide without AI support"
+        }
+      },
+      "decisionExplanation": {
+        "...": "..."
+      }
+    },
+    {
+      "id":"abc-456",
+      "slidingDecisionOutputParameters": {
+        "suggestedApproach": {
+          "slidingDecision":"autonomousReprioritization",
+          "description":"AI can reschedule without human involvement"
+        }
+      },
+      "decisionExplanation": {
+        "...": "..."
+      }
+    }
+  ]
+}
+```
 
 ## How to Read the `decisionExplanation`
 

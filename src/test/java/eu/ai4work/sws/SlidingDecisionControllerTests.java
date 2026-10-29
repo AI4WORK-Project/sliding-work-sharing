@@ -17,6 +17,30 @@ class SlidingDecisionControllerTests {
 
     public static final String DECISION_STATUS_ERROR_STRING = "\"decisionStatus\":\"Error - Sliding Decision not possible\"";
 
+    public static final String validSlidingDecisionSubRequest1 = """
+                {
+                    "id": "abc-123",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+
+    public static final String validSlidingDecisionSubRequest2 = """
+                {
+                    "id": "abc-456",
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 3,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":50,
+                        "operationalWorkload":20
+                    }
+                }
+                """;
+
     @Autowired
     private TestRestTemplate testSlidingDecisionRestTemplate;
 
@@ -181,38 +205,21 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testSuccessfulSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
-                {
-                    "id": "abc-123",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 7,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":30,
-                        "operationalWorkload":80
-                    }
-                }
-                """;
-        String slidingDecisionAtomicRequest2 = """
-                {
-                    "id": "abc-456",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 3,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":50,
-                        "operationalWorkload":20
-                    }
-                }
-                """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+        List<String> multiRequestElements = new ArrayList<>();
+
+        multiRequestElements.add(validSlidingDecisionSubRequest1);
+        multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-            postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+            postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
             HttpStatus.OK,
             List.of("\"decisionStatus\":\"Sliding Decision Multi-Response\"",
-                    "requireHumanApproval",
-                    "autonomousReprioritization"),
+                    // assert that the request ids are included in the response
+                    "\"id\":\"abc-123\"",
+                    "\"id\":\"abc-456\"",
+                    // assert that the expected decisions for the two sub-requests are included
+                    "\"slidingDecision\":\"requireHumanApproval\"",
+                    "\"slidingDecision\":\"autonomousReprioritization\""),
             List.of("\"decisionExplanation\"")
         );
     }
@@ -220,30 +227,9 @@ class SlidingDecisionControllerTests {
     @Test
     void testIncludeExplanationSlidingDecisionMultiRequest() {
         List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
-                {
-                    "id": "abc-123",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 7,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":30,
-                        "operationalWorkload":80
-                    }
-                }
-                """;
-        String slidingDecisionAtomicRequest2 = """
-                {
-                    "id": "abc-456",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 3,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":50,
-                        "operationalWorkload":20
-                    }
-                }
-                """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        slidingDecisionMultiRequests.add(validSlidingDecisionSubRequest1);
+        slidingDecisionMultiRequests.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
                 postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, true),
@@ -257,19 +243,9 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testInvalidJsonSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
-                {
-                    "id": "abc-123",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 7,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":30,
-                        "operationalWorkload":80
-                    }
-                }
-                """;
-        String slidingDecisionAtomicRequest2 = """
+        List<String> multiRequestsSubRequests = new ArrayList<>();
+
+        String slidingDecisionSubRequestWithInvalidJson = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -279,11 +255,12 @@ class SlidingDecisionControllerTests {
                         "operationalWorkload":20
                 }
                 """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        multiRequestsSubRequests.add(validSlidingDecisionSubRequest1);
+        multiRequestsSubRequests.add(slidingDecisionSubRequestWithInvalidJson);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestsSubRequests, false),
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 List.of(DECISION_STATUS_ERROR_STRING,
                         "JSON parse error",
@@ -293,8 +270,9 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testMissingParameterSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
+        List<String> multiRequestElements = new ArrayList<>();
+
+        String slidingDecisionSubRequestWithMissingParameter = """
                 {
                     "id": "abc-123",
                     "slidingDecisionInputParameters": {
@@ -304,22 +282,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        String slidingDecisionAtomicRequest2 = """
-                {
-                    "id": "abc-456",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 3,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":50,
-                        "operationalWorkload":20
-                    }
-                }
-                """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        multiRequestElements.add(slidingDecisionSubRequestWithMissingParameter);
+        multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
                 HttpStatus.BAD_REQUEST,
                 List.of(DECISION_STATUS_ERROR_STRING,
                         "positionOfTruckToBePrioritized",
@@ -330,8 +298,9 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testParameterTypoSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
+        List<String> multiRequestElements = new ArrayList<>();
+
+        String slidingDecisionSubRequest1WithTypo = """
                 {
                     "id": "abc-123",
                     "slidingDecisionInputParameters": {
@@ -342,7 +311,8 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        String slidingDecisionAtomicRequest2 = """
+
+        String slidingDecisionSubRequest2WithTypo = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -353,34 +323,26 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        multiRequestElements.add(slidingDecisionSubRequest1WithTypo);
+        multiRequestElements.add(slidingDecisionSubRequest2WithTypo);
 
         // typo in "positionOfTruckToBePrioriticed" is not recognized because evaluation stops after the first typo
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
                 HttpStatus.BAD_REQUEST,
                 List.of(DECISION_STATUS_ERROR_STRING,
                         "materialUrgenzy",
+                        "materialUrgency",
                         "abc-123")
         );
     }
 
     @Test
     void testAdditionalUnknownParameterSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
-                {
-                    "id": "abc-123",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 7,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":30,
-                        "operationalWorkload":80
-                    }
-                }
-                """;
-        String slidingDecisionAtomicRequest2 = """
+        List<String> multiRequestElements = new ArrayList<>();
+
+        String slidingDecisionSubRequestWithUnknownParameter = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -392,11 +354,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        multiRequestElements.add(validSlidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequestWithUnknownParameter);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
                 HttpStatus.BAD_REQUEST,
                 List.of(DECISION_STATUS_ERROR_STRING,
                         "additionalUnknownParameter",
@@ -406,19 +369,9 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testInvalidInputParameterValueSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
-                {
-                    "id": "abc-123",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 7,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":30,
-                        "operationalWorkload":80
-                    }
-                }
-                """;
-        String slidingDecisionAtomicRequest2 = """
+        List<String> multiRequestElements = new ArrayList<>();
+
+        String slidingDecisionSubRequestWithInvalidParameterValue = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -429,11 +382,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        multiRequestElements.add(validSlidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequestWithInvalidParameterValue);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
                 HttpStatus.BAD_REQUEST,
                 List.of(DECISION_STATUS_ERROR_STRING,
                         "operationalWorkload",
@@ -443,19 +397,9 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testEmptyInputParameterValueSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
-                {
-                    "id": "abc-123",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": 7,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":30,
-                        "operationalWorkload":80
-                    }
-                }
-                """;
-        String slidingDecisionAtomicRequest2 = """
+        List<String> multiRequestElements = new ArrayList<>();
+
+        String slidingDecisionSubRequestWithParameterValueNull = """
                 {
                     "id": "abc-456",
                     "slidingDecisionInputParameters": {
@@ -466,11 +410,12 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        multiRequestElements.add(validSlidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequestWithParameterValueNull);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
                 HttpStatus.BAD_REQUEST,
                 List.of(DECISION_STATUS_ERROR_STRING,
                         "numberOfTrucksInQueue",
@@ -480,8 +425,9 @@ class SlidingDecisionControllerTests {
 
     @Test
     void testEmptyIdSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
+        List<String> multiRequestElements = new ArrayList<>();
+
+        String slidingDecisionSubRequestWithEmptyId = """
                 {
                     "id": "",
                     "slidingDecisionInputParameters": {
@@ -492,31 +438,23 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        String slidingDecisionAtomicRequest2 = """
-                {
-                    "id": "abc-456",
-                    "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": null,
-                        "positionOfTruckToBePrioritized": 5,
-                        "materialUrgency":50,
-                        "operationalWorkload":20
-                    }
-                }
-                """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        multiRequestElements.add(slidingDecisionSubRequestWithEmptyId);
+        multiRequestElements.add(validSlidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
                 HttpStatus.BAD_REQUEST,
-                List.of(DECISION_STATUS_ERROR_STRING, "The ID in sliding decision request must not be empty")
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "Found a sliding decision request with an empty or missing ID.")
         );
     }
 
     @Test
     void testDuplicatedIdsSlidingDecisionMultiRequest() {
-        List<String> slidingDecisionMultiRequests = new ArrayList<>();
-        String slidingDecisionAtomicRequest1 = """
+        List<String> multiRequestElements = new ArrayList<>();
+
+        String slidingDecisionSubRequest1 = """
                 {
                     "id": "abc-123",
                     "slidingDecisionInputParameters": {
@@ -527,24 +465,53 @@ class SlidingDecisionControllerTests {
                     }
                 }
                 """;
-        String slidingDecisionAtomicRequest2 = """
+
+        String slidingDecisionSubRequest2 = """
                 {
                     "id": "abc-123",
                     "slidingDecisionInputParameters": {
-                        "numberOfTrucksInQueue": null,
+                        "numberOfTrucksInQueue": 7,
                         "positionOfTruckToBePrioritized": 5,
                         "materialUrgency":50,
                         "operationalWorkload":20
                     }
                 }
                 """;
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest1);
-        slidingDecisionMultiRequests.add(slidingDecisionAtomicRequest2);
+
+        multiRequestElements.add(slidingDecisionSubRequest1);
+        multiRequestElements.add(slidingDecisionSubRequest2);
 
         assertSlidingDecisionResponseStatusAndContents(
-                postSlidingDecisionMultiRequestWithParameters(slidingDecisionMultiRequests, false),
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements),
                 HttpStatus.BAD_REQUEST,
-                List.of(DECISION_STATUS_ERROR_STRING, "The IDs in sliding decision request must be unique")
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "The IDs of sliding decision requests must be unique. Found a duplicate ID: 'abc-123'")
+        );
+    }
+
+    @Test
+    void testOmittedIdSlidingDecisionMultiRequest() {
+        List<String> multiRequestElements = new ArrayList<>();
+
+        String slidingDecisionSubRequestWithoutID = """
+                {
+                    "slidingDecisionInputParameters": {
+                        "numberOfTrucksInQueue": 7,
+                        "positionOfTruckToBePrioritized": 5,
+                        "materialUrgency":30,
+                        "operationalWorkload":80
+                    }
+                }
+                """;
+
+        multiRequestElements.add(slidingDecisionSubRequestWithoutID);
+        multiRequestElements.add(validSlidingDecisionSubRequest2);
+
+        assertSlidingDecisionResponseStatusAndContents(
+                postSlidingDecisionMultiRequestWithParameters(multiRequestElements, false),
+                HttpStatus.BAD_REQUEST,
+                List.of(DECISION_STATUS_ERROR_STRING,
+                        "Found a sliding decision request with an empty or missing ID.")
         );
     }
 
