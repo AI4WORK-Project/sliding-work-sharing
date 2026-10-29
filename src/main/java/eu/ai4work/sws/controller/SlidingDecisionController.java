@@ -30,7 +30,7 @@ public class SlidingDecisionController {
     @PostMapping("/sliding-decision")
     public SlidingDecisionResponse processSlidingDecisionRequest(@RequestBody SlidingDecisionRequest request) {
         SlidingDecision slidingDecision = getSingleSlidingDecision(request.getSlidingDecisionInputParameters());
-        return createResponse(slidingDecision);
+        return createResponse(slidingDecision, request.isIncludeDecisionExplanationsInResponse());
     }
 
     /**
@@ -44,10 +44,10 @@ public class SlidingDecisionController {
     public SlidingDecisionMultiResponse processSlidingDecisionMultiRequest(@RequestBody SlidingDecisionMultiRequest multiRequest) {
         assureSubRequestIdsAreValid(multiRequest);
 
-        // make a list all decisions
+        // make a list of all processes decisions
         List<SlidingDecisionMultiResponseElement> decisions = multiRequest.getRequests()
                 .stream()
-                .map(this::processMultiRequestSubElement)
+                .map(slidingDecisionMultiRequestElement -> processMultiRequestSubElement(slidingDecisionMultiRequestElement, multiRequest.isIncludeDecisionExplanationsInResponse()))
                 .toList();
 
         // wrap all decisions into one multi response
@@ -57,12 +57,12 @@ public class SlidingDecisionController {
                 .build();
     }
 
-    private SlidingDecisionMultiResponseElement processMultiRequestSubElement(SlidingDecisionMultiRequestElement request) {
+    private SlidingDecisionMultiResponseElement processMultiRequestSubElement(SlidingDecisionMultiRequestElement request, boolean includeDecisionExplanationsInResponse) {
         String id = request.getId();
 
         try {
             SlidingDecision slidingDecision = getSingleSlidingDecision(request.getSlidingDecisionInputParameters());
-            return createMultiResponseSubElementForOneDecision(id, slidingDecision);
+            return createMultiResponseSubElementForOneDecision(id, slidingDecision, includeDecisionExplanationsInResponse);
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Error in request with ID '" + id + "': " + exception.getMessage());
         } catch (InvalidInputParameterException exception) {
@@ -104,13 +104,17 @@ public class SlidingDecisionController {
      * @param slidingDecision Evaluated sliding decision after applying the decision rules
      * @return SlidingDecisionResponse containing decision status, decision details and decision explanation.
      */
-    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision) {
+    private SlidingDecisionResponse createResponse(SlidingDecision slidingDecision, boolean includeDecisionExplanationsInResponse) {
+        SlidingDecisionResponse.SlidingDecisionResponseBuilder slidingDecisionResponseBuilder =
+                SlidingDecisionResponse.builder()
+                        .decisionStatus(SlidingDecisionStatus.RESPONSE)
+                        .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision));
 
-        return SlidingDecisionResponse.builder()
-                .decisionStatus(SlidingDecisionStatus.RESPONSE)
-                .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
-                .decisionExplanation(slidingDecision.getDecisionExplanation())
-                .build();
+        if (includeDecisionExplanationsInResponse) {
+            slidingDecisionResponseBuilder.decisionExplanation(slidingDecision.getDecisionExplanation());
+        }
+
+        return slidingDecisionResponseBuilder.build();
     }
 
     /**
@@ -120,13 +124,17 @@ public class SlidingDecisionController {
      * @param slidingDecision Evaluated sliding decision after applying the decision rules
      * @return response containing the id, decision results and explanation
      */
-    private SlidingDecisionMultiResponseElement createMultiResponseSubElementForOneDecision(String id, SlidingDecision slidingDecision) {
+    private SlidingDecisionMultiResponseElement createMultiResponseSubElementForOneDecision(String id, SlidingDecision slidingDecision, boolean includeDecisionExplanationsInResponse) {
+        SlidingDecisionMultiResponseElement.SlidingDecisionMultiResponseElementBuilder slidingDecisionEachMultiResponseBuilder =
+                SlidingDecisionMultiResponseElement.builder()
+                        .id(id)
+                        .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision));
 
-        return SlidingDecisionMultiResponseElement.builder()
-                .id(id)
-                .slidingDecisionOutputParameters(buildResultsByOutputVariables(slidingDecision))
-                .decisionExplanation(slidingDecision.getDecisionExplanation())
-                .build();
+        if (includeDecisionExplanationsInResponse) {
+            slidingDecisionEachMultiResponseBuilder.decisionExplanation(slidingDecision.getDecisionExplanation());
+        }
+
+        return slidingDecisionEachMultiResponseBuilder.build();
     }
 
     private void assureInputParametersAreNotEmpty(Map<String, Object> slidingDecisionInputParameters) {

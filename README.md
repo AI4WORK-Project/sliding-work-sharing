@@ -70,15 +70,43 @@ The application will respond with a JSON string similar to the following:
       "slidingDecision": "informHuman",
       "description": "Human has to be informed about AI's rescheduling"
     }
-  },
-  "decisionExplanation": {
-    "...": "..."
   }
 }
 ```
 
-_Please Note_: The `decisionExplanation` is not shown here for the sake of brevity. An example is
-described [here](#how-to-read-the-decisionexplanation).
+
+#### Decision Explanation
+
+For sake of brevity the decision explanation is per default not shown in the output JSON.
+You can explicitly include the decision explanation in the output, when you add `includeDecisionExplanationsInResponse` as a boolean flag in the request (this parameter can be omitted, the default is `false`).
+
+Here are example requests which will include the decision explanation in the output:
+
+**Single Sliding Decision**
+```bash
+curl --request POST \
+  --url http://localhost:8080/sliding-decision \
+  --header "Content-Type: application/json" \
+  --data '{
+    "decisionStatus": "Sliding Decision Request",
+    "slidingDecisionInputParameters": {...},
+    "includeDecisionExplanationsInResponse": true
+  }'
+```
+
+**Multi Sliding Decision**
+```bash
+curl --request POST \
+  --url http://localhost:8080/sliding-decision-multi-request \
+  --header "Content-Type: application/json" \
+  --data '{
+    "decisionStatus": "Sliding Decision Multi-Request",
+    "requests": [...],
+    "includeDecisionExplanationsInResponse": true
+  }'
+```
+
+An example of a `decisionExplanation` is described [here](#how-to-read-the-decisionexplanation).
 
 ---
 
@@ -276,9 +304,6 @@ The application will respond with a JSON string similar to the following:
       "slidingDecision": "informHuman",
       "description": "Human has to be informed about AI's rescheduling"
     }
-  },
-  "decisionExplanation": {
-    "...": "..."
   }
 }
 ```
@@ -374,9 +399,6 @@ The application will respond with a JSON string similar to the following:
       "slidingDecision": "yes",
       "description": "Inform the supervisor"
     }
-  },
-  "decisionExplanation": {
-    "...": "..."
   }
 }
 ```
@@ -469,9 +491,6 @@ The application will respond with a JSON string similar to the following:
       "slidingDecision": "letRobotContinue",
       "description": "Let the robot continue trying"
     }
-  },
-  "decisionExplanation": {
-    "...": "..."
   }
 }
 ```
