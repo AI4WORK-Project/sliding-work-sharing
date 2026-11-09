@@ -52,6 +52,21 @@ public class OpenApiDefinitionConfig {
                 inputParamSchema.setProperties(inputParams);
             }
 
+            Schema<?> multiRequestElementSchema = openApi.getComponents()
+                    .getSchemas()
+                    .get("SlidingDecisionMultiRequestElement");
+
+            if (multiRequestElementSchema != null) {
+
+                Schema multiReqInputParamSchema = multiRequestElementSchema.getProperties().get("slidingDecisionInputParameters");
+                multiReqInputParamSchema.additionalProperties(false);
+
+                Map<String, Schema> inputParams = new LinkedHashMap<>();
+                fuzzyInferenceSystem.getFunctionBlock(null).getVariables().values().stream().filter(Variable::isInput).forEach(
+                        fuzzyVariable -> inputParams.put(fuzzyVariable.getName(), new NumberSchema())
+                );
+                multiReqInputParamSchema.setProperties(inputParams);
+            }
             Schema<?> responseSchema = openApi.getComponents()
                     .getSchemas()
                     .get("SlidingDecisionResponse");
@@ -76,6 +91,36 @@ public class OpenApiDefinitionConfig {
                 outputParamSchema.setProperties(outputParams);
             }
 
+            Schema<?> multiResponseSchema = openApi.getComponents()
+                    .getSchemas()
+                    .get("SlidingDecisionMultiResponse");
+
+            if (multiResponseSchema != null) {
+                if (multiResponseSchema.getProperties().get("decisionStatus") != null) {
+
+                    multiResponseSchema.getProperties().get("decisionStatus").setDefault(SlidingDecisionStatus.MULTI_RESPONSE);
+                }
+            }
+
+            Schema<?> multiResponseElementSchema = openApi.getComponents()
+                    .getSchemas()
+                    .get("SlidingDecisionMultiResponseElement");
+
+            if (multiResponseElementSchema != null) {
+                Schema outputParamSchema = multiResponseElementSchema.getProperties().get("slidingDecisionOutputParameters");
+
+                Map<String, Schema> outputParams = new LinkedHashMap<>();
+
+                ComposedSchema outputParamComposition = new ComposedSchema();
+                outputParamComposition.addProperty("slidingDecision", new StringSchema());
+                outputParamComposition.addProperty("description", new StringSchema());
+
+                outputParamSchema.additionalProperties(Boolean.FALSE);
+                fuzzyInferenceSystem.getFunctionBlock(null).getVariables().values().stream().filter(Variable::isOutput).forEach(
+                        fuzzyVariable -> outputParams.put(fuzzyVariable.getName(), outputParamComposition)
+                );
+                outputParamSchema.setProperties(outputParams);
+            }
         };
     }
 }
