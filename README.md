@@ -187,7 +187,13 @@ docker run --rm `
   ghcr.io/ai4work-project/sliding-work-sharing:1.1.0 `
   --spring.config.location=file:/config/application-sws-scenario.yml
 ```
+---
 
+## OpenAPI definition
+
+After starting-up the application, you can check the OpenAPI definition via the Swagger UI, which is by default accessible at:
+
+http://localhost:8080/swagger-ui/index.html
 
 ---
 
