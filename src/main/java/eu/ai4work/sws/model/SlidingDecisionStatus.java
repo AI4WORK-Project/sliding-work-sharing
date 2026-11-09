@@ -7,6 +7,10 @@ public enum SlidingDecisionStatus {
     REQUEST,
     @JsonProperty("Sliding Decision Response")
     RESPONSE,
+    @JsonProperty("Sliding Decision Multi-Request")
+    MULTI_REQUEST,
+    @JsonProperty("Sliding Decision Multi-Response")
+    MULTI_RESPONSE,
     @JsonProperty("Error - Sliding Decision not possible")
     ERROR;
 }

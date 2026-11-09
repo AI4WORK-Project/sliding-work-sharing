@@ -22,8 +22,13 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LogManager.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(InvalidInputParameterException.class)
-    public ResponseEntity<Map<String, Object>> handleUnknownInputParameterException(InvalidInputParameterException ex) {
-        return createErrorResponse(ex, DebugHint.UNKNOWN_INPUT, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Map<String, Object>> handleInvalidInputParameterException(InvalidInputParameterException ex) {
+        return createErrorResponse(ex, DebugHint.INVALID_INPUT_PARAMETERS, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidRequestIdentifierException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidRequestIdException(InvalidRequestIdentifierException ex) {
+        return createErrorResponse(ex, DebugHint.INVALID_ID, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
