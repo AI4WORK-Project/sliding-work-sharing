@@ -10,19 +10,20 @@ VAR_OUTPUT				// Define output variable
 END_VAR
 
 FUZZIFY positionOfTruckToBePrioritized
-	TERM nearFrontOfTheQueue := (5, 1) (10, 0); // near front of the queue from 0 to 5 trucks, gradually decreasing to 10 trucks
+    // near front of the queue from 0 to 5 trucks, gradually decreasing to 10 trucks
+	TERM nearFrontOfTheQueue := (5, 1) (10, 0);
 END_FUZZIFY
 
 FUZZIFY materialUrgency // in hours until the material is needed
-    TERM critical := (2, 1) (4, 0); // critical from 0 to 2 hours, gradually decrease to 4 hours
-    TERM moderate := (2, 0) (4, 1); // moderate from 10 to 4, gradually decreases from 4 to 2
+    TERM critical := (2, 1) (4, 0); // critical is from 0 to 2 hours, gradually decreasing to 4 hours
+    TERM moderate := (2, 0) (4, 1); // moderate is more than 2 hours, gradually increasing to 4 hours
 END_FUZZIFY
 
 DEFUZZIFY suggestedApproach
 	TERM autonomousReprioritization := 1; // 1 = autonomous reprioritization
 	TERM requireHumanApproval := 2;       // 2 = require human approval
 
-	METHOD : COGS;		// Use 'Center Of Gravity' defuzzification method
+	METHOD : COGS;		// Center of Gravity for Singletons (weighted average calculation)
 	DEFAULT := 2;		// Default value IS 2 (requireHumanApproval if no rule activates defuzzifier)
 END_DEFUZZIFY
 
@@ -35,7 +36,7 @@ RULEBLOCK No1
 	                THEN suggestedApproach IS autonomousReprioritization;
 	RULE B : IF positionOfTruckToBePrioritized IS NOT nearFrontOfTheQueue
 	            AND materialUrgency IS moderate
-	                THEN suggestedApproach IS requireHumanApproval;;
+	                THEN suggestedApproach IS requireHumanApproval;
 
 END_RULEBLOCK
 
